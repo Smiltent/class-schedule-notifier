@@ -1,43 +1,23 @@
 
-import { DOMParser } from "xmldom"
-import path from "path"
-import fs from "fs"
+// ================= IMPORTS =================
+import colors from "./src/util/colors.ts"
+import Schedule from "./src/schedule.ts"
+import Scraper from "./src/scraper.ts"
 
-const dataPath = path.join(__dirname, "data.txt")
-const data = fs.readFileSync(dataPath, "utf-8")
+import dotenv from "dotenv"
+dotenv.config()
 
-type Lesson = {
-    subject: string
-    teacher: string
-    room: string
+// ================= VARIABLES =================
+const url: string = process.env.WEBSITE_URL as string || "school.com"
+
+// ================= MAIN =================
+colors()
+
+try {
+    await new Scraper(url).getClassScheduleData()
+
+    new Schedule("./src/tmp/d.json")
+
+} catch (err) {
+    console.error(`Error in main file: ${err}`)
 }
-
-const lessons: Lesson[] = []
-
-function parse() {
-    const parser = new DOMParser().parseFromString(data, "image/svg+xml")
-
-    const rect = Array.from(parser.getElementsByTagName("rect"))
-
-    rect.forEach((r) => {
-        const title = r.getElementsByTagName("title")
-
-        if (title.length > 0 ) {
-            const titlee = title[0]?.textContent?.trim() || ""
-            const lines = titlee.split("\n").map((l: string) => l.trim()).filter(Boolean)
-
-            if (lines.length >= 3) {
-                const [subject, teacher, room] = lines
-
-                lessons.push({
-                    subject: subject as string,
-                    teacher: teacher as string,
-                    room: room as string
-                })
-            }
-        }
-    })
-}
-
-parse()
-console.log(lessons)
