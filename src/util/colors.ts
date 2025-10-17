@@ -1,7 +1,7 @@
 
 import chalk from "chalk"
 
-const GRAY = chalk.hex("#4c4f69")
+const GRAY = chalk.hex("#232634")
 const RED = chalk.hex("#d20f39")
 const BLUE = chalk.hex("#1e66f5")
 const ORANGE = chalk.hex("#fe640b")
@@ -12,12 +12,14 @@ function getTime() {
     
     const day = String(date.getDate()).padStart(2, '0')
     const month = String(date.getMonth() + 1).padStart(2, '0')
-    const year = date.getFullYear()
 
     const hours = String(date.getHours()).padStart(2, '0')
     const minutes = String(date.getMinutes()).padStart(2, '0')
 
-    return `${day}.${month}.${year} ${hours}:${minutes}`
+    const seconds = String(date.getSeconds()).padStart(2, '0')
+    const milliseconds = String(date.getMilliseconds()).padStart(3, '0')
+
+    return `[${day}.${month}] ${hours}:${minutes}:${seconds}:${milliseconds}`
 }
 
 export default function colors() {
@@ -26,5 +28,5 @@ export default function colors() {
     console.warn = (...args) => console.log(`${YELLOW("[WARN]")} ${args}`)
     console.debug = (...args) => console.log(`${ORANGE("[DEBUG]")} ${args}`)
     console.error = (...args) => console.log(`${RED("[ERR]")} ${args}`)
-    console.info = (...args) => console.log(BLUE(`[INFO] ${args}`))
+    console.info = (...args) => console.log(`${BLUE("[INFO]")} ${args}`)
 }
