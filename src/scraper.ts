@@ -1,5 +1,6 @@
 
 import axios from "axios"
+import path from "path"
 import fs from "fs"
 
 export default class Scraper {
@@ -19,7 +20,7 @@ export default class Scraper {
         // 54 - last week, 55 - this week (13.10)
 
         try {
-            const res = await axios.post(`${this.url}/timetable/server/regulartt.js?__func=regularttGetData`, { __args: [null, "55"], __gsh: "00000000" }, {
+            const res = await axios.post(`${this.url}/timetable/server/regulartt.js?__func=regularttGetData`, { __args: [null, "56"], __gsh: "00000000" }, {
                 headers: {
                     "Referer": this.url,
                     "Content-Type": "application/json; charset=utf-8",
@@ -43,7 +44,12 @@ export default class Scraper {
     // temprarily store the data into a file
     private async storeData(data: any) {
         try {
-            fs.writeFileSync("./src/tmp/d.json", JSON.stringify(data, null, 2))
+            var dira = path.join(__dirname, "tmp")
+            if (!fs.existsSync(dira)) { 
+                fs.mkdirSync(dira, { recursive: true }) 
+            }
+            
+            fs.writeFileSync(path.join(dira, "d.json"), JSON.stringify(data, null, 2))
             console.debug("Stored data into /tmp/d.json")
         } catch (err) {
             console.error(`Error writing file: ${err}`)

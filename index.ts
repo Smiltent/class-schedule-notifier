@@ -3,6 +3,7 @@
 import colors from "./src/util/colors.ts"
 import Schedule from "./src/schedule.ts"
 import Scraper from "./src/scraper.ts"
+import Express from "./src/express.ts"
 
 import dotenv from "dotenv"
 dotenv.config()
@@ -16,6 +17,7 @@ colors()
 try {
     await new Scraper(url).getClassScheduleData()
 
+    new Express(String(process.env.PORT) || "3000")
     new Schedule("./src/tmp/d.json")
 
 } catch (err) {
