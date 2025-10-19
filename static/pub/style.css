@@ -1,4 +1,11 @@
 
+/* =========== MAIN =========== */
+:root {
+    --l1: #232634;
+    --l2: #bcc0cc;
+    --text: #fff;
+}
+
 * {
     padding: 0;
     margin: 0;
@@ -6,9 +13,23 @@
 }
 
 body {
-    background-color: #232634;
+    background-color: var(--l1);
+    padding: 1rem;
 }
 
 h1, h2, h3, h4, h5, h6, p {
-    color: #fff
+    color: var(--text)
+}
+
+a, a:hover, a:visited {
+    color: var(--text);
+    text-decoration: none;
+}
+
+/* =========== OTHER =========== */
+.hrl {
+    width: 25%;
+    background-color: var(--l2);
+    height: 2px;
+    margin: 0.3rem 0;
 }

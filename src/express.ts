@@ -18,10 +18,21 @@ export default class Express {
     private apiRoutes() {
         this.app.use('/public', express.static(path.join(__dirname, '..', 'static', 'pub')))
 
+        this.app.use('/class', (req, res) => {
+            const filePath = path.join(__dirname, 'tmp', 'classes', `${req.path}.json`);
+            if (fs.existsSync(filePath)) {
+                res.sendFile(filePath);
+            } else {
+                res.status(404).sendFile(path.join(__dirname, '..', 'static', '404.html'));
+            }
+        });
+
         this.app.get('/', (req, res) => {
             res.sendFile(path.join(__dirname, '..', 'static', 'index.html'))
         })
-        
+        this.app.use((req, res) => {
+            res.status(404).sendFile(path.join(__dirname, '..', 'static', '404.html'));
+        });
     }
     
     private start() {
