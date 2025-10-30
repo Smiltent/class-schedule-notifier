@@ -1,5 +1,5 @@
 <h1 align="center">Class Schedule API</h1>
-<p align="center"><em>Lets you obtain Class Schedule using the API</em></p>
+<p align="center"><em>Edupage Scraper and Parser</em></p>
 
 ## What is this project?
 Our school uses Edupage to show the current classes. Their system of providing the classes to the user (front-end) is horrid, in my opinion.  

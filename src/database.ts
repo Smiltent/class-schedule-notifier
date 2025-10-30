@@ -1,47 +1,78 @@
 
-import { MongoClient } from 'mongodb'
+import mongoose from "mongoose"
 
 export default class Database {
-    private client!: MongoClient
-
+    
     constructor(uri: string) {
         this.start(uri)
     }
 
-    public async storeWeekData(week: number, name: string, data: any) {
-
+    // ================= SCHEDULE DATA =================
+    // === STORE ===
+    public async storeRawWeekData(week: string, data: any) {
+        this.store(
+            this.Collection("RawData"),
+            { [week]: data }
+        )
+        console.debug(`Stored Raw Week Data (week ${week})`)
     }
 
-    public async obtainWeekData(week: number) {
-
+    public async storeClassWeekData(classId: string, week: string, data: any) {
+        this.store(
+            this.Collection("ClassWeekData"),
+            { [week]: { [classId]: data } }
+        )
+        console.debug(`Stored Class Week Data (week ${week}; class ${classId})`)
     }
 
-    public async obtainDataByClassId(className: string) {
-
+    public async storeTeacherWeekData(teacherId: string, week: string, data: any) {
+        this.store(
+            this.Collection("TeacherWeekData"),
+            { [week]: { [week]: { [teacherId]: data } }  }
+        )
+        console.debug(`Stored Teacher Week Data (week ${week}; teacher ${teacherId})`)
     }
+    // === GET ===
 
-    public async obtainDataByTeacherId(teacherName: string) {
-
-    }
+    // ================= CONFIGURATION DATA - FUNCTIONS =================
 
     // ================= INTERNAL =================
+    // start the code
     private async start(uri: string) {
         try {
-            console.info("Connecting to database...")
-            this.client = new MongoClient(uri)
+            console.debug(`Connecting to database...`)
+            await mongoose.connect(uri)
+
             console.info("Connected to database!")
         } catch (err) {
             console.error(`Error connecting to database: ${err}`)
         }
     }
 
-    private async disconnect() {
+    // generates an model with a name (collection)
+    private Collection = (name: string) => mongoose.model(name, new mongoose.Schema({}, { strict: false }))
+
+    // stores the data
+    private async store(model: mongoose.Model<any>, rawSetData: any) {
         try {
-            await this.client.close()
-            console.info("Disconnected from database!")
+            await model.updateOne(
+                {},
+                { $set: rawSetData },
+                { upsert: true }
+            )            
         } catch (err) {
-            console.error(`Error disconnecting from database: ${err}`)
+            console.error(`Error storing data to Database: ${err}`)
         }
     }
-    
+
+    // obtains the data
+    private async get() {
+        try {
+            const data = await this.RawDataModel.findOne({}, { [week]: 1 })
+            console.debug(`Obtained raw week data (week ${week})`)
+            return data
+        } catch (err) {
+            console.error(`Error obtaining data from Database: ${err}`)
+        }
+    }
 }

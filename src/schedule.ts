@@ -1,54 +1,20 @@
 
-import friLessonTimes from "./static/friLessonTimes.json"
-import lessonTimes from "./static/lessonTimes.json"
+import dir from "./util/dir.ts"
 import path from "path"
 import fs from "fs"
 
 export default class Schedule {
-    // raw data
-    private rawJsonData: any = {}
-
     constructor(file: any, week: string) {
-        this.storeRawData(file, week)
+        // this.storeRawData(file, week)
     }
 
-    public getLessonByClassId(clazz: string) {
-
-    } 
-
-    public getLessonById(name: string) {
-
-    }
-
-    public getTeachersLessonsById(teacher: string) {
-
-    }
-
-    public getLessonTimes(weekDay: number) {
-        if (weekDay >= 7) {
-            return friLessonTimes
-        } else {
-            return lessonTimes
-        }
-    }
+    public async getClass() {}
+    public async getTeacher() {}
 
     // ================= INTERNAL =================
-    // parses the large list of data, into actual readable data
-    private async storeRawData(file: any, week: string) {
-        fs.readFile(file, "utf8", async (err, data) => {
-            this.rawJsonData = await JSON.parse(data)
-            console.debug("Stored raw data into /src/tmp/d.json")
-
-            this.parseDataIntoSeperateClasses(week)
-        })
-    }
-
-    private async parseDataIntoSeperateClasses(week: string) {
+    private async parseClassDataIntoFiles(week: string) {
         // clean up old data
-        var dir = path.join(__dirname, "tmp", "current")
-        if (fs.existsSync(dir)) {
-            fs.rmSync(dir, { recursive: true, force: true })
-        }
+        dir.removeDir(path.join(__dirname, "tmp", "classes"))
 
         const rawData = this.rawJsonData["r"]["dbiAccessorRes"]["tables"]
 
@@ -71,15 +37,15 @@ export default class Schedule {
 
         // create an empty json template
         const createEmpty = () => JSON.parse(JSON.stringify({
-            "data": {
-                "id": null,
-                "teachers": []
-            },
-            "10000": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },
-            "01000": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },
-            "00100": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },
-            "00010": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },
-            "00001": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} }
+            // "data": {
+            //     "id": null,
+            //     "teachers": []
+            // },
+            "Monday": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },
+            "Tuesday": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },
+            "Wednesday": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },
+            "Thursday": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },
+            "Friday": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} }
         }))
     
         for (const card of cards) {
@@ -140,14 +106,14 @@ export default class Schedule {
         // Write each class file
         // IMPROVE: this is a bad way of doing it
         for (const [classId, lessonsForClass] of Object.entries(lessonData)) {
-            var dir = path.join(__dirname, "tmp", "classes")
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true })
-            }
-
-            fs.writeFileSync(path.join(dir, `${classId}.json`), JSON.stringify(lessonsForClass, null, 2))
+            dir.createFile(
+                path.join(__dirname, "tmp", "classes", `${classId}.json`),
+                JSON.stringify(lessonsForClass, null, 2)
+            )
         }
 
         console.info("done!")
     }
+
+    private async parseTeacherDataIntoFiles(week: string) {}
 }

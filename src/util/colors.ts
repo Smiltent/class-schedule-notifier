@@ -22,11 +22,13 @@ function getTime() {
     return `[${day}.${month}] ${hours}:${minutes}:${seconds}:${milliseconds}`
 }
 
-export default function colors() {
+export default function colors(debugModeEnabled: boolean) {
     console.log = (...args) => process.stdout.write(`${GRAY(getTime())} ${args}\n`)
 
     console.warn = (...args) => console.log(`${YELLOW("[WARN]")} ${args}`)
-    console.debug = (...args) => console.log(`${ORANGE("[DEBUG]")} ${args}`)
-    console.error = (...args) => console.log(`${RED("[ERR]")} ${args}`)
+    console.error = (...args) => console.log(`${RED("[ERROR]")} ${args}`)
     console.info = (...args) => console.log(`${BLUE("[INFO]")} ${args}`)
+    
+    debugModeEnabled ? console.debug = (...args) => console.log(`${ORANGE("[DEBUG]")} ${args}`) : console.debug = () => {}
+    console.debug("Debug mode is enabled")
 }

@@ -1,7 +1,7 @@
 
+import dir from "./util/dir.ts"
 import axios from "axios"
 import path from "path"
-import fs from "fs"
 
 const HEADERS = (url: string) => ({
     "Referer": url,
@@ -26,18 +26,18 @@ export default class Scraper {
 
     public async getWeeksData() {
         try {
-            const res = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, 2025], __gsh: "00000000"}, {
+            const currentYear = new Date().getFullYear()
+            const res = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, currentYear], __gsh: "00000000"}, {
                 headers: HEADERS(this.url)
             })
 
             console.debug(`Successfully fetched data from ${this.url}`)
+            dir.createFile(
+                path.join(__dirname, "tmp", "week_data.json"), 
+                JSON.stringify(res.data["r"]["regular"], null, 2)
+            )
 
-            var dira = path.join(__dirname, "tmp")
-            if (!fs.existsSync(dira)) { fs.mkdirSync(dira, { recursive: true }) }
-
-            fs.writeFileSync(path.join(dira, "week_data.json"), JSON.stringify(res.data["r"]["regular"], null, 2))
-
-            return res.data["r"]["regular"];
+            return res.data["r"]["regular"]
         } catch (err) {
             console.error(`Failed to fetch weeks data from ${this.url}: ${err}`)
         }
@@ -49,15 +49,12 @@ export default class Scraper {
                 headers: HEADERS(this.url)
             })
 
-            console.debug(`Successfully fetched data from ${this.url}`)
+            dir.createFile(
+                path.join(__dirname, "tmp", `${week}.json`), 
+                JSON.stringify(res, null, 2)
+            )
 
-            var dira = path.join(__dirname, "tmp")
-            if (!fs.existsSync(dira)) { fs.mkdirSync(dira, { recursive: true }) }
-        
-            fs.writeFileSync(path.join(dira, "current.json"), JSON.stringify(res, null, 2))
-            fs.writeFileSync(path.join(dira, 'this_should_be_in_a_database', `${week}.json`), JSON.stringify(res, null, 2))
-
-            console.debug("Stored data into /tmp/current.json")
+            console.debug(`Stored data into /tmp/${week}.json`)
         } catch (err) {
             console.error(`Failed to fetch data from ${this.url}: ${err}`)
         }
