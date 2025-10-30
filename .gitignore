@@ -35,3 +35,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 bun.lock
 tmp/
+
+# the todo ("future smil, if you are reading this and you delete the git repo, you can punch me" - past smil)
+PRIVATE.md

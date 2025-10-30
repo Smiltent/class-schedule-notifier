@@ -9,17 +9,24 @@ import dotenv from "dotenv"
 dotenv.config()
 
 // ================= VARIABLES =================
-const url: string = process.env.WEBSITE_URL as string || "school.com"
+const SCRAPE_URL: string = process.env.WEBSITE_URL as string || "school.com"
+var WEEKS_DATA
 
 // ================= MAIN =================
 colors()
 
 try {
-    await new Scraper(url).getClassScheduleData()
+    const scraperClient = new Scraper(SCRAPE_URL)
 
-    new Express(String(process.env.PORT) || "3000")
-    new Schedule("./src/tmp/d.json")
+    WEEKS_DATA = await scraperClient.getWeeksData()
+    for (const week of WEEKS_DATA["timetables"]) {
+        console.debug(`Saving week ${week["tt_num"]}`)
 
+
+    }
+
+    // new Express(String(process.env.PORT) || "3000")
+    new Schedule(`./src/tmp/${WEEKS_DATA["default_num"]}.json`)
 } catch (err) {
     console.error(`Error in main file: ${err}`)
 }

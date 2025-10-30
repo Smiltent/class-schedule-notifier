@@ -6,31 +6,22 @@ import fs from "fs"
 
 export default class Schedule {
     // raw data
-    private rawData: any
     private rawJsonData: any = {}
 
-    // parsed data
-    private lessons!: JSON
-    private teachers!: JSON
-    private classes!: JSON
-
-    constructor(file: any) {
-        this.storeRawData(file)
+    constructor(file: any, week: string) {
+        this.storeRawData(file, week)
     }
 
-    public getLessonByClassName(clazz: string) {
-        // uses closeEnough() to check if its close enough to a class name
-        // returns all classes, teachers and classrooms that are during the week
+    public getLessonByClassId(clazz: string) {
+
     } 
 
-    public getLessonByName(name: string) {
-        // uses closeEnough() to check if its close enough to a lessons name
-        // returns all lessons that are 
+    public getLessonById(name: string) {
+
     }
 
-    public getTeachersLessonsByName(teacher: string) {
-        // uses closeEnough() to check if its close enough to a teachers name
-        // returns all lessons that are happening during the week to a teacher
+    public getTeachersLessonsById(teacher: string) {
+
     }
 
     public getLessonTimes(weekDay: number) {
@@ -41,28 +32,20 @@ export default class Schedule {
         }
     }
 
-    public getLessonTimeByPeriod(weekDay: number, period: number) { 
-        if (weekDay >= 7) {
-            return friLessonTimes[period]
-        } else {
-            return lessonTimes[period]
-        }
-    }
-
     // ================= INTERNAL =================
     // parses the large list of data, into actual readable data
-    private async storeRawData(file: any) {
+    private async storeRawData(file: any, week: string) {
         fs.readFile(file, "utf8", async (err, data) => {
             this.rawJsonData = await JSON.parse(data)
             console.debug("Stored raw data into /src/tmp/d.json")
 
-            this.parseDataIntoSeperateClasses()
+            this.parseDataIntoSeperateClasses(week)
         })
     }
 
-    private async parseDataIntoSeperateClasses() {
+    private async parseDataIntoSeperateClasses(week: string) {
         // clean up old data
-        var dir = path.join(__dirname, "tmp", "classes")
+        var dir = path.join(__dirname, "tmp", "current")
         if (fs.existsSync(dir)) {
             fs.rmSync(dir, { recursive: true, force: true })
         }
@@ -88,6 +71,10 @@ export default class Schedule {
 
         // create an empty json template
         const createEmpty = () => JSON.parse(JSON.stringify({
+            "data": {
+                "id": null,
+                "teachers": []
+            },
             "10000": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },
             "01000": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },
             "00100": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },
@@ -107,7 +94,7 @@ export default class Schedule {
                 id: lesson.id,
                 classroom: null,
                 name: subjectMap[lesson.subjectid]?.name,
-                teacher: teacherMap[lesson.teacherids?.[0]]?.name,
+                teachers: lesson.teacherids.map((t: string) => teacherMap[t]?.name).filter((name: string | undefined) => name),
             }
 
             // search every classroom id and assign the first one found
@@ -120,7 +107,7 @@ export default class Schedule {
             }
 
             // search every lesson, and if it matches to a specific class, assign it to it
-            const duration = lesson.durationperiods / 2 // devided by 2, because we have 
+            const duration = lesson.durationperiods / 2 // devided by 2, because we have double-periods. this will totally not cause an issue in the future
             for (const cid of lesson.classids) {
                 const classInfo = classMap[cid]
                 if (!classInfo?.name) continue
@@ -153,12 +140,12 @@ export default class Schedule {
         // Write each class file
         // IMPROVE: this is a bad way of doing it
         for (const [classId, lessonsForClass] of Object.entries(lessonData)) {
-            var dir = path.join(__dirname, "tmp", "classes");
+            var dir = path.join(__dirname, "tmp", "classes")
             if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
+                fs.mkdirSync(dir, { recursive: true })
             }
 
-            fs.writeFileSync(path.join(dir, `${classId}.json`), JSON.stringify(lessonsForClass, null, 2));
+            fs.writeFileSync(path.join(dir, `${classId}.json`), JSON.stringify(lessonsForClass, null, 2))
         }
 
         console.info("done!")
