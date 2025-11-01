@@ -6,7 +6,6 @@ import path from 'path'
 import http from 'http'
 
 import weeksRoutes from './routes/weeks.routes.ts'
-import adminRoutes from './routes/admin.routes.ts'
 import userRoutes from './routes/user.routes.ts'
 import apiRoutes from './routes/api.routes.ts'
 
@@ -50,9 +49,9 @@ export default class Express {
     // ================= API =================
     private api_v1() {
         this.app.use('/v1/weeks', weeksRoutes)
-        this.app.use('/v1/admin', adminRoutes)
-        this.app.use('/v1/user', userRoutes)
         this.app.use('/v1/api', apiRoutes)
+
+        this.app.use('/v1/user', userRoutes)
     }
 
     private express() {
