@@ -13,10 +13,12 @@ async function removeDir(path: string) {
     }
 }
 
+// TODO: bug, it causes an error. makes a directory with the file name...
 async function createFile(path: string, data: any) {
     await createDir(path)
     fs.writeFileSync(path, data)
 }
 
+// Export
 const dir = { createDir, createFile, removeDir }
 export default dir

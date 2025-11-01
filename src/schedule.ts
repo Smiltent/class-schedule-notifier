@@ -3,7 +3,7 @@ import dir from "./util/dir.ts"
 import path from "path"
 import fs from "fs"
 
-export default class Schedule {
+export default class Webserver {
     constructor(file: any, week: string) {
         // this.storeRawData(file, week)
     }
@@ -11,8 +11,12 @@ export default class Schedule {
     public async getClass() {}
     public async getTeacher() {}
 
+
+
+    public async update
+
     // ================= INTERNAL =================
-    private async parseClassDataIntoFiles(week: string) {
+    private async parseClassDataIntoFiles(week: string) { // TODO: Remake this entire function AHHHHHH
         // clean up old data
         dir.removeDir(path.join(__dirname, "tmp", "classes"))
 
@@ -36,7 +40,7 @@ export default class Schedule {
         const lessonMap = Object.fromEntries(lessons.map((l: any) => [l.id, l]))
 
         // create an empty json template
-        const createEmpty = () => JSON.parse(JSON.stringify({
+        const createEmpty = () => JSON.parse(JSON.stringify({ // TODO: make this better
             // "data": {
             //     "id": null,
             //     "teachers": []

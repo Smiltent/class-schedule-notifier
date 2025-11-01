@@ -2,7 +2,7 @@
 import mongoose from "mongoose"
 
 export default class Database {
-    
+
     constructor(uri: string) {
         this.start(uri)
     }
@@ -16,7 +16,6 @@ export default class Database {
         )
         console.debug(`Stored Raw Week Data (week ${week})`)
     }
-
     public async storeClassWeekData(classId: string, week: string, data: any) {
         this.store(
             this.Collection("ClassWeekData"),
@@ -24,7 +23,6 @@ export default class Database {
         )
         console.debug(`Stored Class Week Data (week ${week}; class ${classId})`)
     }
-
     public async storeTeacherWeekData(teacherId: string, week: string, data: any) {
         this.store(
             this.Collection("TeacherWeekData"),
@@ -32,9 +30,21 @@ export default class Database {
         )
         console.debug(`Stored Teacher Week Data (week ${week}; teacher ${teacherId})`)
     }
-    // === GET ===
 
-    // ================= CONFIGURATION DATA - FUNCTIONS =================
+    // === GET === // TODO: implement
+    public async getRawWeekData(week: string) {}
+    public async getClassWeekData(classId: string, week: string) {}
+    public async getTeacherWeekData(teacherId: string, week: string) {}
+
+    // ================= API KEYS =================
+    public async storeAPIKey(key: string, owner: string) {}
+    public async checkAPIKey(key: string): Promise<boolean> { return true }
+    public async deleteAPIKey(key: string) {}
+    public async modifyAPIKey(key: string, settings: any) {}
+
+    // ================= LOGIN / REGISTER =================
+    public async createUser(username: string, password: string) {}
+    ...
 
     // ================= INTERNAL =================
     // start the code
@@ -67,12 +77,13 @@ export default class Database {
 
     // obtains the data
     private async get() {
-        try {
-            const data = await this.RawDataModel.findOne({}, { [week]: 1 })
-            console.debug(`Obtained raw week data (week ${week})`)
-            return data
-        } catch (err) {
-            console.error(`Error obtaining data from Database: ${err}`)
-        }
+    //     try {
+    //         const data = await this.RawDataModel.findOne({}, { [week]: 1 })
+    //         console.debug(`Obtained raw week data (week ${week})`)
+    //         return data
+    //     } catch (err) {
+    //         console.error(`Error obtaining data from Database: ${err}`)
+    //     }
+    // }
     }
 }

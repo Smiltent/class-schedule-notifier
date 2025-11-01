@@ -1,10 +1,10 @@
 
 // ================= IMPORTS =================
+import Webserver from "./src/webserver.ts"
 import colors from "./src/util/colors.ts"
-import Database from "./src/database.ts"
+import Database from "./src/db/database.ts"
 import Schedule from "./src/schedule.ts"
 import Scraper from "./src/scraper.ts"
-import Express from "./src/express.ts"
 
 import dotenv from "dotenv"
 dotenv.config()
@@ -22,21 +22,21 @@ IS_DEBUG_ENABLED ? DEBUG_MODE = true : DEBUG_MODE = false
 colors(DEBUG_MODE)
 
 try {
-    const scraperClient = new Scraper(SCRAPE_URL)
+    // const scraperClient = new Scraper(SCRAPE_URL)
 
-    WEEKS_DATA = await scraperClient.getWeeksData()
-    for (const week of WEEKS_DATA["timetables"]) {
-        console.debug(`Saving week ${week["tt_num"]}`)
-    }
+    // WEEKS_DATA = await scraperClient.getWeeksData()
+    // for (const week of WEEKS_DATA["timetables"]) {
+    //     console.debug(`Saving week ${week["tt_num"]}`)
+    // }
 
-    new Express(String(process.env.PORT) || "3000")
-    const databaseClient = new Database(String(process.env.CONNECTION_STRING))
+    new Webserver(String(process.env.PORT) || "3000")
+    // const databaseClient = new Database(String(process.env.CONNECTION_STRING))
     // new Schedule(`./src/tmp/${WEEKS_DATA["default_num"]}.json`)
 
-    databaseClient.storeRawWeekData(
-        WEEKS_DATA["default_num"],
+    // databaseClient.storeRawWeekData(
+    //     WEEKS_DATA["default_num"],
         
-    )
+    // )
 } catch (err) {
     console.error(`Error in main file: ${err}`)
 }
