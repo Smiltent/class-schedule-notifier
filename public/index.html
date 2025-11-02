@@ -12,13 +12,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="main">
-        <h1><a href="/">SCHEDULE</a></h1>
-        <p></p>
+    <div class="header">
+        <!-- Left side / GitHub Latest Commit -->
+        <div class="left">
+            <a id="gitLatest"></a>
+        </div>
+
+        <!-- Right Side / Login & Register -->
+        <div class="right">
+            <span class="role c-gray"></span>
+            <span class="user c-yellow"></span>
+            <div class="flex-row">
+                <a class="c-yellow" href="/login">login</a>
+                <p class="c-orange"> // </p>
+                <a class="c-yellow" href="/register">register</a>
+            </div>
+        </div>
     </div>
-    <div class="footer">
-        <div class="hrl"></div>
-        <p><span id="gitLatest"></span></p>
+
+    <div class="main flex-col">
+        <h1>schedule</h1>
+        <a href="#">lookup class</a>
+        <a href="#">lookup teacher</a>
+        <a href="#">lookup classroom</a>
+        <a href="#">classroom map</a>
     </div>
 
     <script src="/public/script.js"></script>

@@ -8,13 +8,7 @@ export default function cronjob() {
     cron.schedule(String(process.env.NEW_WEEK_CRONJOB), () => {
         console.debug("Running Cronjob for new week updates...")
 
-        
-
-
-
-
-
-        
+    
     })
 
     // check for updates in current weeks

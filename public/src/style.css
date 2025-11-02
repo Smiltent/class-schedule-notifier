@@ -1,9 +1,18 @@
 
 /* =========== MAIN =========== */
 :root {
-    --l1: #232634;
-    --l2: #bcc0cc;
-    --text: #fff;
+    --bg: #181926;
+    --text: #cad3f5;
+    --subtext1: #949cbb;
+    --subtext2: #838ba7;
+    --subtext3: #737994;
+
+    --red: #ed8796;
+    --orange: #ef9f76;
+    --yellow: #eed49f;
+    --green: #a6da95;
+    --gray: #6c7086;
+    --dgray: #363a4f;
 }
 
 * {
@@ -13,23 +22,66 @@
 }
 
 body {
-    background-color: var(--l1);
+    background-color: var(--bg);
     padding: 1rem;
 }
 
-h1, h2, h3, h4, h5, h6, p {
-    color: var(--text)
-}
+h1, h2, h3, h4, h5, h6 { color: var(--text) }
+p { color: var(--subtext1) }
 
-a, a:hover, a:visited {
-    color: var(--text);
+a, a:visited {
+    color: var(--subtext1);
     text-decoration: none;
 }
 
-/* =========== OTHER =========== */
-.hrl {
-    width: 25%;
-    background-color: var(--l2);
-    height: 2px;
-    margin: 0.3rem 0;
+a:hover {
+    color: var(--subtext2)
+}
+
+.left { left: 0; }
+.right { right: 0; }
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25rem
+}
+
+/* =========== COLORS =========== */
+.c-red { color: var(--red) }
+.c-green { color: var(--green) }
+.c-gray { color: var(--gray) }
+.c-dgray { color: var(--dgray) }
+.c-orange { color: var(--orange) }
+
+/* =========== HEADER =========== */
+.header {
+    font-size: 0.8rem;
+    padding-bottom: 2rem;
+    top: 1rem;
+
+    color: var(--subtext3)
+}
+
+.header .right, .header .left {
+    position: absolute;
+}
+
+.header .left {
+    left: 1rem;
+}
+
+.header .right {
+    right: 1rem;
+}
+
+/* =========== MAIN =========== */
+.main {
+    padding-bottom: 2rem;
 }

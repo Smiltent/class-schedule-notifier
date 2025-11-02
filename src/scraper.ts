@@ -1,6 +1,7 @@
 
 import RawScheduleData from "./db/models/RawScheduleData.ts"
 
+import { webserverClient } from "../index.ts"
 import { isEqual } from "lodash"
 import axios from "axios"
 
@@ -55,7 +56,11 @@ export default class Scraper {
             console.debug(`Successfully fetched Schedule data from ${this.url}`)
 
             const old = await RawScheduleData.findOne({ week })
-            if (old && !isEqual(old.data, res.data)) console.debug(`Week ${week} has been modified!`)
+
+            if (old && !isEqual(old.data, res.data)) {
+                console.debug(`Week ${week} has been modified!`)
+                webserverClient.sendWSMessage(JSON.parse(`{"week": "${week}", "type": "updated"}`))
+            } else return
             
             const { upsertedCount } = await RawScheduleData.updateOne(
                 { week },

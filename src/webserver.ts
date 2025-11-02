@@ -5,8 +5,11 @@ import cors from 'cors'
 import path from 'path'
 import http from 'http'
 
+import { requireRole, userAuth } from './middlewares/auth.middleware.ts'
+
+import publicRoutes from './routes/public.routes.ts'
+import adminRoutes from './routes/admin.routes.ts'
 import weeksRoutes from './routes/weeks.routes.ts'
-import userRoutes from './routes/user.routes.ts'
 import keysRoutes from './routes/keys.routes.ts'
 
 export default class WebServer {
@@ -24,8 +27,9 @@ export default class WebServer {
         this.server = http.createServer(this.app)
         this.wss = new WebSocketServer({ server: this.server })
         
-        this.express() 
         this.api_v1()
+        
+        this.express() 
         this.ws()
 
         this.start()
@@ -52,8 +56,9 @@ export default class WebServer {
     private api_v1() {
         this.app.use('/v1/weeks', weeksRoutes)
         this.app.use('/v1/keys', keysRoutes)
+        this.app.use(`/v1/admin`, adminRoutes)
 
-        this.app.use('/v1/user', userRoutes)
+        this.app.use('/', publicRoutes)
     }
 
     private express() {
@@ -61,10 +66,6 @@ export default class WebServer {
         this.app.use(cors())
 
         this.app.use('/public', express.static(path.join(__dirname, '..', 'public', 'src')))
-
-        this.app.get('/', (req, res) => {
-            res.sendFile(path.join(__dirname, '..', 'public', 'index.html'))
-        })
 
         this.app.use((req, res) => {
             res.status(404).sendFile(path.join(__dirname, '..', 'public', '404.html'));
