@@ -2,25 +2,17 @@
 import dir from "./util/dir.ts"
 import path from "path"
 import fs from "fs"
+import RawScheduleData from "./db/models/RawScheduleData.ts"
 
-export default class Webserver {
-    constructor(file: any, week: string) {
-        // this.storeRawData(file, week)
+export default class Schedule {
+    constructor() {
+        console.debug("Running a new schedule.ts instance...")
     }
 
-    public async getClass() {}
-    public async getTeacher() {}
+    public async storeClassDataIntoDatabase(week: string) {
+        const data: any = await RawScheduleData.findOne({ week })
 
-
-
-    public async update
-
-    // ================= INTERNAL =================
-    private async parseClassDataIntoFiles(week: string) { // TODO: Remake this entire function AHHHHHH
-        // clean up old data
-        dir.removeDir(path.join(__dirname, "tmp", "classes"))
-
-        const rawData = this.rawJsonData["r"]["dbiAccessorRes"]["tables"]
+        const rawData = data["r"]["dbiAccessorRes"]["tables"]
 
         // define variables
         const classrooms = rawData[11]["data_rows"]
@@ -119,5 +111,6 @@ export default class Webserver {
         console.info("done!")
     }
 
-    private async parseTeacherDataIntoFiles(week: string) {}
+    public async storeTeacherDataIntoDatabase(week: string) {}
+
 }

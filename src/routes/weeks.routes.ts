@@ -1,5 +1,6 @@
 
 import { apiAuth } from '../middlewares/auth.middleware'
+
 import { Router } from 'express'
 const router = Router()
 

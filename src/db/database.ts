@@ -8,12 +8,12 @@ export default class Database {
 
     private async connect(uri: string) {
         try {
-            console.debug(`Connecting to database...`)
+            console.debug(`Connecting to Database...`)
             await mongoose.connect(uri)
 
-            console.info("Connected to database!")
+            console.info("Connected to Database!")
         } catch (err) {
-            console.error(`Error connecting to database: ${err}`)
+            console.error(`Error connecting to Database: ${err}`)
             process.exit(1)
         }
     }

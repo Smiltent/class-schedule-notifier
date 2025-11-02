@@ -1,7 +1,8 @@
 
-import dir from "./util/dir.ts"
+import RawScheduleData from "./db/models/RawScheduleData.ts"
+
+import { isEqual } from "lodash"
 import axios from "axios"
-import path from "path"
 
 const HEADERS = (url: string) => ({
     "Referer": url,
@@ -16,45 +17,53 @@ export default class Scraper {
     private url: string
 
     constructor(url: string) {
+        console.debug("Running a new scraper.ts instance...")
+
+        this.url = url
+
+        // adds the edupage domain
+        if (!this.url.includes("edupage.org")) {
+            this.url = `${this.url}.edupage.org`
+        }
+
         // adds the https tag, if the url does not provide it
-        if (!url.startsWith("https://") && !url.startsWith("http://")) {
-            this.url = `https://${url}`
-        } else {
-            this.url = url
+        if (!this.url.startsWith("https://") && !this.url.startsWith("http://")) {
+            this.url = `https://${this.url}`
         }
     }
 
     public async getWeeksData() {
         try {
-            const currentYear = new Date().getFullYear()
+            const currentYear = new Date().getFullYear() // might cause issues around new years...?
             const res = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, currentYear], __gsh: "00000000"}, {
                 headers: HEADERS(this.url)
             })
 
-            console.debug(`Successfully fetched data from ${this.url}`)
-            dir.createFile(
-                path.join(__dirname, "tmp", "week_data.json"), 
-                JSON.stringify(res.data["r"]["regular"], null, 2)
-            )
-
+            console.debug(`Successfully fetched Weeks data from ${this.url}`)
             return res.data["r"]["regular"]
         } catch (err) {
             console.error(`Failed to fetch weeks data from ${this.url}: ${err}`)
         }
     }
 
-    public async getClassScheduleData(week: string) {
+    public async storeScheduleDataToDatabase(week: string) {
         try {
             const res = await axios.post(`${this.url}/timetable/server/regulartt.js?__func=regularttGetData`, { __args: [null, week], __gsh: "00000000" }, {
                 headers: HEADERS(this.url)
             })
 
-            dir.createFile(
-                path.join(__dirname, "tmp", `${week}.json`), 
-                JSON.stringify(res, null, 2)
+            console.debug(`Successfully fetched Schedule data from ${this.url}`)
+
+            const old = await RawScheduleData.findOne({ week })
+            if (old && !isEqual(old.data, res.data)) console.debug(`Week ${week} has been modified!`)
+            
+            const { upsertedCount } = await RawScheduleData.updateOne(
+                { week },
+                { $set: { data: res.data }},
+                { upsert: true }
             )
 
-            console.debug(`Stored data into /tmp/${week}.json`)
+            if (upsertedCount === 1) console.debug(`Week ${week} is brand new (never been stored)`)
         } catch (err) {
             console.error(`Failed to fetch data from ${this.url}: ${err}`)
         }

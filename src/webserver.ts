@@ -7,15 +7,17 @@ import http from 'http'
 
 import weeksRoutes from './routes/weeks.routes.ts'
 import userRoutes from './routes/user.routes.ts'
-import apiRoutes from './routes/api.routes.ts'
+import keysRoutes from './routes/keys.routes.ts'
 
-export default class Express {
+export default class WebServer {
     private app: express.Express
     private wss: WebSocketServer
     private server: http.Server
     private port: string
 
     constructor(port: string) {
+        console.debug("Running a new webserver.ts instance...")
+
         this.port = port
         
         this.app = express()
@@ -49,7 +51,7 @@ export default class Express {
     // ================= API =================
     private api_v1() {
         this.app.use('/v1/weeks', weeksRoutes)
-        this.app.use('/v1/api', apiRoutes)
+        this.app.use('/v1/keys', keysRoutes)
 
         this.app.use('/v1/user', userRoutes)
     }

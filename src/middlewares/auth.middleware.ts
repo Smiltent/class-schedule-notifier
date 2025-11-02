@@ -43,7 +43,7 @@ async function apiAuth(req: AuthRequest, res: Response, next: NextFunction) {
 
         const user = await User.findById(verify.owner)
         if (!user)
-            return res.status(401).json({ success: false, message: 'Invalid API key owner' })
+            return res.status(401).json({ success: false, message: 'There is no Owner associated with this API key' })
 
         req.user = user
         req.type = 'api'
