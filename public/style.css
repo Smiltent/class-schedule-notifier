@@ -26,21 +26,16 @@ body {
     padding: 1rem;
 }
 
+/*   common tags   */
 h1, h2, h3, h4, h5, h6 { color: var(--text) }
-p { color: var(--subtext1) }
-
+p, label { color: var(--subtext1) }
+a:hover { color: var(--subtext2) }
 a, a:visited {
     color: var(--subtext1);
     text-decoration: none;
 }
 
-a:hover {
-    color: var(--subtext2)
-}
-
-.left { left: 0; }
-.right { right: 0; }
-
+/*   flex   */
 .flex-col {
     display: flex;
     flex-direction: column;
@@ -84,4 +79,25 @@ a:hover {
 /* =========== MAIN =========== */
 .main {
     padding-bottom: 2rem;
+}
+
+/* =========== FORMS =========== */
+form input {
+    font-size: 0.9rem;
+    background-color: var(--dgray);
+    border: none;
+    border-radius: 0.15rem;
+    color: var(--text);
+    padding: 0.25rem;
+}
+
+form {
+    margin-right: 1rem;
+    width: 15rem
+}
+
+@media screen and (max-aspect-ratio: 4/3) {
+    form {
+        width: 100%
+    }
 }

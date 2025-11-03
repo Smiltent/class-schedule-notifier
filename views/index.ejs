@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>schedule</title>
+
+    <link rel="stylesheet" href="/public/style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="header">
+        <!-- Left side / GitHub Latest Commit -->
+        <div class="left">
+            <a href="<%= gitUrl %>"><%= gitHash %></a>
+        </div>
+
+        <!-- Right Side / Login & Register -->
+        <div class="right">
+            <span class="role c-gray"></span>
+            <span class="user c-yellow"></span>
+            <div class="flex-row">
+                <a class="c-yellow" href="/login">login</a>
+                <p class="c-orange"> // </p>
+                <a class="c-yellow" href="/register">register</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main flex-col">
+        <h1>schedule</h1>
+        <a href="#">lookup class</a>
+        <a href="#">lookup teacher</a>
+        <a href="#">lookup classroom</a>
+        <a href="#">classroom map</a>
+    </div>
+</body>
+</html>

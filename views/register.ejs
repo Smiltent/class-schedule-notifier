@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schedule</title>
+    <title>schedule</title>
 
     <link rel="stylesheet" href="/public/style.css">
 
@@ -15,7 +15,7 @@
     <div class="header">
         <!-- Left side / GitHub Latest Commit -->
         <div class="left">
-            <a id="gitLatest"></a>
+            <a href="<%= gitUrl %>"><%= gitHash %></a>
         </div>
 
         <!-- Right Side / Login & Register -->
@@ -31,11 +31,20 @@
     </div>
 
     <div class="main flex-col">
-        <h1>schedule</h1>
-        <a href="#">lookup class</a>
-        <a href="#">lookup teacher</a>
-        <a href="#">lookup classroom</a>
-        <a href="#">classroom map</a>
+        <h1>register</h1>
+        <form id="registerForm" action="/register" method="post" class="flex-col">
+            <input type="text" name="username" id="username" placeholder="username" required>
+            <input type="password" name="password" id="pass1" placeholder="password" required>
+            <input type="password" name="passwordRepeat" id="pass2" placeholder="password again" required>
+            <input type="number" name="favoriteNumber" id="favNumb" placeholder="your favorite number" required>
+            <label>
+                <input type="checkbox" name="terms" id="terms" required>
+                can we steal your data...?
+            </label>
+            <span class="c-red" id="err"></span>
+            <span class="c-green" id="suck"></span>
+            <input type="submit" value="create account" style="cursor: pointer;">
+        </form>
     </div>
 
     <script src="/public/script.js"></script>

@@ -2,6 +2,7 @@
 import dir from "./util/dir.ts"
 import path from "path"
 import fs from "fs"
+
 import RawScheduleData from "./db/models/RawScheduleData.ts"
 
 export default class Schedule {

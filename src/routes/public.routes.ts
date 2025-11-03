@@ -8,30 +8,54 @@ import path from 'path'
 import { Router } from 'express'
 const router = Router()
 
+const COOKIE = {
+    httpOnly: true,
+    secure: process.env.ENV === 'prod',
+    sameSite: 'strict' as 'strict',
+    maxAge: 24 * 60 * 60 * 1000
+}
+
 // ===========================================================
 router.post('/register', async (req, res) => {
     try {
-        const { username, password } = req.body
-        const user = await register(username, password)
+        const { username, password, favoriteNumber } = req.body
 
-        res.status(201).json({ success: true, user})
+        await register(username, password, favoriteNumber)
+        const token = await login(username, password)
+        
+        res.cookie('token', token, COOKIE)
+
+        res.render("/register", { success: true, message: "login successful"})
     } catch (err: any) {
         console.error(`Error registering user: ${err}`)
-        res.status(400).json({ success: false, message: err.message })
+        res.redirect(`/register?success=false&message=${encodeURIComponent(err.message)}`)
     }
 })
 
 router.get('/register', (req, res) => {
-
+    res.render("register")
 })
 
 // ===========================================================
 router.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body
-        const token = await login(username, password)
+        const { token, role } = await login(username, password)
 
-        res.json({ success: true, token })
+        res.cookie('token', token, COOKIE)
+
+        switch (role) {
+            case 'user':
+                res.redirect('/')
+            break;
+            case 'manager':
+                res.redirect('/mng')
+            break;
+            case 'admin':
+                res.redirect('/adm')
+            break;  
+        }
+
     } catch (err: any) {
         console.error(`Error logging in user: ${err}`)
         res.status(401).json({ success: false, message: err.message })
@@ -39,7 +63,7 @@ router.post('/login', async (req, res) => {
 })
 
 router.get('/login', async (req, res) => {
-
+    res.render("login")
 })
 
 // ===========================================================
@@ -52,32 +76,17 @@ router.get('/logout', userAuth, async (req, res) => {
 // })
 
 // ===========================================================
-router.get('/git/hash', (req, res) => {
-    var hash = GitHub.getHash()
-    if (hash == '') return res.status(500).send("unavailable")
-
-    res.status(200).send(hash)
-})
-
-router.get('/git/url', (req, res) => {
-    var url = GitHub.getUrl()
-    if (url == '') return res.status(500)
-
-    res.status(200).send(url)
-})
-
-// ===========================================================
 
 router.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', '..', 'public', 'index.html'))
+    res.render("index")
 })
 
 router.get('/adm', userAuth, requireRole('admin'), (req, res) => {
-    res.sendFile(path.join(__dirname, '..', '..', 'public', 'admin', 'adminDashboard.html'))
+    res.render("admin/adm")
 })
 
 router.get('/mng', userAuth, requireRole('manager'), (req, res) => {
-    res.sendFile(path.join(__dirname, '..', '..', 'public', 'admin', 'apiDashboard.html'))
+    res.render("admin/mng")
 })
 
 

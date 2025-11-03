@@ -5,9 +5,7 @@ import Webserver from "./src/webserver.ts"
 import Colors from "./src/util/colors.ts"
 import GitHub from "./src/util/github.ts"
 import Schedule from "./src/schedule.ts"
-import Cronjob from "./src/cronjob.ts"
 import Scraper from "./src/scraper.ts"
-
 
 import dotenv from "dotenv"
 dotenv.config()
@@ -22,7 +20,7 @@ IS_DEBUG_ENABLED ? DEBUG_MODE = true : DEBUG_MODE = false
 
 // ================= MAIN =================
 Colors(DEBUG_MODE)
-GitHub.obtain()
+export const { hash, url } = await GitHub() 
 
 new Database(String(process.env.CONNECTION_STRING))
 

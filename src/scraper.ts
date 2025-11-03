@@ -1,9 +1,9 @@
 
-import RawScheduleData from "./db/models/RawScheduleData.ts"
-
 import { webserverClient } from "../index.ts"
 import { isEqual } from "lodash"
 import axios from "axios"
+
+import RawScheduleData from "./db/models/RawScheduleData.ts"
 
 const HEADERS = (url: string) => ({
     "Referer": url,

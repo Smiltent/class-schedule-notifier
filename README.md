@@ -8,7 +8,6 @@ This will allow, with ease, to get a specific class or teachers schedule.
 ## Technologies
 * Typescript (and their libraries, see [package.json](package.json))
 * MongoDB
-* Redis
 * & more, during the development process
 
 ## License

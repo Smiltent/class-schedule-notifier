@@ -1,16 +1,17 @@
 
 import { WebSocketServer } from 'ws'
+import bodyParser from 'body-parser'
 import express from 'express'
 import cors from 'cors'
 import path from 'path'
 import http from 'http'
 
-import { requireRole, userAuth } from './middlewares/auth.middleware.ts'
-
 import publicRoutes from './routes/public.routes.ts'
 import adminRoutes from './routes/admin.routes.ts'
 import weeksRoutes from './routes/weeks.routes.ts'
 import keysRoutes from './routes/keys.routes.ts'
+
+import { hash, url } from '../index.ts'
 
 export default class WebServer {
     private app: express.Express
@@ -27,9 +28,8 @@ export default class WebServer {
         this.server = http.createServer(this.app)
         this.wss = new WebSocketServer({ server: this.server })
         
-        this.api_v1()
-        
         this.express() 
+        this.api_v1()
         this.ws()
 
         this.start()
@@ -52,6 +52,20 @@ export default class WebServer {
 
     public sendWSMessage(msg: string) { this.wss.clients.forEach(c => c.send(msg)) }
 
+    // ================= EXPRESS =================
+    private express() {
+        this.app.use('/public', express.static(path.join(__dirname, '..', 'public')))
+        this.app.set("view engine", "ejs");
+
+        this.app.use(bodyParser.urlencoded({ extended: true }));
+        this.app.use(express.json())
+        this.app.use(cors())
+        
+        
+        this.app.locals.gitHash = hash
+        this.app.locals.gitUrl = url
+    }
+
     // ================= API =================
     private api_v1() {
         this.app.use('/v1/weeks', weeksRoutes)
@@ -59,16 +73,8 @@ export default class WebServer {
         this.app.use(`/v1/admin`, adminRoutes)
 
         this.app.use('/', publicRoutes)
-    }
-
-    private express() {
-        this.app.use(express.json())
-        this.app.use(cors())
-
-        this.app.use('/public', express.static(path.join(__dirname, '..', 'public', 'src')))
-
         this.app.use((req, res) => {
-            res.status(404).sendFile(path.join(__dirname, '..', 'public', '404.html'));
+            res.status(404).render("404")
         })
     }
     

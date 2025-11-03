@@ -11,23 +11,22 @@ interface AuthRequest extends Request {
 
 async function userAuth(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-        const header = req.headers.authorization
-        if (!header || !header.startsWith('Bearer '))
-            return res.status(401).json({ success: false, message: 'Unauthorized' })
+        const token = req.cookies?.token
+        if (!token)
+            return res.status(401).json({ message: 'Unauthorized' })
 
-        const token = String(header.split(' ')[1])
-        const check: any = jwt.verify(token, String(process.env.JWT_SECRET))
+        const payload: any = jwt.verify(token, String(process.env.JWT_SECRET))
 
-        const user = await User.findById(check.id)
+        const user = await User.findById(payload.id)
         if (!user)
-            return res.status(401).json({ success: false, message: 'Unauthorized' })
+            return res.status(401).json({ message: 'Unauthorized' })
 
         req.user = user
         req.type = 'jwt'
         next()
     } catch (err) {
         console.error(`JWT Authentication error: ${err}`)
-        return res.status(401).json({ success: false, message: 'Unauthorized' })
+        return res.status(401).json({ message: 'Unauthorized' })
     }
 }
 
@@ -35,13 +34,13 @@ async function apiAuth(req: AuthRequest, res: Response, next: NextFunction) {
     try {
         const apiKey = req.headers['x-api-key'] as string | undefined
         if (!apiKey)
-            return res.status(401).json({ success: false, message: 'Missing API key' })
+            return res.status(401).json({ success: false, message: 'Missing API key (header: x-api-key)' })
 
-        const verify = await ApiKeys.findOne({ key: apiKey })
-        if (!verify)
+        const payload = await ApiKeys.findOne({ key: apiKey })
+        if (!payload)
             return res.status(401).json({ success: false, message: 'Invalid API key' })
 
-        const user = await User.findById(verify.owner)
+        const user = await User.findById(payload.owner)
         if (!user)
             return res.status(401).json({ success: false, message: 'There is no Owner associated with this API key' })
 
