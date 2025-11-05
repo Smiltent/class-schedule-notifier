@@ -13,20 +13,20 @@ async function userAuth(req: AuthRequest, res: Response, next: NextFunction) {
     try {
         const token = req.cookies?.token
         if (!token)
-            return res.status(401).redirect("/")
+            return res.status(401).redirect("/") // if no token
 
         const payload: any = jwt.verify(token, String(process.env.JWT_SECRET))
 
         const user = await User.findById(payload.id)
         if (!user)
-            return res.status(401).redirect("/")
+            return res.status(401).redirect("/") // if user doesnt exist
 
         req.user = user
         req.type = 'jwt'
         next()
     } catch (err) {
         console.error(`JWT Authentication error: ${err}`)
-        return res.redirect("/")
+        return res.status(500).redirect("/err")
     }
 }
 
@@ -49,18 +49,18 @@ async function apiAuth(req: AuthRequest, res: Response, next: NextFunction) {
         next()
     } catch (err) {
         console.error(`API Authentication error: ${err}`)
-        return res.status(401).json({ success: false, message: 'Unauthorized' })
+        return res.status(500).json({ success: false, message: 'Internal Server Error' })
     }
 }
 
 function requireRole(role: string) {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
         if (!req.user)
-            return res.status(401).redirect("/")
+            return res.status(401).redirect("/") // if not logged in
 
-        if (req.user.role !== role && req.user.role !== "admin")
+        if (req.user.role !== role && req.user.role !== "admin") // if doesn't match role or isnt admin, redirect back to /
             return res.status(403).redirect("/")
-        
+
         next()
     }
 }

@@ -5,7 +5,7 @@ const GRAY = chalk.hex("#232634")
 const RED = chalk.hex("#d20f39")
 const BLUE = chalk.hex("#1e66f5")
 const ORANGE = chalk.hex("#fe640b")
-const YELLOW = chalk.hex("#df8e1d")
+const YELLOW = chalk.hex("#dfbc1dff")
 
 function getTime() {
     const date = new Date()
@@ -30,5 +30,5 @@ export default function colors(debugModeEnabled: boolean) {
     console.info = (...args) => console.log(`${BLUE("[INFO]")} ${args}`)
     
     debugModeEnabled ? console.debug = (...args) => console.log(`${ORANGE("[DEBUG]")} ${args}`) : console.debug = () => {}
-    console.debug("Debug mode is enabled")
+    console.warn("Debug mode is enabled")
 }

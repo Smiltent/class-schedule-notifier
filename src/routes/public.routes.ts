@@ -1,6 +1,7 @@
 
 import { userAuth, requireRole } from "../middlewares/auth.middleware"
 import { register, login } from "../services/auth.service"
+import rateLimit from "express-rate-limit"
 
 import { Router } from 'express'
 const router = Router()
@@ -11,6 +12,14 @@ const COOKIE = {
     sameSite: 'strict' as 'strict',
     maxAge: 24 * 60 * 60 * 1000
 }
+
+const RATELIMIT = rateLimit({
+    windowMs: 20 * 60 * 1000, // 20 min
+    limit: 20,
+    handler: (req, res) => {
+        res.status(429).render("error")
+    }
+})
 
 // ===========================================================
 router.post('/register', async (req, res) => {
@@ -24,15 +33,14 @@ router.post('/register', async (req, res) => {
         
         res.cookie('token', token, COOKIE)
 
-        res.render("register", { success: true, message: "login successful" })
+        res.render("dError", { dError: "login successful", dErrorColor: "c-green" } )
     } catch (err: any) {
         console.error(`Error registering user: ${err}`)
-        // TODO: remake
-        res.redirect(`/register?success=false&message=${encodeURIComponent(err.message)}`)
+        res.status(400).render("dError", { dError: err.message, dErrorColor: "c-red" } )
     }
 })
 
-router.get('/register', (req, res) => {
+router.get('/register', RATELIMIT, (req, res) => {
     if (req.cookies?.token) return res.redirect('/')
     res.render("register")
 })
@@ -50,11 +58,11 @@ router.post('/login', async (req, res) => {
         res.redirect('/')
     } catch (err: any) {
         console.error(`Error logging in user: ${err}`)
-        res.redirect(`/err`)
+        res.status(400).render("dError", { dError: err.message, dErrorColor: "c-red" } )
     }
 })
 
-router.get('/login', async (req, res) => {
+router.get('/login', RATELIMIT, async (req, res) => {
     if (req.cookies?.token) return res.redirect('/')
     res.render("login")
 })
@@ -75,12 +83,16 @@ router.get('/teapot', (req, res) => {
     res.status(418).render("error")
 })
 
-router.get('/adm', userAuth, requireRole('admin'), (req, res) => {
-    res.render("admin/adm")
+router.get('/admin/user', userAuth, requireRole('admin'), (req, res) => {
+    res.render("admin/usr")
 })
 
-router.get('/mng', userAuth, requireRole('manager'), (req, res) => {
-    res.render("admin/mng")
+router.get('/admin/schedule', userAuth, requireRole('admin'), (req, res) => {
+    res.render("admin/sch")
+})
+
+router.get('/admin/api', userAuth, requireRole('manager'), (req, res) => {
+    res.render("admin/api")
 })
 
 

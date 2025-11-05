@@ -52,8 +52,10 @@ export default class Scraper {
             const res = await axios.post(`${this.url}/timetable/server/regulartt.js?__func=regularttGetData`, { __args: [null, week], __gsh: "00000000" }, {
                 headers: HEADERS(this.url)
             })
+            
+            const data = res.data["r"]["dbiAccessorRes"]["tables"]
 
-            console.debug(`Successfully fetched Schedule data from ${this.url}`)
+            console.debug(`Successfully fetched Week ${week} data from ${this.url}`)
 
             // yes, the message is in plural
             if (res.data["r"]["error"] === "Timetable does not exists") {
@@ -64,20 +66,21 @@ export default class Scraper {
 
             // checks if its been modified | TODO: make it notify what changes have been made and store them
             const old = await RawScheduleData.findOne({ week })
-            if (old && !isEqual(old.data, res.data)) {
+            if (old && !isEqual(old.data, data)) {
                 console.debug(`Week ${week} has been modified!`)
                 webserverClient.sendWSMessage(JSON.parse(`{"week": "${week}", "type": "updated"}`))
+            } else if (!old) {
+                console.debug(`Week ${week} is brand new (never been stored)`)
+                webserverClient.sendWSMessage(JSON.parse(`{"week": "${week}", "type": "new"}`))
             } else return
             
             // store into database
-            const { upsertedCount } = await RawScheduleData.updateOne(
+            console.debug(`Storing Week ${week} into Database`)
+            await RawScheduleData.updateOne(
                 { week },
-                { $set: { data: res.data }},
+                { $set: { data }},
                 { upsert: true }
             )
-
-            // checks if the week is not in the database
-            if (upsertedCount === 1) console.debug(`Week ${week} is brand new (never been stored)`)
         } catch (err) {
             console.error(`Failed to fetch data from ${this.url}: ${err}`)
         }

@@ -40,7 +40,20 @@ new Database(String(process.env.CONNECTION_STRING))
 export const scraperClient = new Scraper(String(process.env.WEBSITE_URL))
 export const webserverClient = new Webserver(String(process.env.PORT) || "3000")
 
-WEEKS_DATA = await scraperClient.getWeeksData()
-for (const week of WEEKS_DATA["timetables"]) {
-    scraperClient.storeScheduleDataToDatabase(week["tt_num"])
+async function obtainWeeksData() {
+    WEEKS_DATA = await scraperClient.getWeeksData()
 }
+
+async function storeRawWeeksData() {
+    for (const week of WEEKS_DATA["timetables"]) {
+        await scraperClient.storeScheduleDataToDatabase(week["tt_num"])
+    }
+}
+
+await obtainWeeksData()
+await storeRawWeeksData()
+
+setInterval(async () => {
+    await obtainWeeksData()
+    await storeRawWeeksData()
+}, 15 * 60 * 1000) // 15 min

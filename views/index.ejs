@@ -43,5 +43,16 @@
         <a href="#">lookup classroom</a>
         <a href="#">classroom map</a>
     </div>
+
+    <% if (userRole == 'admin' || userRole == 'manager') { %>
+        <div class="admin flex-col">
+            <h2>admin</h2>
+            <a href="/admin/api">manage api keys</a>
+            <% if (userRole == 'admin') { %>
+                <a href="/admin/schedule">manage schedule</a>
+                <a href="/admin/user">manage users</a>
+            <%  } %>
+        </div>
+    <%  } %>
 </body>
 </html>
