@@ -1,5 +1,5 @@
 
-import { webserverClient } from "../index.ts"
+import { webserverClient, setWeeksData } from "../index.ts"
 import { isEqual } from "lodash"
 import axios from "axios"
 
@@ -55,19 +55,28 @@ export default class Scraper {
 
             console.debug(`Successfully fetched Schedule data from ${this.url}`)
 
-            const old = await RawScheduleData.findOne({ week })
+            // yes, the message is in plural
+            if (res.data["r"]["error"] === "Timetable does not exists") {
+                console.debug(`Week ${week} has been removed`)
+                setWeeksData(await this.getWeeksData())
+                return
+            }
 
+            // checks if its been modified | TODO: make it notify what changes have been made and store them
+            const old = await RawScheduleData.findOne({ week })
             if (old && !isEqual(old.data, res.data)) {
                 console.debug(`Week ${week} has been modified!`)
                 webserverClient.sendWSMessage(JSON.parse(`{"week": "${week}", "type": "updated"}`))
             } else return
             
+            // store into database
             const { upsertedCount } = await RawScheduleData.updateOne(
                 { week },
                 { $set: { data: res.data }},
                 { upsert: true }
             )
 
+            // checks if the week is not in the database
             if (upsertedCount === 1) console.debug(`Week ${week} is brand new (never been stored)`)
         } catch (err) {
             console.error(`Failed to fetch data from ${this.url}: ${err}`)

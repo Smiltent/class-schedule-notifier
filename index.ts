@@ -11,16 +11,29 @@ import dotenv from "dotenv"
 dotenv.config()
 
 // ================= VARIABLES =================
-export var DEBUG_MODE: boolean = false
-export var WEEKS_DATA: any
+export const { hash, url } = await GitHub()
+var DEBUG_MODE: boolean = false
+var WEEKS_DATA: any = {}
 
 // ================= ARGUMENTS ================= 
 const IS_DEBUG_ENABLED = process.argv.includes("--debug") || process.argv.includes("-d")
 IS_DEBUG_ENABLED ? DEBUG_MODE = true : DEBUG_MODE = false
 
+// ================= FUNCTIONS =================
+export function getDebugMode(): boolean {
+    return DEBUG_MODE
+}
+
+export function getWeeksData(): any {
+    return WEEKS_DATA
+}
+
+export function setWeeksData(data: any) {
+    WEEKS_DATA = data
+}
+
 // ================= MAIN =================
 Colors(DEBUG_MODE)
-export const { hash, url } = await GitHub() 
 
 new Database(String(process.env.CONNECTION_STRING))
 

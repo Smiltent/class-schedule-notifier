@@ -54,6 +54,7 @@ a, a:visited {
 .c-gray { color: var(--gray) }
 .c-dgray { color: var(--dgray) }
 .c-orange { color: var(--orange) }
+.c-yellow { color: var(--yellow) }
 
 /* =========== HEADER =========== */
 .header {

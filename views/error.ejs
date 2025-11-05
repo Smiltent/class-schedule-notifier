@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>schedule</title>
+
+    <link rel="stylesheet" href="/public/style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="main">
+        <h1><a href="/"><span id="errorCode"></span> | click to return back</a></h1>
+        <p><span id="errorMessage"></span></p>
+    </div>
+
+    <script>
+        // idk how else to do it, but this is WAY funnier
+        const errorCodes = {
+            " ": "error not provided, i blame you",
+            
+            "400": "bad request",
+            "401": "unauthorized; you aren't logged in",
+            "402": "you didn't pay me, i accept eban, paypal, crypto & food",
+            "403": "forbidden; you need permission to access this page",
+            "404": "page not found",
+            "405": "method not allowed",
+            "406": "not acceptable",
+            "408": "request timeout",
+            "410": "gone, like my father",
+            "418": "i'm a teapot",
+
+            "500": "internal server error; most likely database went down",
+            "503": "service unavailable; we are getting ddosed",
+        }
+
+        const err = "<%= httpStatus %>"
+        document.getElementById("errorCode").innerText = err
+        document.getElementById("errorMessage").innerText = errorCodes[err]
+    </script>
+</body>
+</html>

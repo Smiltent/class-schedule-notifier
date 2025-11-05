@@ -1,8 +1,8 @@
 
 import type { Request, Response, NextFunction } from "express"
+import ApiKeys from "../db/models/ApiKeys"
 import User from "../db/models/User"
 import jwt from "jsonwebtoken"
-import ApiKeys from "../db/models/ApiKeys"
 
 interface AuthRequest extends Request {
     user?: any
@@ -13,20 +13,20 @@ async function userAuth(req: AuthRequest, res: Response, next: NextFunction) {
     try {
         const token = req.cookies?.token
         if (!token)
-            return res.status(401).json({ message: 'Unauthorized' })
+            return res.status(401).redirect("/")
 
         const payload: any = jwt.verify(token, String(process.env.JWT_SECRET))
 
         const user = await User.findById(payload.id)
         if (!user)
-            return res.status(401).json({ message: 'Unauthorized' })
+            return res.status(401).redirect("/")
 
         req.user = user
         req.type = 'jwt'
         next()
     } catch (err) {
         console.error(`JWT Authentication error: ${err}`)
-        return res.status(401).json({ message: 'Unauthorized' })
+        return res.redirect("/")
     }
 }
 
@@ -56,11 +56,10 @@ async function apiAuth(req: AuthRequest, res: Response, next: NextFunction) {
 function requireRole(role: string) {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
         if (!req.user)
-            return res.status(401).json({ success: false, message: 'Unauthorized' })
+            return res.status(401).redirect("/")
 
         if (req.user.role !== role)
-            return res.status(403).json({ success: false, message: 'Forbidden' })
-
+            return res.status(403).redirect("/")
         next()
     }
 }

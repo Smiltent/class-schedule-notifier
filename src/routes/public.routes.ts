@@ -1,9 +1,6 @@
 
 import { userAuth, requireRole } from "../middlewares/auth.middleware"
 import { register, login } from "../services/auth.service"
-import GitHub from "../util/github"
-
-import path from 'path'
 
 import { Router } from 'express'
 const router = Router()
@@ -17,6 +14,8 @@ const COOKIE = {
 
 // ===========================================================
 router.post('/register', async (req, res) => {
+    if (req.cookies?.token) return res.redirect('/')
+
     try {
         const { username, password, favoriteNumber } = req.body
 
@@ -25,60 +24,56 @@ router.post('/register', async (req, res) => {
         
         res.cookie('token', token, COOKIE)
 
-        res.render("/register", { success: true, message: "login successful"})
+        res.render("register", { success: true, message: "login successful" })
     } catch (err: any) {
         console.error(`Error registering user: ${err}`)
+        // TODO: remake
         res.redirect(`/register?success=false&message=${encodeURIComponent(err.message)}`)
     }
 })
 
 router.get('/register', (req, res) => {
+    if (req.cookies?.token) return res.redirect('/')
     res.render("register")
 })
 
 // ===========================================================
 router.post('/login', async (req, res) => {
+    if (req.cookies?.token) return res.redirect('/')
+
     try {
         const { username, password } = req.body
-        const { token, role } = await login(username, password)
+        const token = await login(username, password)
 
         res.cookie('token', token, COOKIE)
 
-        switch (role) {
-            case 'user':
-                res.redirect('/')
-            break;
-            case 'manager':
-                res.redirect('/mng')
-            break;
-            case 'admin':
-                res.redirect('/adm')
-            break;  
-        }
-
+        res.redirect('/')
     } catch (err: any) {
         console.error(`Error logging in user: ${err}`)
+        // TODO: remake
         res.status(401).json({ success: false, message: err.message })
     }
 })
 
 router.get('/login', async (req, res) => {
+    if (req.cookies?.token) return res.redirect('/')
     res.render("login")
 })
 
 // ===========================================================
 router.get('/logout', userAuth, async (req, res) => {
-    // TODO:
+    res.clearCookie('token')
+    res.redirect('/')
 })
-
-// router.post('/logout', userAuth, async (req, res) => {
-//     
-// })
 
 // ===========================================================
 
 router.get('/', (req, res) => {
     res.render("index")
+})
+
+router.get('/teapot', (req, res) => {
+    res.status(418).render("error")
 })
 
 router.get('/adm', userAuth, requireRole('admin'), (req, res) => {

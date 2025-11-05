@@ -1,4 +1,5 @@
 
+import cookieParser from 'cookie-parser'
 import { WebSocketServer } from 'ws'
 import bodyParser from 'body-parser'
 import express from 'express'
@@ -6,6 +7,7 @@ import cors from 'cors'
 import path from 'path'
 import http from 'http'
 
+import { root } from './middlewares/root.middleware.ts'
 import publicRoutes from './routes/public.routes.ts'
 import adminRoutes from './routes/admin.routes.ts'
 import weeksRoutes from './routes/weeks.routes.ts'
@@ -57,10 +59,12 @@ export default class WebServer {
         this.app.use('/public', express.static(path.join(__dirname, '..', 'public')))
         this.app.set("view engine", "ejs");
 
-        this.app.use(bodyParser.urlencoded({ extended: true }));
+        this.app.use(bodyParser.urlencoded({ extended: true }))
+        this.app.use(cookieParser())
         this.app.use(express.json())
         this.app.use(cors())
         
+        this.app.use(root)
         
         this.app.locals.gitHash = hash
         this.app.locals.gitUrl = url
@@ -74,7 +78,8 @@ export default class WebServer {
 
         this.app.use('/', publicRoutes)
         this.app.use((req, res) => {
-            res.status(404).render("404")
+            res.status(404)
+            res.render("error")
         })
     }
     

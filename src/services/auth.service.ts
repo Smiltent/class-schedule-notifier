@@ -22,13 +22,9 @@ async function login(username: string, password: string) {
 
     const isValid = await bcrypt.compare(password, user.password)
     if (!isValid) throw new Error('Invalid password')
-
     console.debug('a user has logged in')
 
-    return {
-        token: jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: '1d' }),
-        role: user.role
-    }
+    return jwt.sign({ id: user._id, username: user.username, role: user.role }, process.env.JWT_SECRET!, { expiresIn: '1d' })
 }
 
 export { register, login }

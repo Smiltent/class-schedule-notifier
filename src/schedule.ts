@@ -34,10 +34,6 @@ export default class Schedule {
 
         // create an empty json template
         const createEmpty = () => JSON.parse(JSON.stringify({ // TODO: make this better
-            // "data": {
-            //     "id": null,
-            //     "teachers": []
-            // },
             "Monday": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },
             "Tuesday": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },
             "Wednesday": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {} },

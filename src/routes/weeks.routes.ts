@@ -5,42 +5,42 @@ import { Router } from 'express'
 const router = Router()
 
 // ===========================================================
-router.post('/list', apiAuth, (req, res) => {
+router.get('/list', apiAuth, (req, res) => {
     
 })
 
 // ===========================================================
-router.post('/class/list', apiAuth, (req, res) => {
+router.get('/class/list', apiAuth, (req, res) => {
     
 })
 
-router.post('/class/:id/currentweek', apiAuth, (req, res) => {
-    
+router.get('/class/:id/currentweek', apiAuth, (req, res) => {
+    const { id } = req.params
 })
 
-router.post('/class/:id/upcomingweek', apiAuth, (req, res) => {
-    
+router.get('/class/:id/upcomingweek', apiAuth, (req, res) => {
+    const { id } = req.params
 })
 
-router.post('/class/:id/week/:week', apiAuth, (req, res) => {
-    
+router.get('/class/:id/week/:week', apiAuth, (req, res) => {
+    const { id, week } = req.params
 })
 
 // ===========================================================
-router.post('/teacher/list', apiAuth, (req, res) => {
+router.get('/teacher/list', apiAuth, (req, res) => {
     
 })
 
-router.post('/teacher/:id/currentweek', apiAuth, (req, res) => {
-    
+router.get('/teacher/:id/currentweek', apiAuth, (req, res) => {
+    const { id } = req.params
 })
 
-router.post('/teacher/:id/upcomingweek', apiAuth, (req, res) => {
-    
+router.get('/teacher/:id/upcomingweek', apiAuth, (req, res) => {
+    const { id } = req.params
 })
 
-router.post('/teacher/:id/week/:week', apiAuth, (req, res) => {
-    
+router.get('/teacher/:id/week/:week', apiAuth, (req, res) => {
+    const { id, week } = req.params
 })
 
 // ===========================================================
