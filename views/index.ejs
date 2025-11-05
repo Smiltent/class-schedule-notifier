@@ -15,7 +15,11 @@
     <div class="header">
         <!-- Left side / GitHub Latest Commit -->
         <div class="left">
-            <a href="<%= gitUrl %>"><%= gitHash %></a>
+            <div class="flex-row">
+                <a href="/">home</a>
+                <p class="c-orange"> // </p>
+                <a href="<%= gitUrl %>"><%= gitHash %></a>
+            </div>
         </div>
 
         <!-- Right Side / Login & Register -->
@@ -23,8 +27,8 @@
             <span class="role c-gray"></span>
             <span class="user c-yellow"></span>
             <div class="flex-row">
-                <% if (userName) { %>
-                    <p><%= userName %> (<%= userRole %>)</p>
+                <% if (user.name) { %>
+                    <p><%= user.name %> (<%= user.role %>)</p>
                     <p class="c-orange"> // </p>
                     <a href="/logout">logout</a>
                 <% } else { %>
@@ -44,11 +48,11 @@
         <a href="#">classroom map</a>
     </div>
 
-    <% if (userRole == 'admin' || userRole == 'manager') { %>
+    <% if (user.role == 'admin' || user.role == 'manager') { %>
         <div class="admin flex-col">
             <h2>admin</h2>
             <a href="/admin/api">manage api keys</a>
-            <% if (userRole == 'admin') { %>
+            <% if (user.role == 'admin') { %>
                 <a href="/admin/schedule">manage schedule</a>
                 <a href="/admin/user">manage users</a>
             <%  } %>

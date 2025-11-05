@@ -3,6 +3,8 @@ import User from "../db/models/User"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 
+// TODO: make sure these all are in a try {} block
+
 async function register(username: string, password: string, favoriteNumber: number, role: string = 'user') {
     console.debug("creating new user...")
 
@@ -24,7 +26,18 @@ async function login(username: string, password: string) {
     if (!isValid) throw new Error('invalid password')
     console.debug('a user has logged in')
 
-    return jwt.sign({ id: user._id, username: user.username, role: user.role }, process.env.JWT_SECRET!, { expiresIn: '1d' })
+    return jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: '1d' })
 }
 
-export { register, login }
+async function deletee(username: string) {
+    const user = await User.findOne({ username })
+    if (!user) throw new Error('user not found')
+
+    await User.deleteOne({ _id: user._id })
+    console.debug(`user ${username} deleted`)
+
+    return true
+}
+
+
+export { register, login, deletee }

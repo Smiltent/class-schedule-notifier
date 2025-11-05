@@ -12,37 +12,37 @@ interface AuthRequest extends Request {
 async function userAuth(req: AuthRequest, res: Response, next: NextFunction) {
     try {
         const token = req.cookies?.token
-        if (!token)
-            return res.status(401).redirect("/") // if no token
+        if (!token) // if no token found
+            return res.status(403).render("error") 
 
         const payload: any = jwt.verify(token, String(process.env.JWT_SECRET))
 
         const user = await User.findById(payload.id)
-        if (!user)
-            return res.status(401).redirect("/") // if user doesnt exist
+        if (!user) // if user doesnt exist
+            return res.status(403).render("error")
 
         req.user = user
         req.type = 'jwt'
         next()
     } catch (err) {
         console.error(`JWT Authentication error: ${err}`)
-        return res.status(500).redirect("/err")
+        return res.status(500).render("error")
     }
 }
 
 async function apiAuth(req: AuthRequest, res: Response, next: NextFunction) {
     try {
         const apiKey = req.headers['x-api-key'] as string | undefined
-        if (!apiKey)
-            return res.status(401).json({ success: false, message: 'Missing API key (header: x-api-key)' })
+        if (!apiKey) // no api key provided
+            return res.status(403).json({ success: false, message: 'Forbidden: Missing API key (header: x-api-key)' })
 
         const payload = await ApiKeys.findOne({ key: apiKey })
-        if (!payload)
-            return res.status(401).json({ success: false, message: 'Invalid API key' })
+        if (!payload) // no active api key
+            return res.status(403).json({ success: false, message: 'Forbidden: Invalid API key' })
 
         const user = await User.findById(payload.owner)
-        if (!user)
-            return res.status(401).json({ success: false, message: 'There is no Owner associated with this API key' })
+        if (!user) // happens on user deletion (just in case)
+            return res.status(500).json({ success: false, message: 'Internal Server Error: There is no Owner associated with this API key' })
 
         req.user = user
         req.type = 'api'
@@ -55,11 +55,11 @@ async function apiAuth(req: AuthRequest, res: Response, next: NextFunction) {
 
 function requireRole(role: string) {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
-        if (!req.user)
-            return res.status(401).redirect("/") // if not logged in
+        if (!req.user) // if not logged in
+            return res.status(401).render("error")
 
-        if (req.user.role !== role && req.user.role !== "admin") // if doesn't match role or isnt admin, redirect back to /
-            return res.status(403).redirect("/")
+        if (req.user.role !== role && req.user.role !== "admin") // if doesn't match role or isnt admin
+            return res.status(403).render("error")
 
         next()
     }

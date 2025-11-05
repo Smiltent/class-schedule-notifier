@@ -72,9 +72,9 @@ export default class WebServer {
 
     // ================= API =================
     private api_v1() {
-        this.app.use('/v1/weeks', weeksRoutes)
-        this.app.use('/v1/keys', keysRoutes)
-        this.app.use(`/v1/admin`, adminRoutes)
+        this.app.use('/api/v1/weeks', weeksRoutes)
+        this.app.use('/api/v1/keys', keysRoutes)
+        this.app.use(`/api/v1/admin`, adminRoutes)
 
         this.app.use('/', publicRoutes)
         this.app.use((req, res) => {

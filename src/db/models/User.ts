@@ -10,5 +10,7 @@ export default mongoose.model('User', new Schema({
         required: true, 
         default: "user", 
         enum: ["user", "manager", "admin"] 
-    }
+    },
+    createdAt: { type: Date, required: true, default: Date.now },
+    apiKeyLimit: { type: Number, required: true, default: 2 }
 }))

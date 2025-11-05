@@ -15,7 +15,11 @@
     <div class="header">
         <!-- Left side / GitHub Latest Commit -->
         <div class="left">
-            <a href="<%= gitUrl %>"><%= gitHash %></a>
+            <div class="flex-row">
+                <a href="/">home</a>
+                <p class="c-orange"> // </p>
+                <a href="<%= gitUrl %>"><%= gitHash %></a>
+            </div>
         </div>
 
         <!-- Right Side / Login & Register -->

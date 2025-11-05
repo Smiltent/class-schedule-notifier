@@ -1,12 +1,15 @@
 
+import RawScheduleData from '../db/models/RawScheduleData'
 import { apiAuth } from '../middlewares/auth.middleware'
 
 import { Router } from 'express'
 const router = Router()
 
 // ===========================================================
-router.get('/list', apiAuth, (req, res) => {
-    
+router.get('/listWeeks', apiAuth, (req, res) => {
+    const weeks = RawScheduleData.distinct('week')
+
+    res.json({ success: true, weeks })
 })
 
 // ===========================================================
