@@ -50,8 +50,7 @@ router.post('/login', async (req, res) => {
         res.redirect('/')
     } catch (err: any) {
         console.error(`Error logging in user: ${err}`)
-        // TODO: remake
-        res.status(401).json({ success: false, message: err.message })
+        res.redirect(`/err`)
     }
 })
 
