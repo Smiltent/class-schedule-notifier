@@ -1,5 +1,5 @@
 
-import { webserverClient, setWeeksData } from "../index.ts"
+import { webserverClient } from "../index.ts"
 import { isEqual } from "lodash"
 import axios from "axios"
 
@@ -16,6 +16,7 @@ const HEADERS = (url: string) => ({
 
 export default class Scraper {
     private url: string
+    private weeks: any
 
     constructor(url: string) {
         console.debug("Running a new scraper.ts instance...")
@@ -33,40 +34,46 @@ export default class Scraper {
         }
     }
 
-    public async getWeeksData() {
+    public async storeAllWeeksToDatabase() {
+        this.weeks = await this.getWeeksData()
+
+        for (const week of this.weeks["timetables"]) {
+            await this.storeWeekToDatabase(week["tt_num"])
+        }
+    }
+
+    // ================= INTERNAL =================
+    private async getWeeksData() {
         try {
             const currentYear = new Date().getFullYear() // might cause issues around new years...?
             const res = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, currentYear], __gsh: "00000000"}, {
                 headers: HEADERS(this.url)
             })
 
-            console.debug(`Successfully fetched Weeks data from ${this.url}`)
             return res.data["r"]["regular"]
         } catch (err) {
             console.error(`Failed to fetch weeks data from ${this.url}: ${err}`)
+            return null
         }
     }
 
-    public async storeScheduleDataToDatabase(week: string) {
+    private async storeWeekToDatabase(week: string) {
         try {
             const res = await axios.post(`${this.url}/timetable/server/regulartt.js?__func=regularttGetData`, { __args: [null, week], __gsh: "00000000" }, {
                 headers: HEADERS(this.url)
             })
             
-            const data = res.data["r"]["dbiAccessorRes"]["tables"]
+            const data = res.data["r"]
 
-            console.debug(`Successfully fetched Week ${week} data from ${this.url}`)
-
-            // yes, the message is in plural
-            if (res.data["r"]["error"] === "Timetable does not exists") {
-                console.debug(`Week ${week} has been removed`)
-                setWeeksData(await this.getWeeksData())
-                return
+            // refreshed the weeks - yes, the message is in plural
+            if (res.data["error"] === "Timetable does not exists") {
+                this.weeks = await this.getWeeksData()
+                return console.debug(`Week ${week} has been removed`)
             }
 
-            // checks if its been modified | TODO: make it notify what changes have been made and store them
+            // checks if its been modified
             const old = await RawScheduleData.findOne({ week })
-            if (old && !isEqual(old.data, data)) {
+            if (old && !isEqual(old.data, data["dbiAccessorRes"]["tables"])) {
                 console.debug(`Week ${week} has been modified!`)
                 webserverClient.sendWSMessage(JSON.parse(`{"week": "${week}", "type": "updated"}`))
             } else if (!old) {
@@ -78,7 +85,7 @@ export default class Scraper {
             console.debug(`Storing Week ${week} into Database`)
             await RawScheduleData.updateOne(
                 { week },
-                { $set: { data }},
+                { $set: { data: data["dbiAccessorRes"]["tables"] }},
                 { upsert: true }
             )
         } catch (err) {
