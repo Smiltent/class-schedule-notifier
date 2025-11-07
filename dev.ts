@@ -13,5 +13,5 @@ Colors(true)
 
 new Database(String(process.env.CONNECTION_STRING))
 
-const scheduleClient = new Schedule()
-await scheduleClient.storeClassIntoDatabase("61")
+const scheduleClient = new Schedule("61")
+await scheduleClient.storeClassIntoDatabase()

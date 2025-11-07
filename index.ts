@@ -30,8 +30,10 @@ new Database(String(process.env.CONNECTION_STRING))
 
 export const scraperClient = new Scraper(String(process.env.WEBSITE_URL))
 export const webserverClient = new Webserver(String(process.env.PORT) || "3000")
+
 await scraperClient.storeAllWeeksToDatabase()
 
 setInterval(async () => {
     await scraperClient.storeAllWeeksToDatabase()
+    
 }, 15 * 60 * 1000) // 15 min

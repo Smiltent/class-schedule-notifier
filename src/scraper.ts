@@ -1,5 +1,6 @@
 
 import { webserverClient } from "../index.ts"
+import Schedule from "./schedule.ts"
 import { isEqual } from "lodash"
 import axios from "axios"
 
@@ -36,9 +37,11 @@ export default class Scraper {
 
     public async storeAllWeeksToDatabase() {
         this.weeks = await this.getWeeksData()
-
         for (const week of this.weeks["timetables"]) {
+
             await this.storeWeekToDatabase(week["tt_num"])
+            await new Schedule().storeClassIntoDatabase(week["tt_num"])
+            await new Schedule().storeTeacherDataIntoDatabase(week["tt_num"])
         }
     }
 

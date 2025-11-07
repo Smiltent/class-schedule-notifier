@@ -7,7 +7,7 @@ export default async function GitHub() {
         const response = await axios.get(`${process.env.GITHUB_API_URL}/commits?per_page=1`)
         const sha = response.data[0].sha
 
-        console.debug(`Obtain latest GitHub commit hash: ${sha}`)
+        //// console.debug(`Obtain latest GitHub commit hash: ${sha}`)
 
         return {
             hash: sha.substring(0, 14),
