@@ -29,14 +29,11 @@ router.post('/register', async (req, res) => {
         const { username, password, favoriteNumber } = req.body
 
         await register(username, password, favoriteNumber)
-        const token = await login(username, password)
-        
-        res.cookie('token', token, COOKIE)
-
-        res.render("dError", { dError: "login successful", dErrorColor: "c-green" } )
+    
+        res.status(400).render("login", { dMsg: "you have registered. please log in!", dType: "good"} )
     } catch (err: any) {
         console.error(`Error registering user: ${err}`)
-        res.status(400).render("dError", { dError: err.message, dErrorColor: "c-red" } )
+        res.status(400).render("register", { dMsg: err.message, dType: "bad" } )
     }
 })
 
@@ -58,7 +55,7 @@ router.post('/login', async (req, res) => {
         res.redirect('/')
     } catch (err: any) {
         console.error(`Error logging in user: ${err}`)
-        res.status(400).render("dError", { dError: err.message, dErrorColor: "c-red" } )
+        res.status(400).render("login", { dMsg: err.message, dType: "bad" } )
     }
 })
 
@@ -71,6 +68,27 @@ router.get('/login', RATELIMIT, async (req, res) => {
 router.get('/logout', userAuth, async (req, res) => {
     res.clearCookie('token')
     res.redirect('/')
+})
+
+// ===========================================================
+router.get('/lookup', (req, res) => {
+    res.redirect('/')
+})
+
+router.get('/lookup/class', (req, res) => {
+    res.render("pages/lookupClass")
+})
+
+router.get('/lookup/classroom', (req, res) => {
+    res.render("pages/lookupClassroom")
+})
+
+router.get('/lookup/teacher', (req, res) => {
+    res.render("pages/lookupTeacher")
+})
+
+router.get('/map', (req, res) => {
+    res.render("pages/map")
 })
 
 // ===========================================================

@@ -41,14 +41,14 @@ export default class Scraper {
 
             await this.storeWeekToDatabase(week["tt_num"])
             await new Schedule().storeClassIntoDatabase(week["tt_num"])
-            await new Schedule().storeTeacherDataIntoDatabase(week["tt_num"])
+            // await new Schedule().storeTeacherDataIntoDatabase(week["tt_num"])
         }
     }
 
     // ================= INTERNAL =================
     private async getWeeksData() {
         try {
-            const currentYear = new Date().getFullYear() // might cause issues around new years...?
+            const currentYear = new Date().getFullYear() // might cause issues around new years...? HELL NAH THIS WONT CAUSE ON NEW YEARS
             const res = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, currentYear], __gsh: "00000000"}, {
                 headers: HEADERS(this.url)
             })

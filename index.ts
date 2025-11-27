@@ -35,5 +35,4 @@ await scraperClient.storeAllWeeksToDatabase()
 
 setInterval(async () => {
     await scraperClient.storeAllWeeksToDatabase()
-    
 }, 15 * 60 * 1000) // 15 min

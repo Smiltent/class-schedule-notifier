@@ -30,5 +30,5 @@ export default function colors(debugModeEnabled: boolean) {
     console.info = (...args) => console.log(`${BLUE("[INFO]")} ${args}`)
     
     debugModeEnabled ? console.debug = (...args) => console.log(`${ORANGE("[DEBUG]")} ${args}`) : console.debug = () => {}
-    console.warn("Debug mode is enabled")
+    console.debug("Debug mode is enabled")
 }

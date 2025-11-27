@@ -17,16 +17,17 @@ async function root(req: Request, res: Response, next: NextFunction) {
                 id: user._id,
                 name: user.username,
                 role: user.role,
+                loggedIn: true,
                 apiKeyLimit: user.apiKeyLimit,
                 favoriteNumber: user.favoriteNumber
             }
 
         } catch (err) {
             console.error(`JWT Authentication error: ${err}`)
-            res.locals.user = null
+            res.locals.user = { loggedIn: false }
         }
     } else {
-        res.locals.user = null
+        res.locals.user = { loggedIn: false }
     }
 
     // sets the http status local, used for error.ejs
@@ -36,6 +37,7 @@ async function root(req: Request, res: Response, next: NextFunction) {
         return ogStatus(code)
     }
 
+    res.locals.dType = ""
     res.locals.httpStatus = res.statusCode
     
     next()

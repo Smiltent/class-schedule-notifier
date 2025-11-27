@@ -45,8 +45,11 @@
                 <input type="checkbox" name="terms" id="terms" required>
                 can we steal your data...?
             </label>
-            <span class="c-red" id="err"></span>
-            <span class="c-green" id="suck"></span>
+            <% if (dType== 'good') { %>
+                <span class="c-green" id="suck"><%= dMsg %></span>
+            <% } else if (dType == 'bad') { %>
+                <span class="c-red" id="err"><%= dMsg %></span>
+            <% } else {} %>
             <input type="submit" value="create account" style="cursor: pointer;">
         </form>
     </div>

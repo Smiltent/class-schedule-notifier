@@ -41,22 +41,13 @@
     </div>
 
     <div class="main flex-col">
-        <h1>schedule</h1>
-        <a href="/lookup/class">lookup class</a>
-        <a href="/lookup/teacher">lookup teacher</a>
-        <a href="/lookup/classroom">lookup classroom</a>
-        <a href="/map">classroom map</a>
+        <h1>classroom map</h1>
+        <select name="floor">
+            <option value="1">1. floor</option>
+            <option value="2">2. floor</option>
+            <option value="3">3. floor</option>
+            <option value="4">4. floor</option>
+        </select>
     </div>
-
-    <% if (user.role == 'admin' || user.role == 'manager') { %>
-        <div class="admin flex-col">
-            <h2>admin</h2>
-            <a href="/admin/api">manage api keys</a>
-            <% if (user.role == 'admin') { %>
-                <a href="/admin/schedule">manage schedule</a>
-                <a href="/admin/user">manage users</a>
-            <%  } %>
-        </div>
-    <%  } %>
 </body>
 </html>

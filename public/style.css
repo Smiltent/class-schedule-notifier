@@ -83,7 +83,7 @@ a, a:visited {
 }
 
 /* =========== FORMS =========== */
-form input {
+form input, select {
     font-size: 0.9rem;
     background-color: var(--dgray);
     border: none;
@@ -92,7 +92,7 @@ form input {
     padding: 0.25rem;
 }
 
-form {
+form, select{
     margin-right: 1rem;
     width: 15rem
 }
