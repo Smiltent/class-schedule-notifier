@@ -32,9 +32,10 @@ export default class Schedule {
                 ////     console.warn(JSON.stringify(lesson))
                 //// }
 
-                // get day info
+                // check if card.days exists, otherwise skip because it causes errors! yippe ;3
                 if (!card.days) continue
 
+                // get day info
                 const dayInfo = await this.getDayById(card.days) || null
                 const { day, name, shortName, isLastDayOfWeek } = dayInfo || { day: "N/A", name: "N/A", shortName: "N/A", isLastDayOfWeek: false }
 
@@ -42,7 +43,7 @@ export default class Schedule {
                 const { weekTimes, weekEndTimes } = await this.getPeriodTimes(period)
                 var periodTimes = isLastDayOfWeek ? weekEndTimes : weekTimes
 
-                // set groups correctly
+                // set group names correctly
                 const group = lesson["groupnames"]
                 const subjectData = {
                     start: periodTimes ? periodTimes[0] : "N/A",
@@ -53,6 +54,7 @@ export default class Schedule {
                 }
                 const data = group ? { group, ...subjectData } : subjectData
 
+                // store data in json
                 endData = { 
                     ...endData, 
                     [clazz.name]: { 
@@ -73,12 +75,8 @@ export default class Schedule {
                     const { weekTimes, weekEndTimes } = await this.getPeriodTimes(period)
                     periodTimes = isLastDayOfWeek ? weekEndTimes : weekTimes
 
-                    //? wait is this even required?
-                    // data = { [group]: { //! problems
-                    //     ...data,
-                    //     start: periodTimes ? periodTimes[0] : "N/A",
-                    //     end: periodTimes ? periodTimes[1] : "N/A"
-                    // }}
+                    data.start = periodTimes ? periodTimes[0] : "N/A";
+                    data.end = periodTimes ? periodTimes[1] : "N/A";
 
                     endData[clazz.name][day].data[period - 1] = data
                     period++
