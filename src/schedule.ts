@@ -9,13 +9,19 @@ export default class Schedule {
     private data: any
     private index: any
 
-    // initialize class
+    /**
+     * Initializes the Schedule parser for a specific week
+     * @param week The week to parse from Edupage
+     */
     public async i(week: string) {
         this.week = week
 
         await this.loadIndex(week)
     }
 
+    /**
+     * Stores the parsed class into the Database
+     */
     public async storeClassData() {
         if (!this.index) await this.loadIndex(this.week)
 
@@ -70,6 +76,9 @@ export default class Schedule {
         console.debug(`Stored Class Data for Week ${this.week}`)
     }
 
+    /**
+     * Stores the parsed teacher into the Database
+     */
     public async storeTeacherData() {
         if (!this.index) await this.loadIndex(this.week)
 
@@ -124,7 +133,10 @@ export default class Schedule {
         console.debug(`Stored Teacher Data for Week ${this.week}`)
     }
 
-    // ================= INTERNAL =================
+    /**
+     * Loads the index data from the Database for a specific week
+     * @param week The week data to load from EduPage
+     */
     private async loadIndex(week: string) {
         const payload: any = await RawScheduleData.findOne({ week })
         if (!payload) throw new Error(`No raw data found for week ${week}`)  
@@ -160,10 +172,18 @@ export default class Schedule {
         }
     }
 
-    private ensureDay(obj: any, clazz: string, day: string, name: string, shortName: string) {
-        if (!obj[clazz]) obj[clazz] = {}
-        if (!obj[clazz][day]) {
-            obj[clazz][day] = {
+    /**
+     * Ensures that the day object exists
+     * @param obj JSON object
+     * @param clazz Parent key
+     * @param day Day key
+     * @param name Name of the day
+     * @param shortName Short name of the day
+     */
+    private ensureDay(obj: any, parent: string, day: string, name: string, shortName: string) {
+        if (!obj[parent]) obj[parent] = {}
+        if (!obj[parent][day]) {
+            obj[parent][day] = {
                 day: name,
                 dayShort: shortName,
                 data: []
@@ -171,6 +191,11 @@ export default class Schedule {
         }
     }
 
+    /**
+     * Indexes an array of rows by it's ID
+     * @param rowsData Array of rows data
+     * @returns Indexed rows data by ID
+     */
     private indexById(rowsData: any[]) {
         const map: Record<string, any> = {}
         
@@ -178,6 +203,12 @@ export default class Schedule {
         return map
     }
 
+    /**
+     * Gets the correct period time for a specific period and it's day (our weekends have different times)
+     * @param period Period number
+     * @param isLastDayOfWeek Wethever it's the last day of the week
+     * @returns The period times || null if something went wrong (????)
+     */
     private getPeriodTimes(period: number, isLastDayOfWeek: boolean) {
         const times = period - 1
         const validate = isLastDayOfWeek ? this.index.timesWeekend[times] : this.index.times[times]
@@ -185,6 +216,11 @@ export default class Schedule {
         return validate ?? null
     }
 
+    /**
+     * Gets a day object by the ID
+     * @param daysdefid Daysdefs ID
+     * @returns The day object data
+     */
     private async getDayById(daysdefid: string = "00001") {   
         const dayDef = this.index.dayDefs.find((l: any) => l.vals[0] === daysdefid)
         if (!dayDef) return null

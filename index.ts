@@ -2,10 +2,10 @@
 // ================= IMPORTS =================
 import Database from "./src/db/database.ts"
 import Webserver from "./src/webserver.ts"
-import Colors from "./src/util/colors.ts"
 import GitHub from "./src/util/github.ts"
-import Schedule from "./src/schedule.ts"
 import Scraper from "./src/scraper.ts"
+
+import colors from "./src/util/colors.ts"
 
 import dotenv from "dotenv"
 dotenv.config()
@@ -17,7 +17,7 @@ var DEBUG_MODE: boolean = false
 // ================= ARGUMENTS ================= 
 const argDEBUG = process.argv.includes("--debug") || process.argv.includes("-d")
 argDEBUG ? DEBUG_MODE = true : DEBUG_MODE = false
-Colors(DEBUG_MODE)
+colors(DEBUG_MODE)
 
 const argPARSE_ALL_DATA = process.argv.includes("--parse-all-data") || process.argv.includes("-p")
 if (argPARSE_ALL_DATA) {
