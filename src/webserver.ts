@@ -78,8 +78,7 @@ export default class WebServer {
 
         this.app.use('/', publicRoutes)
         this.app.use((req, res) => {
-            res.status(404)
-            res.render("error")
+            res.status(404).render("error")
         })
     }
     

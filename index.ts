@@ -15,8 +15,22 @@ export const { hash, url } = await GitHub()
 var DEBUG_MODE: boolean = false
 
 // ================= ARGUMENTS ================= 
-const IS_DEBUG_ENABLED = process.argv.includes("--debug") || process.argv.includes("-d")
-IS_DEBUG_ENABLED ? DEBUG_MODE = true : DEBUG_MODE = false
+const argDEBUG = process.argv.includes("--debug") || process.argv.includes("-d")
+argDEBUG ? DEBUG_MODE = true : DEBUG_MODE = false
+Colors(DEBUG_MODE)
+
+const argPARSE_ALL_DATA = process.argv.includes("--parse-all-data") || process.argv.includes("-p")
+if (argPARSE_ALL_DATA) {
+    console.info("Forcing re-parse of all data in database...")
+
+    new Database(String(process.env.CONNECTION_STRING))
+    const scraperClient = new Scraper(String(process.env.WEBSITE_URL))
+
+    await scraperClient.reparseAllWeeksInDatabase()
+
+    console.info("Re-parse of all data in database complete! exiting...")
+    process.exit(0)
+}
 
 // ================= FUNCTIONS =================
 export function getDebugMode(): boolean {
@@ -24,7 +38,6 @@ export function getDebugMode(): boolean {
 }
 
 // ================= MAIN =================
-Colors(DEBUG_MODE)
 
 new Database(String(process.env.CONNECTION_STRING))
 

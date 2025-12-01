@@ -38,17 +38,31 @@ export default class Scraper {
     public async storeAllWeeksToDatabase() {
         this.weeks = await this.getWeeksData()
         for (const week of this.weeks["timetables"]) {
-
             await this.storeWeekToDatabase(week["tt_num"])
-            await new Schedule().storeClassIntoDatabase(week["tt_num"])
-            // await new Schedule().storeTeacherDataIntoDatabase(week["tt_num"])
+            
+            const parser = new Schedule()
+            await parser.i(week["tt_num"])
+
+            await parser.storeClassData()
+            await parser.storeTeacherData()
+        }
+    }
+
+    public async reparseAllWeeksInDatabase() {
+        this.weeks = await RawScheduleData.find({})
+        for (const week of this.weeks) {
+            const parser = new Schedule()
+            await parser.i(week.week)
+
+            await parser.storeClassData()
+            await parser.storeTeacherData()
         }
     }
 
     // ================= INTERNAL =================
     private async getWeeksData() {
         try {
-            const currentYear = new Date().getFullYear() // might cause issues around new years...? HELL NAH THIS WONT CAUSE ON NEW YEARS
+            const currentYear = new Date().getFullYear() 
             const res = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, currentYear], __gsh: "00000000"}, {
                 headers: HEADERS(this.url)
             })

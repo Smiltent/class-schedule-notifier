@@ -4,222 +4,204 @@ import TeacherWeekData from "./db/models/TeacherWeekData.ts"
 import ClassWeekData from "./db/models/ClassWeekData.ts"
 
 export default class Schedule {
+    private week!: string
+
     private data: any
+    private index: any
 
-    public async storeClassIntoDatabase(week: string) {
-        /*
-         TODO: [ ] - handle group lessons (figure it out from edupage)
-        */
+    // initialize class
+    public async i(week: string) {
+        this.week = week
 
-        try {
-            const payload: any = await RawScheduleData.findOne({ week: week })
-            this.data = payload.data
-            var endData: any = {}
-
-            for (const card of this.data[20]["data_rows"]) {
-                const lesson = this.data[18]["data_rows"].find((l: any) => l.id === card.lessonid)
-                const classroom = this.data[11]["data_rows"].find((l: any) => l.id === card.classroomids[0])
-                const teacher = this.data[14]["data_rows"].find((l: any) => l.id === lesson.teacherids[0])
-                const subject = this.data[13]["data_rows"].find((l: any) => l.id === lesson.subjectid)
-                const clazz = this.data[12]["data_rows"].find((l: any) => l.id === lesson.classids[0])
-
-                //? this will totally not cause issues later in the future
-                var period = Math.ceil(card.period / 2)
-
-                //// if (lesson.classids[0] == "-174") {
-                ////     if (lesson.groupnames != "") continue
-                ////
-                ////     console.warn(JSON.stringify(lesson))
-                //// }
-
-                // check if card.days exists, otherwise skip because it causes errors! yippe ;3
-                if (!card.days) continue
-
-                // get day info
-                const dayInfo = await this.getDayById(card.days) || null
-                const { day, name, shortName, isLastDayOfWeek } = dayInfo || { day: "N/A", name: "N/A", shortName: "N/A", isLastDayOfWeek: false }
-
-                // get correct times
-                const { weekTimes, weekEndTimes } = await this.getPeriodTimes(period)
-                var periodTimes = isLastDayOfWeek ? weekEndTimes : weekTimes
-
-                // set group names correctly
-                const group = lesson["groupnames"]
-                const subjectData = {
-                    start: periodTimes ? periodTimes[0] : "N/A",
-                    end: periodTimes ? periodTimes[1] : "N/A",
-                    name: subject.name,
-                    teacher: teacher?.name ? teacher.name : "N/A",
-                    classroom: classroom?.name ? classroom.name : "N/A"
-                }
-                const data = group ? { group, ...subjectData } : subjectData
-
-                // store data in json
-                endData = { 
-                    ...endData, 
-                    [clazz.name]: { 
-                        ...(endData[clazz.name] || {}),
-                        [day]: { 
-                            day: name, 
-                            dayShort: shortName,
-                            data: [
-                                ...((endData[clazz.name]?.[day]?.data) || [])
-                            ]
-                        }
-                    }
-                }
-
-                // allow repeating lessons to be stored
-                const duration = Math.ceil(lesson.durationperiods / 2)
-                for (let i = 0; i < duration; i++) {
-                    const { weekTimes, weekEndTimes } = await this.getPeriodTimes(period)
-                    periodTimes = isLastDayOfWeek ? weekEndTimes : weekTimes
-
-                    data.start = periodTimes ? periodTimes[0] : "N/A";
-                    data.end = periodTimes ? periodTimes[1] : "N/A";
-
-                    endData[clazz.name][day].data[period - 1] = data
-                    period++
-                }
-            }
-            
-            // update db
-            await ClassWeekData.updateOne(
-                { week },
-                { $set: { data: endData }},
-                { upsert: true }
-            )
-            console.debug(`Stored Class Data for Week ${week}`)
-        } catch (err) {
-            throw new Error(`Failed to store Class Data for Week ${week}: ${err}`)  
-        }
+        await this.loadIndex(week)
     }
 
-    public async storeTeacherDataIntoDatabase(week: string) {
-        /*
-         TODO: [ ] - work on this (idk what todo to make) 
-         TODO: [ ] - handle group lessons (figure it out from edupage)
-        */
-       
-        try {
-            const payload: any = await RawScheduleData.findOne({ week: week })
-            this.data = payload.data
-            var endData: any = {}
+    public async storeClassData() {
+        if (!this.index) await this.loadIndex(this.week)
 
-            for (const card of this.data[20]["data_rows"]) {
-                // if (!card.classroomids[0] || !card.period) continue // check if it has a classroom / period
-                
-                // const lesson = this.data[18]["data_rows"].find((l: any) => l.id === card.lessonid)
-                // const classroom = this.data[11]["data_rows"].find((l: any) => l.id === card.classroomids[0])
-                // const teacher = this.data[14]["data_rows"].find((l: any) => l.id === lesson.teacherids[0])
-                // const subject = this.data[13]["data_rows"].find((l: any) => l.id === lesson.subjectid)
-                // const clazz = this.data[12]["data_rows"].find((l: any) => l.id === lesson.classids[0])
+        const endData: Record<string, any> = {}
+        
+        for (const card of this.index.cards) {
+            if (!card.days || !card.period) continue // check if it has a day / period
 
-                // // periods (we have pair-periods)
-                // var period = Math.ceil(card.period / 2)
+            // get lesson information
+            const lesson = this.index.lessons[card.lessonid]
+            if (!lesson) continue
 
-                // // get day info
-                // const { day, name, shortName, isLastDayOfWeek } = await this.getDayById(card.days)
+            //? this will totally not cause issues later in the future
+            var period = Math.ceil(card.period / 2)
 
-                // // get correct times
-                // const { weekTimes, weekEndTimes } = await this.getPeriodTimes(period)
-                // var periodTimes = isLastDayOfWeek ? weekEndTimes : weekTimes
+            const classroom = this.index.classrooms[card.classroomids[0]]
+            const teacher = this.index.teachers[lesson.teacherids[0]]
+            const subject = this.index.subjects[lesson.subjectid]
+            const clazz = this.index.classes[lesson.classids[0]]
 
-                // var data = {
-                //     start: periodTimes ? periodTimes[0] : "N/A",
-                //     end: periodTimes ? periodTimes[1] : "N/A",
-                //     name: subject.name,
-                //     teacher: teacher.name,
-                //     classroom: classroom.name
-                // }
+            // get day info
+            const dayInfo = await this.getDayById(card.days)
+            if (!dayInfo) continue
 
-                // endData = { 
-                //     ...endData, 
-                //     [clazz.name]: { 
-                //         ...(endData[clazz.name] || {}),
-                //         [day]: { 
-                //             day: name, 
-                //             dayShort: shortName,
-                //             data: [
-                //                 ...((endData[clazz.name]?.[day]?.data) || [])
-                //             ]
-                //         }
-                //     }
-                // }
+            const { day, name, shortName, isLastDayOfWeek } = dayInfo
+            const duration = Math.ceil(lesson.durationperiods / 2)
 
-                // // allow repeating lessons to be stored
-                // const duration = Math.ceil(lesson.durationperiods / 2)
-                // for (let i = 0; i < duration; i++) {
-                //     const { weekTimes, weekEndTimes } = await this.getPeriodTimes(period)
-                //     periodTimes = isLastDayOfWeek ? weekEndTimes : weekTimes
+            this.ensureDay(endData, clazz.name, day, name, shortName)
 
-                //     data = {
-                //         ...data,
-                //         start: periodTimes ? periodTimes[0] : "N/A",
-                //         end: periodTimes ? periodTimes[1] : "N/A"
-                //     }
+            // store each period
+            for (var i = 0; i < duration; i++, period++) {
+                const times = this.getPeriodTimes(period, isLastDayOfWeek)
+                if (!times) continue
 
-                //     endData[clazz.name][day].data[period - 1] = data
-                //     period++
-                // }
+                endData[clazz.name][day].data[period - 1] = {
+                    start: times[0],
+                    end: times[1],
+                    name: subject?.name ?? "N/A",
+                    teacher: teacher?.name ?? "N/A",
+                    classroom: classroom?.name ?? "N/A",
+                    // ...(lesson.groupnames ? { group: lesson.groupnames } : {}) // tmp
+                }
             }
-
-            await TeacherWeekData.updateOne(
-                { week },
-                { $set: { data: endData }},
-                { upsert: true }
-            )
-            console.debug(`Stored Teacher Data for Week ${week}`)
-        } catch (err) {
-            console.error(`Failed to store Teacher Data for Week ${week}: ${err}`)
         }
+
+        await ClassWeekData.updateOne(
+            { week: this.week },
+            { $set: { data: endData }},
+            { upsert: true }
+        )
+
+        console.debug(`Stored Class Data for Week ${this.week}`)
+    }
+
+    public async storeTeacherData() {
+        if (!this.index) await this.loadIndex(this.week)
+
+        const endData: Record<string, any> = {}
+        
+        for (const card of this.index.cards) {
+            if (!card.days || !card.period) continue // check if it has a day / period
+
+            // get lesson information
+            const lesson = this.index.lessons[card.lessonid]
+            if (!lesson) continue
+
+            //? this will totally not cause issues later in the future
+            var period = Math.ceil(card.period / 2)
+
+            const classroom = this.index.classrooms[card.classroomids[0]]
+            const teacher = this.index.teachers[lesson.teacherids[0]]
+            const subject = this.index.subjects[lesson.subjectid]
+            const clazz = this.index.classes[lesson.classids[0]]
+
+            // get day info
+            const dayInfo = await this.getDayById(card.days)
+            if (!dayInfo) continue
+
+            const { day, name, shortName, isLastDayOfWeek } = dayInfo
+            const duration = Math.ceil(lesson.durationperiods / 2)
+
+            this.ensureDay(endData, teacher.name, day, name, shortName)
+
+            // store each period
+            for (var i = 0; i < duration; i++, period++) {
+                const times = this.getPeriodTimes(period, isLastDayOfWeek)
+                if (!times) continue
+
+                endData[teacher.name][day].data[period - 1] = {
+                    start: times[0],
+                    end: times[1],
+                    name: subject?.name ?? "N/A",
+                    class: clazz?.name ?? "N/A",
+                    classroom: classroom?.name ?? "N/A",
+                    // ...(lesson.groupnames ? { group: lesson.groupnames } : {}) // tmp
+                }
+            }
+        }
+
+        await TeacherWeekData.updateOne(
+            { week: this.week },
+            { $set: { data: endData }},
+            { upsert: true }
+        )
+
+        console.debug(`Stored Teacher Data for Week ${this.week}`)
     }
 
     // ================= INTERNAL =================
-    private async getPeriodTimes(period: number) {
-        const periodTimes = [
-            ["8:30", "9:50"],
-            ["9:10", "11:30"],
-            ["12:30", "13:50"],
-            ["14:00", "15:20"],
-            ["15:30", "16:50"],
-            ["17:00", "18:20"]
-        ]
+    private async loadIndex(week: string) {
+        const payload: any = await RawScheduleData.findOne({ week })
+        if (!payload) throw new Error(`No raw data found for week ${week}`)  
 
-        const periodTimesWeekend = [
-            ["8:10", "9:30"],
-            ["9:40", "11:00"],
-            ["11:10", "12:30"],
-            ["13:00", "14:20"],
-            ["14:30", "15:50"],
-            ["16:00", "17:20"]
-        ]
+        this.data = payload.data
+        this.index = {
+            lessons: this.indexById(this.data[18]["data_rows"]),
+            classrooms: this.indexById(this.data[11]["data_rows"]),
+            teachers: this.indexById(this.data[14]["data_rows"]),
+            subjects: this.indexById(this.data[13]["data_rows"]),
+            classes: this.indexById(this.data[12]["data_rows"]),
 
-        return {
-            weekTimes: periodTimes[period - 1],
-            weekEndTimes: periodTimesWeekend[period - 1]
+            dayDefs: this.data[4]["data_rows"],
+            daysRows: this.data[7]["data_rows"],
+            cards: this.data[20]["data_rows"],
+
+            times: [
+                ["8:30", "9:50"],
+                ["9:10", "11:30"],
+                ["12:30", "13:50"],
+                ["14:00", "15:20"],
+                ["15:30", "16:50"],
+                ["17:00", "18:20"]
+            ],
+            timesWeekend: [
+                ["8:10", "9:30"],
+                ["9:40", "11:00"],
+                ["11:10", "12:30"],
+                ["13:00", "14:20"],
+                ["14:30", "15:50"],
+                ["16:00", "17:20"]
+            ]
         }
     }
-    private async getDayById(daysdefid: string = "00001") {   
-        try {
-            const dayDefs = this.data[4]["data_rows"].find((l: any) => l.vals[0] === daysdefid)
-            const daysRows = this.data[7]["data_rows"]
 
-            const day = String(Number(dayDefs.id.replace("*", "")) - 1) // edupages likes to add a random *
-
-            const days = daysRows.find((l: any) => l.id === day) // gets data
-            const index = daysRows.findIndex((l: any) => l.id === day) // figures out what index day is
-
-            if (!days) return null 
-            
-            return {
-                day,
-                name: days.name,
-                shortName: days.short,
-                isLastDayOfWeek: index === daysRows.length - 1 // checks if its the last one
+    private ensureDay(obj: any, clazz: string, day: string, name: string, shortName: string) {
+        if (!obj[clazz]) obj[clazz] = {}
+        if (!obj[clazz][day]) {
+            obj[clazz][day] = {
+                day: name,
+                dayShort: shortName,
+                data: []
             }
-        } catch (err) {
-            throw new Error(`Error getting Day by ID: ${err}`)
+        }
+    }
+
+    private indexById(rowsData: any[]) {
+        const map: Record<string, any> = {}
+        
+        for (const row of rowsData) map[row.id] = row
+        return map
+    }
+
+    private getPeriodTimes(period: number, isLastDayOfWeek: boolean) {
+        const times = period - 1
+        const validate = isLastDayOfWeek ? this.index.timesWeekend[times] : this.index.times[times]
+
+        return validate ?? null
+    }
+
+    private async getDayById(daysdefid: string = "00001") {   
+        const dayDef = this.index.dayDefs.find((l: any) => l.vals[0] === daysdefid)
+        if (!dayDef) return null
+
+        const dayRows = this.index.daysRows
+        const day = String(Number(dayDef.id.replace("*", "")) - 1) // gets the correct day - edupages likes to add a random *
+
+        const row = dayRows.find((l: any) => l.id === day)
+        if (!row) return null
+
+        const index = dayRows.findIndex((l: any) => l.id === day)
+
+        return {
+            day,
+            name: row.name,
+            shortName: row.short,
+            isLastDayOfWeek: index === dayRows.length - 1 // checks if its the last one
         }
     }
 }
