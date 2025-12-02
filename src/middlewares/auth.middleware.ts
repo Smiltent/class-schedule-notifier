@@ -1,6 +1,5 @@
 
 import type { Request, Response, NextFunction } from "express"
-import ApiKeys from "../db/models/ApiKeys"
 import User from "../db/models/User"
 import jwt from "jsonwebtoken"
 
@@ -30,28 +29,28 @@ async function userAuth(req: AuthRequest, res: Response, next: NextFunction) {
     }
 }
 
-async function apiAuth(req: AuthRequest, res: Response, next: NextFunction) {
-    try {
-        const apiKey = req.headers['x-api-key'] as string | undefined
-        if (!apiKey) // no api key provided
-            return res.status(403).json({ success: false, message: 'Forbidden: Missing API key (header: x-api-key)' })
+// async function apiAuth(req: AuthRequest, res: Response, next: NextFunction) {
+//     try {
+//         const apiKey = req.headers['x-api-key'] as string | undefined
+//         if (!apiKey) // no api key provided
+//             return res.status(403).json({ success: false, message: 'Forbidden: Missing API key (header: x-api-key)' })
 
-        const payload = await ApiKeys.findOne({ key: apiKey })
-        if (!payload) // no active api key
-            return res.status(403).json({ success: false, message: 'Forbidden: Invalid API key' })
+//         const payload = await ApiKeys.findOne({ key: apiKey })
+//         if (!payload) // no active api key
+//             return res.status(403).json({ success: false, message: 'Forbidden: Invalid API key' })
 
-        const user = await User.findById(payload.owner)
-        if (!user) // happens on user deletion (just in case)
-            return res.status(500).json({ success: false, message: 'Internal Server Error: There is no Owner associated with this API key' })
+//         const user = await User.findById(payload.owner)
+//         if (!user) // happens on user deletion (just in case)
+//             return res.status(500).json({ success: false, message: 'Internal Server Error: There is no Owner associated with this API key' })
 
-        req.user = user
-        req.type = 'api'
-        next()
-    } catch (err) {
-        console.error(`API Authentication error: ${err}`)
-        return res.status(500).json({ success: false, message: 'Internal Server Error' })
-    }
-}
+//         req.user = user
+//         req.type = 'api'
+//         next()
+//     } catch (err) {
+//         console.error(`API Authentication error: ${err}`)
+//         return res.status(500).json({ success: false, message: 'Internal Server Error' })
+//     }
+// }
 
 function requireRole(role: string) {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -65,4 +64,4 @@ function requireRole(role: string) {
     }
 }
 
-export { userAuth, apiAuth, requireRole }
+export { userAuth, requireRole }

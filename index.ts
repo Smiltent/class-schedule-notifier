@@ -32,11 +32,6 @@ if (argPARSE_ALL_DATA) {
     process.exit(0)
 }
 
-// ================= FUNCTIONS =================
-export function getDebugMode(): boolean {
-    return DEBUG_MODE
-}
-
 // ================= MAIN =================
 
 new Database(String(process.env.CONNECTION_STRING))

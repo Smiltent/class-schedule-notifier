@@ -19,6 +19,8 @@ export default class Scraper {
     private url: string
     private weeks: any
 
+    public current_week: string = "0"
+
     constructor(url: string) {
         console.debug("Running a new scraper.ts instance...")
 
@@ -37,6 +39,9 @@ export default class Scraper {
 
     public async storeAllWeeksToDatabase() {
         this.weeks = await this.getWeeksData()
+
+        this.current_week = this.weeks["timetables"][(this.weeks["timetables"].length - 1)]["tt_num"]
+
         for (const week of this.weeks["timetables"]) {
             await this.storeWeekToDatabase(week["tt_num"])
             
