@@ -11,7 +11,6 @@ import { root } from './middlewares/root.middleware.ts'
 import publicRoutes from './routes/public.routes.ts'
 import adminRoutes from './routes/admin.routes.ts'
 import weeksRoutes from './routes/weeks.routes.ts'
-import keysRoutes from './routes/keys.routes.ts'
 
 import { hash, url } from '../index.ts'
 
@@ -73,7 +72,6 @@ export default class WebServer {
     // ================= API =================
     private api_v1() {
         this.app.use('/api/v1/weeks', weeksRoutes)
-        this.app.use('/api/v1/keys', keysRoutes)
         this.app.use(`/api/v1/admin`, adminRoutes)
 
         this.app.use('/', publicRoutes)

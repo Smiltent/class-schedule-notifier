@@ -10,6 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
     <div class="header">
@@ -45,11 +47,13 @@
                 <input type="checkbox" name="terms" id="terms" required>
                 can we steal your data...?
             </label>
+            <span>
             <% if (dType== 'good') { %>
                 <span class="c-green" id="suck"><%= dMsg %></span>
             <% } else if (dType == 'bad') { %>
                 <span class="c-red" id="err"><%= dMsg %></span>
             <% } else {} %>
+            </span>
             <input type="submit" value="create account" style="cursor: pointer;">
         </form>
     </div>

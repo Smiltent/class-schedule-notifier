@@ -33,6 +33,7 @@ a:hover { color: var(--subtext2) }
 a, a:visited {
     color: var(--subtext1);
     text-decoration: none;
+    width: fit-content;
 }
 
 /*   flex   */

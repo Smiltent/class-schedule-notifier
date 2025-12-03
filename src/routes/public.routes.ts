@@ -4,6 +4,7 @@ import { register, login } from "../services/auth.service"
 import rateLimit from "express-rate-limit"
 
 import { Router } from 'express'
+import path from "path"
 const router = Router()
 
 const COOKIE = {
@@ -13,16 +14,16 @@ const COOKIE = {
     maxAge: 24 * 60 * 60 * 1000
 }
 
-const RATELIMIT = rateLimit({
+const LOGIN_REGISTER_RATELIMIT = rateLimit({
     windowMs: 20 * 60 * 1000, // 20 min
-    limit: 20,
+    limit: 10,
     handler: (req, res) => {
         res.status(429).render("error")
     }
 })
 
 // ===========================================================
-router.post('/register', async (req, res) => {
+router.post('/register', LOGIN_REGISTER_RATELIMIT, async (req, res) => {
     if (req.cookies?.token) return res.redirect('/')
 
     try {
@@ -37,13 +38,13 @@ router.post('/register', async (req, res) => {
     }
 })
 
-router.get('/register', RATELIMIT, (req, res) => {
+router.get('/register', (req, res) => {
     if (req.cookies?.token) return res.redirect('/')
     res.render("register")
 })
 
 // ===========================================================
-router.post('/login', async (req, res) => {
+router.post('/login', LOGIN_REGISTER_RATELIMIT, async (req, res) => {
     if (req.cookies?.token) return res.redirect('/')
 
     try {
@@ -59,7 +60,7 @@ router.post('/login', async (req, res) => {
     }
 })
 
-router.get('/login', RATELIMIT, async (req, res) => {
+router.get('/login', async (req, res) => {
     if (req.cookies?.token) return res.redirect('/')
     res.render("login")
 })
@@ -95,6 +96,10 @@ router.get('/map', (req, res) => {
 
 router.get('/', (req, res) => {
     res.render("index")
+})
+
+router.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', '..', 'public', 'favicon.ico'))
 })
 
 router.get('/teapot', (req, res) => {

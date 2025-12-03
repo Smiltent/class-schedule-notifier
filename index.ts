@@ -33,13 +33,13 @@ if (argPARSE_ALL_DATA) {
 }
 
 // ================= MAIN =================
-
 new Database(String(process.env.CONNECTION_STRING))
 
 export const scraperClient = new Scraper(String(process.env.WEBSITE_URL))
 export const webserverClient = new Webserver(String(process.env.PORT) || "3000")
 
 await scraperClient.storeAllWeeksToDatabase()
+console.debug(`Current week: ${scraperClient.current_week}`)
 
 setInterval(async () => {
     await scraperClient.storeAllWeeksToDatabase()

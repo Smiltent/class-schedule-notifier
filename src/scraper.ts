@@ -40,7 +40,8 @@ export default class Scraper {
     public async storeAllWeeksToDatabase() {
         this.weeks = await this.getWeeksData()
 
-        this.current_week = this.weeks["timetables"][(this.weeks["timetables"].length - 1)]["tt_num"]
+        // this.current_week = this.weeks["timetables"][(this.weeks["timetables"].length - 1)]["tt_num"]
+        this.current_week = this.weeks["default_num"] //* bro im so stupid... it's LITERALLY a variable in the response
 
         for (const week of this.weeks["timetables"]) {
             await this.storeWeekToDatabase(week["tt_num"])
@@ -64,7 +65,6 @@ export default class Scraper {
         }
     }
 
-    // ================= INTERNAL =================
     private async getWeeksData() {
         try {
             const currentYear = new Date().getFullYear() 
@@ -93,7 +93,7 @@ export default class Scraper {
                 return console.debug(`Week ${week} has been removed`)
             }
 
-            // checks if its been modified
+            // checks if its been modified //! THIS SUCKS
             const old = await RawScheduleData.findOne({ week })
             if (old && !isEqual(old.data, data["dbiAccessorRes"]["tables"])) {
                 console.debug(`Week ${week} has been modified!`)
