@@ -41,6 +41,5 @@ export const webserverClient = new Webserver(String(process.env.PORT) || "3000")
 await scraperClient.storeAllWeeksToDatabase()
 console.debug(`Current week: ${scraperClient.current_week}`)
 
-setInterval(async () => {
-    await scraperClient.storeAllWeeksToDatabase()
+setInterval(async () => {    await scraperClient.storeAllWeeksToDatabase()
 }, 15 * 60 * 1000) // 15 min

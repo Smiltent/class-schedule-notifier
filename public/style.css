@@ -83,6 +83,22 @@ a, a:visited {
     padding-bottom: 2rem;
 }
 
+/* =========== TABLE =========== */
+table {
+    border-collapse: collapse;
+    width: 40rem;
+}
+
+table, th, td {
+    color: var(--text);
+    border: 1px solid var(--dgray);
+}
+
+tr:not(:first-child) th {
+    color: var(--gray);
+    font-weight: 400;
+}
+
 /* =========== FORMS =========== */
 form input, select {
     font-size: 0.9rem;
@@ -101,5 +117,9 @@ form, select{
 @media screen and (max-aspect-ratio: 4/3) {
     form {
         width: 100%
+    }
+
+    table {
+        width: 100%;
     }
 }

@@ -22,7 +22,6 @@ async function root(req: Request, res: Response, next: NextFunction) {
                 name: user.username,
                 role: user.role,
                 loggedIn: true,
-                apiKeyLimit: user.apiKeyLimit,
                 favoriteNumber: user.favoriteNumber
             }
 
@@ -74,8 +73,6 @@ async function root(req: Request, res: Response, next: NextFunction) {
     } catch (err) {
         console.error(`Query error: ${err}`)
     }
-
-
 
     // return http status
     res.locals.dType = ""

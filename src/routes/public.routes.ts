@@ -66,57 +66,46 @@ router.get('/login', async (req, res) => {
 })
 
 // ===========================================================
-router.get('/logout', userAuth, async (req, res) => {
+router.get('/logout', userAuth, async (_, res) => {
     res.clearCookie('token')
     res.redirect('/')
 })
 
 // ===========================================================
-router.get('/lookup', (req, res) => {
+router.get('/lookup', (_, res) => {
     res.redirect('/')
 })
 
-router.get('/lookup/class', (req, res) => {
+router.get('/lookup/class', (_, res) => {
     res.render("pages/lookupClass")
 })
 
-router.get('/lookup/classroom', (req, res) => {
-    res.render("pages/lookupClassroom")
-})
+// router.get('/lookup/classroom', (_, res) => {
+//     res.render("pages/lookupClassroom")
+// })
 
-router.get('/lookup/teacher', (req, res) => {
-    res.render("pages/lookupTeacher")
-})
-
-router.get('/map', (req, res) => {
-    res.render("pages/map")
-})
+// router.get('/lookup/teacher', (_, res) => {
+//     res.render("pages/lookupTeacher")
+// })
 
 // ===========================================================
 
-router.get('/', (req, res) => {
+router.get('/', (_, res) => {
     res.render("index")
 })
 
-router.get('/favicon.ico', (req, res) => {
+router.get('/favicon.ico', (_, res) => {
     res.sendFile(path.join(__dirname, '..', '..', 'public', 'favicon.ico'))
 })
 
-router.get('/teapot', (req, res) => {
+router.get('/teapot', (_, res) => {
     res.status(418).render("error")
 })
 
-router.get('/admin/user', userAuth, requireRole('admin'), (req, res) => {
-    res.render("admin/usr")
+router.get('/admin', userAuth, requireRole('admin'), (_, res) => {
+    res.render("admin/index")
 })
 
-router.get('/admin/schedule', userAuth, requireRole('admin'), (req, res) => {
-    res.render("admin/sch")
-})
-
-router.get('/admin/api', userAuth, requireRole('manager'), (req, res) => {
-    res.render("admin/api")
-})
 
 
 export default router

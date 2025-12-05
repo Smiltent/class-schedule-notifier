@@ -37,6 +37,7 @@ export default class Scraper {
         }
     }
 
+    // TODO: place in try catch
     public async storeAllWeeksToDatabase() {
         this.weeks = await this.getWeeksData()
 
@@ -54,6 +55,7 @@ export default class Scraper {
         }
     }
 
+    // TODO: place in try catch
     public async reparseAllWeeksInDatabase() {
         this.weeks = await RawScheduleData.find({})
         for (const week of this.weeks) {

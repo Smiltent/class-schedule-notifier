@@ -29,22 +29,32 @@
             <span class="role c-gray"></span>
             <span class="user c-yellow"></span>
             <div class="flex-row">
-                <% if (user.loggedIn) { %>
-                    <p><%= user.name %> (<%= user.role %>)</p>
-                    <p class="c-orange"> // </p>
-                    <a href="/logout">logout</a>
-                <% } else { %>
-                    <a href="/login">login</a>
-                    <p class="c-orange"> // </p>
-                    <a href="/register">register</a>
-                <% } %>
+                <p><%= user.name %> (<%= user.role %>)</p>
+                <p class="c-orange"> // </p>
+                <a href="/logout">logout</a>
             </div>
         </div>
     </div>
 
     <div class="main flex-col">
-        <h1>lookup teacher</h1>
-        <p>...</p>
+        <h1>manage users</h1>
+        <table>
+            <tr>
+                <th>username</th>
+                <th>role</th>
+                <th>actions</th>
+            </tr>
+            <tr>
+                <th>user</th>
+                <th>user</th>
+                <th>actions thing</th>
+            </tr>
+        </table>
+    </div>
+    <div class="main flex-col">
+        <h1>manage schedule</h1>
+        <a href="/api/v1/admin/refreshWeeks">refresh all weeks from edupage</a>
+        <a href="/api/v1/admin/refreshDatabase">refresh all schedules in database (use this if database uninitialized)</a>
     </div>
 </body>
 </html>

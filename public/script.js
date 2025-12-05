@@ -5,5 +5,3 @@ document.getElementById('registerForm').addEventListener('submit', (e) => {
         document.getElementById('err').innerHTML = "passwords don't match"
     } 
 })
-
-localStorage.clear()

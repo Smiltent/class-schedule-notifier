@@ -45,16 +45,13 @@
     <div class="main flex-col">
         <h1>schedule</h1>
         <a href="/lookup/class">lookup class</a>
-        <a href="/lookup/teacher">lookup teacher</a>
-        <a href="/lookup/classroom">lookup classroom</a>
     </div>
 
     <% if (user.role == 'admin' || user.role == 'manager') { %>
-        <div class="admin flex-col">
-            <h2>admin</h2>
+        <div class="main flex-col">
+            <h2>special</h2>
             <% if (user.role == 'admin') { %>
-                <a href="/admin/schedule">manage schedule</a>
-                <a href="/admin/user">manage users</a>
+                <a href="/admin">goto admin panel</a>
             <% } %>
         </div>
     <% } %>

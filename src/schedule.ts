@@ -9,14 +9,14 @@ export default class Schedule {
     private data: any
     private index: any
 
+    private ignoreFutureWarnings: string[] = []
+
     /**
      * Initializes the Schedule parser for a specific week
      * @param week The week to parse from Edupage
      */
     public async i(week: string) {
-        this.week = week
-
-        await this.loadIndex(week)
+        await this.loadIndex(this.week = week)
     }
 
     /**
@@ -34,13 +34,14 @@ export default class Schedule {
             const lesson = this.index.lessons[card.lessonid]
             if (!lesson) continue
 
-            //? this will totally not cause issues later in the future
-            var period = Math.ceil(card.period / 2)
+            // period division, much more easier to work with
+            var period = Math.ceil(card.period / 2) 
 
+            // index information
             const classroom = this.index.classrooms[card.classroomids[0]]
-            const teacher = this.index.teachers[lesson.teacherids[0]]
+            const teacher = this.index.teachers[lesson.teacherids[0]] // TODO: There could be multiple teachers...
             const subject = this.index.subjects[lesson.subjectid]
-            const clazz = this.index.classes[lesson.classids[0]]
+            const clazz = this.index.classes[lesson.classids[0]] // TODO: There could be multiple classes...
 
             // get day info
             const dayInfo = await this.getDayById(card.days)
@@ -49,6 +50,7 @@ export default class Schedule {
             const { day, name, shortName, isLastDayOfWeek } = dayInfo
             const duration = Math.ceil(lesson.durationperiods / 2)
 
+            // ensures day object exists
             this.ensureDay(endData, clazz.name, day, name, shortName)
 
             // store each period
@@ -67,6 +69,7 @@ export default class Schedule {
             }
         }
 
+        // update in database
         await ClassWeekData.updateOne(
             { week: this.week },
             { $set: { data: endData }},
@@ -91,13 +94,14 @@ export default class Schedule {
             const lesson = this.index.lessons[card.lessonid]
             if (!lesson) continue
 
-            //? this will totally not cause issues later in the future
+            // period division, much more easier to work with
             var period = Math.ceil(card.period / 2)
 
+            // index information
             const classroom = this.index.classrooms[card.classroomids[0]]
-            const teacher = this.index.teachers[lesson.teacherids[0]]
+            const teacher = this.index.teachers[lesson.teacherids[0]] // TODO: There could be multiple teachers...
             const subject = this.index.subjects[lesson.subjectid]
-            const clazz = this.index.classes[lesson.classids[0]]
+            const clazz = this.index.classes[lesson.classids[0]] // TODO: There could be multiple classes...
 
             // get day info
             const dayInfo = await this.getDayById(card.days)
@@ -106,6 +110,18 @@ export default class Schedule {
             const { day, name, shortName, isLastDayOfWeek } = dayInfo
             const duration = Math.ceil(lesson.durationperiods / 2)
 
+            // if teacher name doesn't exist, skip
+            if (teacher?.name === null || teacher?.name === undefined) {
+                const format = `${this.week}-${clazz?.name}`
+
+                if (this.ignoreFutureWarnings.includes(format)) return
+                this.ignoreFutureWarnings.push(format)
+
+                console.warn(`Skipping storing class for teacher because no name provided. week = ${this.week}; class = ${clazz?.name ?? "N/A"}`)
+                continue
+            }
+
+            // ensures day object exists
             this.ensureDay(endData, teacher.name, day, name, shortName)
 
             // store each period
@@ -119,11 +135,12 @@ export default class Schedule {
                     name: subject?.name ?? "N/A",
                     class: clazz?.name ?? "N/A",
                     classroom: classroom?.name ?? "N/A",
-                    // ...(lesson.groupnames ? { group: lesson.groupnames } : {}) // tmp
+                    // ...(lesson.groupnames ? { group: lesson.groupnames } : {}) //* tmp
                 }
             }
         }
 
+        // update in database
         await TeacherWeekData.updateOne(
             { week: this.week },
             { $set: { data: endData }},
