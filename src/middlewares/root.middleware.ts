@@ -45,22 +45,10 @@ async function root(req: Request, res: Response, next: NextFunction) {
 
     try {
         if (type === 'class' && week && q) {
-            // const b = await ClassWeekData.findOne(
-            //     { [`data.${q}`]: { $exists: true }, week }, 
-            //     { [`data.${q}`]: 1, _id: 0 }
-            // )
-
-            // if (b === null) {
-            //     res.locals.class = null 
-            // } 
-
-            // console.log(b)
-
             const b = await ClassWeekData.findOne(
                 { [`data.${q}`]: { $exists: true}, week }
             )
 
-            
         } else if (type === 'teacher' && week && q) {
             res.locals.teacher = await TeacherWeekData.find({ week, data: q })
         } else if (type === 'classroom' && week && q) {

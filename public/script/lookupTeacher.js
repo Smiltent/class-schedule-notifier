@@ -1,10 +1,10 @@
 
 const URL = `${window.location.origin}/api/v1/weeks`
 const WEEK_SELECT = document.getElementById('selectWeek')
-const CLASS_SELECT = document.getElementById('selectClass')
+const TEACHER_SELECT = document.getElementById('selectTeacher')
 
 var WEEK
-var CLASS
+var TEACHER
 
 var WEEK_DATA
 
@@ -12,20 +12,18 @@ async function getSchoolData() {
     await fetch(`${URL}/list`)
         .then(res => res.json())
         .then((data) => {
-            // localStorage.setItem('availableWeeks', JSON.stringify(data))
             setWeekOptions(data["weeks"], data.currentWeek)
         })
 
-    await fetch(`${URL}/class/list`)
+    await fetch(`${URL}/teacher/list`)
         .then(res => res.json())
         .then((data) => {
-            // localStorage.setItem('availableClasses', JSON.stringify(data))
-            setClassOptions(data["data"])
+            setTeacherOptions(data["data"])
         })
 }
 
-async function getWeekData(week, clazz) {
-    await fetch(`${URL}/class/${clazz}/week/${week}`)
+async function getWeekData(week, teacher) {
+    await fetch(`${URL}/teacher/${encodeURIComponent(teacher)}/week/${week}`)
         .then(res => res.json())
         .then((data) => {
             WEEK_DATA = data
@@ -41,20 +39,20 @@ function setWeekOptions(data, selected) {
         }
 
         option.value = week
-        option.innerHTML = `${week} (00.00.0000 - 00.00.0000)`
+        option.innerHTML = `${week}`
 
         WEEK_SELECT.appendChild(option)
     })
 }
 
-function setClassOptions(data) {
-    data.forEach((clazz) => {
+function setTeacherOptions(data) {
+    data.forEach((teacher) => {
         const option = document.createElement('option')
 
-        option.value = clazz
-        option.innerHTML = clazz
+        option.value = teacher
+        option.innerHTML = teacher
 
-        CLASS_SELECT.appendChild(option)
+        TEACHER_SELECT.appendChild(option)
     })
 }
 
@@ -93,7 +91,7 @@ async function createTable() {
 
         day.data.forEach(lesson => {
             const cell = document.createElement('td');
-            cell.innerText = `${lesson.name} (${lesson.teacher})`
+            cell.innerText = `${lesson.name} (${lesson.class})`
             row.appendChild(cell)
         });
 
@@ -120,27 +118,27 @@ async function init() {
         WEEK = WEEK_SELECT.value
     }
 
-    if (params.has('class')) {
-        CLASS = params.get('class')
+    if (params.has('teacher')) {
+        TEACHER = params.get('teacher')
     } else {
-        CLASS = CLASS_SELECT.value
+        TEACHER = TEACHER_SELECT.value
     }
 
-    await getWeekData(WEEK, CLASS)
+    await getWeekData(WEEK, TEACHER)
     await createTable()
 }
 
 WEEK_SELECT.addEventListener('change', async (e) => {
     WEEK = e.target.value
 
-    await getWeekData(WEEK, CLASS)
+    await getWeekData(WEEK, TEACHER)
     createTable()
 })
 
-CLASS_SELECT.addEventListener('change', async (e) => {
-    CLASS = e.target.value
+TEACHER_SELECT.addEventListener('change', async (e) => {
+    TEACHER = e.target.value
 
-    await getWeekData(WEEK, CLASS)
+    await getWeekData(WEEK, TEACHER)
     createTable()
 })
 

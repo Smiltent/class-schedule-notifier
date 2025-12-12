@@ -84,9 +84,9 @@ router.get('/lookup/class', (_, res) => {
 //     res.render("pages/lookupClassroom")
 // })
 
-// router.get('/lookup/teacher', (_, res) => {
-//     res.render("pages/lookupTeacher")
-// })
+router.get('/lookup/teacher', (_, res) => {
+    res.render("pages/lookupTeacher")
+})
 
 // ===========================================================
 

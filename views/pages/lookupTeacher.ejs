@@ -43,18 +43,19 @@
     </div>
 
     <div class="main flex-col">
-        <h1>schedule</h1>
-        <a href="/lookup/class">lookup class</a>
-        <a href="/lookup/teacher">lookup teacher</a>
+        <h1>lookup class</h1>
+        <div>
+            <label for="selectWeek">select week: </label>
+            <select name="selectWeek" id="selectWeek"></select>
+        </div>
+        <div>
+            <label for="selectTeacher">select teacher: </label>
+            <select name="selectTeacher" id="selectTeacher"></select> 
+        </div>
+
+        <div id="tableContainer"></div>
     </div>
 
-    <% if (user.role == 'admin' || user.role == 'manager') { %>
-        <div class="main flex-col">
-            <h2>special</h2>
-            <% if (user.role == 'admin') { %>
-                <a href="/admin">goto admin panel</a>
-            <% } %>
-        </div>
-    <% } %>
+    <script src="/public/script/lookupTeacher.js"></script>
 </body>
 </html>

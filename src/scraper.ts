@@ -5,6 +5,7 @@ import { isEqual } from "lodash"
 import axios from "axios"
 
 import RawScheduleData from "./db/models/RawScheduleData.ts"
+import wait from "./util/wait.ts"
 
 const HEADERS = (url: string) => ({
     "Referer": url,
@@ -18,6 +19,7 @@ const HEADERS = (url: string) => ({
 export default class Scraper {
     private url: string
     private weeks: any
+    private parser: Schedule
 
     public current_week: string = "0"
 
@@ -25,6 +27,7 @@ export default class Scraper {
         console.debug("Running a new scraper.ts instance...")
 
         this.url = url
+        this.parser = new Schedule()
 
         // adds the edupage domain
         if (!this.url.includes("edupage.org")) {
@@ -37,33 +40,38 @@ export default class Scraper {
         }
     }
 
-    // TODO: place in try catch
     public async storeAllWeeksToDatabase() {
-        this.weeks = await this.getWeeksData()
+        try {
+            this.weeks = await this.getWeeksData()
 
-        // this.current_week = this.weeks["timetables"][(this.weeks["timetables"].length - 1)]["tt_num"]
-        this.current_week = this.weeks["default_num"] //* bro im so stupid... it's LITERALLY a variable in the response
+            // this.current_week = this.weeks["timetables"][(this.weeks["timetables"].length - 1)]["tt_num"]
+            this.current_week = this.weeks["default_num"] //* bro im so stupid... it's LITERALLY a variable in the response
 
-        for (const week of this.weeks["timetables"]) {
-            await this.storeWeekToDatabase(week["tt_num"])
-            
-            const parser = new Schedule()
-            await parser.i(week["tt_num"])
+            for (const week of this.weeks["timetables"]) {
+                await this.storeWeekToDatabase(week["tt_num"])
+                
+                await this.parser.i(week["tt_num"])
 
-            await parser.storeClassData()
-            await parser.storeTeacherData()
+                await this.parser.storeClassData()
+                await this.parser.storeTeacherData()
+            }
+        } catch (err) {
+            console.error(`Failed to store all weeks to database: ${err}`)
         }
     }
 
-    // TODO: place in try catch
     public async reparseAllWeeksInDatabase() {
-        this.weeks = await RawScheduleData.find({})
-        for (const week of this.weeks) {
-            const parser = new Schedule()
-            await parser.i(week.week)
+        try {
+            this.weeks = await RawScheduleData.find({})
 
-            await parser.storeClassData()
-            await parser.storeTeacherData()
+            for (const week of this.weeks) {
+                await this.parser.i(week.week)
+
+                await this.parser.storeClassData()
+                await this.parser.storeTeacherData()
+            }
+        } catch (err) {
+            console.error(`Failed to reparse weeks in database: ${err}`)
         }
     }
 
@@ -95,21 +103,31 @@ export default class Scraper {
                 return console.debug(`Week ${week} has been removed`)
             }
 
-            // checks if its been modified //! THIS SUCKS
-            const old = await RawScheduleData.findOne({ week })
-            if (old && !isEqual(old.data, data["dbiAccessorRes"]["tables"])) {
-                console.debug(`Week ${week} has been modified!`)
-                webserverClient.sendWSMessage(JSON.parse(`{"week": "${week}", "type": "updated"}`))
-            } else if (!old) {
-                console.debug(`Week ${week} is brand new (never been stored)`)
-                webserverClient.sendWSMessage(JSON.parse(`{"week": "${week}", "type": "new"}`))
-            } else return
-            
+            // checks if its been modified
+            const old = await RawScheduleData.findOne({ week });
+
+            if (!old) {
+                console.debug(`Week ${week} is brand new (never been stored)`);
+                webserverClient.sendWSMessage(JSON.stringify({
+                    week,
+                    type: "new",
+                }))
+                return
+            }
+
+            if (!isEqual(old.data, data.dbiAccessorRes.tables)) {
+                console.debug(`Week ${week} has been modified!`);
+                webserverClient.sendWSMessage(JSON.stringify({
+                    week,
+                    type: "updated",
+                }))
+            }
+                        
             // store into database
             console.debug(`Storing Week ${week} into Database`)
             await RawScheduleData.updateOne(
                 { week },
-                { $set: { data: data["dbiAccessorRes"]["tables"] }},
+                { $set: { data: data["dbiAccessorRes"]["tables"] }}, // dateFrom: this.weeks[week].text.split
                 { upsert: true }
             )
         } catch (err) {
