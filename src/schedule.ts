@@ -28,20 +28,26 @@ export default class Schedule {
         const endData: Record<string, any> = {}
         
         for (const card of this.index.cards) {
-            if (!card.days || !card.period) continue // check if it has a day / period
+            //// if (!card.days || !card.period) continue // check if it has a day / period
 
             // get lesson information
             const lesson = this.index.lessons[card.lessonid]
-            if (!lesson) continue
+            //// if (!lesson) continue
+
+            // if (lesson.classids.includes("-145") || lesson.classids.includes("-163")) {
+            //     console.log(JSON.stringify(lesson))
+            // }
+
 
             // period division, much more easier to work with
             var period = Math.ceil(card.period / 2) 
 
             // index information
             const classroom = this.index.classrooms[card.classroomids[0]]
-            const teacher = this.index.teachers[lesson.teacherids[0]] // TODO: There could be multiple teachers...
+            const teacher = this.index.teachers[lesson.teacherids[0]] 
             const subject = this.index.subjects[lesson.subjectid]
-            const clazz = this.index.classes[lesson.classids[0]] // TODO: There could be multiple classes...
+            // const clazz = this.index.classes[lesson.classids[0]] // TODO: There could be multiple classes...
+            const classes = lesson.classids.map((id: string) => this.index.classes[id])
 
             // get day info
             const dayInfo = await this.getDayById(card.days)
@@ -50,21 +56,23 @@ export default class Schedule {
             const { day, name, shortName, isLastDayOfWeek } = dayInfo
             const duration = Math.ceil(lesson.durationperiods / 2)
 
-            // ensures day object exists
-            this.ensureDay(endData, clazz.name, day, name, shortName)
+            for (const clazz of classes) {
+                // ensures day object exists
+                this.ensureDay(endData, clazz.name, day, name, shortName)
 
-            // store each period
-            for (var i = 0; i < duration; i++, period++) {
-                const times = this.getPeriodTimes(period, isLastDayOfWeek)
-                if (!times) continue
+                // store each period
+                for (var i = 0; i < duration; i++, period++) {
+                    const times = this.getPeriodTimes(period, isLastDayOfWeek)
+                    if (!times) continue
 
-                endData[clazz.name][day].data[period - 1] = {
-                    start: times[0],
-                    end: times[1],
-                    name: subject?.name ?? "N/A",
-                    teacher: teacher?.name ?? "N/A",
-                    classroom: classroom?.name ?? "N/A",
-                    // ...(lesson.groupnames ? { group: lesson.groupnames } : {}) // tmp
+                    endData[clazz.name][day].data[period - 1] = {
+                        start: times[0],
+                        end: times[1],
+                        name: subject?.name ?? "N/A",
+                        teacher: teacher?.name ?? "N/A",
+                        classroom: classroom?.name ?? "N/A",
+                        // ...(lesson.groupnames ? { group: lesson.groupnames } : {}) // tmp
+                    }
                 }
             }
         }
@@ -88,11 +96,18 @@ export default class Schedule {
         const endData: Record<string, any> = {}
         
         for (const card of this.index.cards) {
-            if (!card.days || !card.period) continue // check if it has a day / period
+            //// if (!card.days || !card.period) {
+            ////     console.log(card.days)
+            ////     console.log(card.period)   
+            ////     continue // check if it has a day / period
+            //// }
 
             // get lesson information
             const lesson = this.index.lessons[card.lessonid]
-            if (!lesson) continue
+            //// if (!lesson) {
+            ////     console.log(lesson || 0)
+            ////     continue
+            //// }
 
             // period division, much more easier to work with
             var period = Math.ceil(card.period / 2)

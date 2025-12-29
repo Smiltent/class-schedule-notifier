@@ -112,17 +112,16 @@ export default class Scraper {
                     week,
                     type: "new",
                 }))
-                return
+            } else {
+                if (!isEqual(old.data, data.dbiAccessorRes.tables)) {
+                    console.debug(`Week ${week} has been modified!`);
+                    webserverClient.sendWSMessage(JSON.stringify({
+                        week,
+                        type: "updated",
+                    }))
+                }
             }
 
-            if (!isEqual(old.data, data.dbiAccessorRes.tables)) {
-                console.debug(`Week ${week} has been modified!`);
-                webserverClient.sendWSMessage(JSON.stringify({
-                    week,
-                    type: "updated",
-                }))
-            }
-                        
             // store into database
             console.debug(`Storing Week ${week} into Database`)
             await RawScheduleData.updateOne(

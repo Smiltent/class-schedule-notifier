@@ -14,6 +14,7 @@ async function removeDir(path: string) {
 }
 
 // TODO: bug, it causes an error. makes a directory with the file name...
+// this function doesn't get used anyways...
 async function createFile(path: string, data: any) {
     await createDir(path)
     fs.writeFileSync(path, data)

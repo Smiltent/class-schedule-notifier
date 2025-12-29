@@ -23,7 +23,7 @@ async function getSchoolData() {
 }
 
 async function getWeekData(week, teacher) {
-    await fetch(`${URL}/teacher/${encodeURIComponent(teacher)}/week/${week}`)
+    await fetch(`${URL}/teacher/${encodeURIComponent(teacher)}week/${week}`)
         .then(res => res.json())
         .then((data) => {
             WEEK_DATA = data

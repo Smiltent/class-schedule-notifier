@@ -107,5 +107,4 @@ router.get('/admin', userAuth, requireRole('admin'), (_, res) => {
 })
 
 
-
 export default router

@@ -93,6 +93,7 @@ async function createTable() {
 
         day.data.forEach(lesson => {
             const cell = document.createElement('td');
+            console.log(lesson)
             cell.innerText = `${lesson.name} (${lesson.teacher})`
             row.appendChild(cell)
         });
