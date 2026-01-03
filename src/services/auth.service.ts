@@ -7,7 +7,7 @@ async function register(username: string, password: string, favoriteNumber: numb
     console.debug("creating new user...")
 
     const checkExisting = await User.findOne({ username })
-    if (checkExisting) throw console.debug("username taken")
+    if (checkExisting) throw new Error("username already taken")
     console.debug("username not taken, making user")
 
     const hash = await bcrypt.hash(password, 10)
@@ -18,10 +18,10 @@ async function register(username: string, password: string, favoriteNumber: numb
 
 async function login(username: string, password: string) {
     const user = await User.findOne({ username })
-    if (!user) throw console.debug("user not found")
+    if (!user) throw new Error("user not found")
 
     const isValid = await bcrypt.compare(password, user.password)
-    if (!isValid) throw console.debug("invalid password")
+    if (!isValid) throw new Error("user with that password not found")
     console.debug('a user has logged in')
 
     return jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: '1d' })
@@ -29,7 +29,7 @@ async function login(username: string, password: string) {
 
 async function deletee(username: string) {
     const user = await User.findOne({ username })
-    if (!user) throw console.debug("user not found")
+    if (!user) throw new Error("user not found")
 
     await User.deleteOne({ _id: user._id })
     console.debug(`user ${username} deleted`)
