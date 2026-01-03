@@ -24,7 +24,7 @@ const LOGIN_REGISTER_RATELIMIT = rateLimit({
 
 // ===========================================================
 router.post('/register', LOGIN_REGISTER_RATELIMIT, async (req, res) => {
-    return res.status(400).render("register", { dMsg: "registering is disabled", dType: "bad" } )
+    if (process.env.REGISTER == "false") return res.status(400).render("register", { dMsg: "registering is disabled", dType: "bad" } )
 
     if (req.cookies?.token) return res.redirect('/')
 
