@@ -1,34 +1,23 @@
 
+#
+#  By default, this Docker Compose file is setup to work in Smil's docker setup.
+#
+#  If you want to host this yourself,
+#  make sure you use a different Docker Compose file that fits your needs.
+#
+
 services:
-  # app:
-  #   image: oven/bun:latest
-  #   restart: always
-  #   working_dir: /app
-  #   volumes:
-  #     - .:/app
-  #   depends_on:
-  #     - database
-  #   ports:
-  #     - "3000:3000"
-  #   command: ["bun", "index.ts", "--debug"]
-  #   networks:
-  #     - app-internal
-
-  database:
-    image: mongo:latest
-    restart: always
-    environment:
-      - MONGO_INITDB_DATABASE=schedule
-    volumes:
-      - mongodb:/data/db
-    ports:
-      - "27017:27017"  ##  DISABLE IN PRODUCTION
+  schedule:
+    build: ./class-schedule-notifier # CHANGE ME!
+    container_name: "School_Schedule"
+    restart: unless-stopped
+    env_file: .env # CHANGE ME!
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.schedule.rule=Host(`${URL_SCHEDULE}`)" # CHANGE ME!
+      - "traefik.http.routers.schedule.entrypoints=websecure"
+      - "traefik.http.routers.schedule.tls=true"
+      - "traefik.http.routers.schedule.tls.certresolver=letsencrypt"
+      - "traefik.http.services.schedule.loadbalancer.server.port=8080"
     networks:
-      - app-internal
-
-volumes:
-  mongodb:
-
-networks:
-  app-internal:
-    driver: bridge
+      - traefik

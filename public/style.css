@@ -95,6 +95,10 @@ table, th, td {
     border: 1px solid var(--dgray);
 }
 
+th, td {
+    padding: 6px;
+}
+
 tr:not(:first-child) th {
     color: var(--gray);
     font-weight: 400;
@@ -102,7 +106,7 @@ tr:not(:first-child) th {
 
 /* =========== FORMS =========== */
 form input, select {
-    font-size: 0.9rem;
+    font-size: 0.9remc;
     background-color: var(--dgray);
     border: none;
     border-radius: 0.15rem;
@@ -114,6 +118,7 @@ form, select{
     margin-right: 1rem;
     width: 15rem
 }
+
 
 @media screen and (max-aspect-ratio: 4/3) {
     form {
