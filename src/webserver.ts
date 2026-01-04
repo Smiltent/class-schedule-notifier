@@ -55,7 +55,14 @@ export default class WebServer {
 
     // ================= EXPRESS =================
     private express() {
-        this.app.use('/public', express.static(path.join(__dirname, '..', 'public')))
+        this.app.use(
+            '/public',
+            express.static(path.join(__dirname, '..', 'public'), {
+                etag: true,
+                lastModified: true,
+                maxAge: '30d',
+            })
+        )
         this.app.set("view engine", "ejs");
 
         this.app.use(bodyParser.urlencoded({ extended: true }))
