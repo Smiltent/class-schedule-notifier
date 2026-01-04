@@ -65,6 +65,8 @@ export default class WebServer {
         
         this.app.use(root)
         
+        this.app.locals.metaUrl = process.env.META_URL || "https://example.com"
+        this.app.locals.metaTitle = process.env.META_TITLE || "School Name"
         this.app.locals.gitHash = hash
         this.app.locals.gitUrl = url
     }
