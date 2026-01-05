@@ -1,5 +1,5 @@
 
-import { scraperClient } from "../.."
+import { scraperClient, webserverClient } from "../.."
 import { userAuth, requireRole } from "../middlewares/auth.middleware"
 
 import { Router } from 'express'
@@ -40,6 +40,17 @@ router.get(`/refreshWeeks`, userAuth, requireRole('admin'), (req, res) => {
     console.warn("Manual week refresh from panel")
 
     scraperClient.storeAllWeeksToDatabase()
+
+    res.redirect('/admin')
+})
+
+router.get(`/sendTestNotification`, userAuth, requireRole('admin'), (req, res) => {
+    console.warn("Manual test notification sent from panel")
+
+    webserverClient.sendWSMessage(JSON.stringify({
+        week: "0",
+        type: "test",
+    }))
 
     res.redirect('/admin')
 })
