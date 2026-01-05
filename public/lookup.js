@@ -13,6 +13,10 @@ export const settings = {
     formats: {
         class: `%name%<br>(%teacher% | %classroom%)`,
         teacher: `%name%<br>(%class% | %classroom%)`,
+    },
+    coloring: { // yes, i know its stupid, but i had no other idea on how to do it
+        class: '%name%',
+        teacher: '%class%',
     }
 }
 
@@ -88,7 +92,12 @@ function createTable(type, container) {
 
             if (lesson != null) {
                 cell.classList.add("lesson-cell")
-                cell.style.backgroundColor = randomColorFromString(lesson.name)
+                cell.style.backgroundColor = randomColorFromString(
+                    settings.coloring[type]
+                        .replace('%name%', lesson.name)
+                        .replace('%teacher%', lesson.teacher)
+                        .replace('%class%', lesson.class)
+                )
 
                 cell.innerHTML = settings.formats[type]
                     .replace('%name%', lesson.name)
