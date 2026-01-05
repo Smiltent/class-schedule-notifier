@@ -56,6 +56,13 @@
         <div id="tableContainer"></div>
     </div>
 
-    <script src="/public/script/lookupClass.js"></script>
+    <script type="module">
+        import { settings, setup } from "/public/lookup.js"
+
+        settings.elements.week = document.getElementById('selectWeek')
+        settings.elements.main = document.getElementById('selectClass')
+
+        setup("class")
+    </script>
 </body>
 </html>
