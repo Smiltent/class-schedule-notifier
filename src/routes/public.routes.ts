@@ -25,11 +25,14 @@ const LOGIN_REGISTER_RATELIMIT = rateLimit({
 // ===========================================================
 router.post('/register', LOGIN_REGISTER_RATELIMIT, async (req, res) => {
     if (process.env.REGISTER == "false") return res.status(400).render("register", { dMsg: "registering is disabled", dType: "bad" } )
-
     if (req.cookies?.token) return res.redirect('/')
 
     try {
         const { username, password, favoriteNumber } = req.body
+
+        // validate
+        if (username.length < 3 || username.length > 20) throw new Error("username must be between 3 and 20 characters")
+        if (username.match(/[^a-zA-Z0-9_]/)) throw new Error("username can only contain letters, numbers and underscores")
 
         await register(username, password, favoriteNumber)
     

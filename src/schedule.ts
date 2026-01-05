@@ -34,11 +34,6 @@ export default class Schedule {
             const lesson = this.index.lessons[card.lessonid]
             //// if (!lesson) continue
 
-            // if (lesson.classids.includes("-145") || lesson.classids.includes("-163")) {
-            //     console.log(JSON.stringify(lesson))
-            // }
-
-
             // period division, much more easier to work with
             var period = Math.ceil(card.period / 2) 
 

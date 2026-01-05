@@ -61,7 +61,7 @@ export default class WebServer {
             express.static(path.join(__dirname, '..', 'public'), {
                 etag: !isDev,
                 lastModified: !isDev,
-                maxAge: isDev ? 0 : '30d',
+                maxAge: isDev ? 0 : '10s',
             })
         )
         this.app.set("view engine", "ejs");
