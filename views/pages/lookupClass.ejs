@@ -44,25 +44,48 @@
 
     <div class="main flex-col">
         <h1>lookup class</h1>
-        <div>
-            <label for="selectWeek">select week: </label>
-            <select name="selectWeek" id="selectWeek"></select>
-        </div>
-        <div>
-            <label for="selectClass">select class: </label>
-            <select id="selectClass"></select> 
+        <div class="flex-row">
+            <div class="flex-col">
+                <div>
+                    <label for="selectWeek">select week: </label>
+                    <select name="selectWeek" id="selectWeek"></select>
+                </div>
+                <div>
+                    <label for="selectClass">select class: </label>
+                    <select id="selectClass"></select> 
+                </div>
+            </div>
+            <div class="downloadContainer">
+                <button id="downloadBtn">download</button>
+            </div>
         </div>
 
         <div id="tableContainer"></div>
     </div>
 
+    <!-- show data system -->
     <script type="module">
         import { settings, setup } from "/public/lookup.js"
+        const params = new URLSearchParams(window.location.search)
 
         settings.elements.week = document.getElementById('selectWeek')
         settings.elements.main = document.getElementById('selectClass')
 
-        setup("class")
+        var ignore = [false, false]
+        if (params.get("week") != null) {
+            settings.values.week = params.get("week")
+            ignore[0] = true
+        }
+        if (params.get("class") != null) {
+            settings.values.main = params.get("class")
+            ignore[1] = true
+        }
+
+        setup("class", ignore)
     </script>
+
+    <!-- download schedule system -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script type="module" src="/public/download.js"></script>
 </body>
 </html>
