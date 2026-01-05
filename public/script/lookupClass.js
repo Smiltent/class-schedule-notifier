@@ -74,12 +74,12 @@ async function createTable() {
     const header = document.createElement('tr')
 
     const dayTh = document.createElement('th')
-    dayTh.innerText = 'DAY'
+    dayTh.innerText = 'day'
     header.appendChild(dayTh)
 
     for (let i = 1; i <= maxLessons; i++) {
         const th = document.createElement('th')
-        th.innerText = `${i}.`
+        th.innerText = `${i}. period`
         header.appendChild(th)
     }
 

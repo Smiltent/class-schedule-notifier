@@ -23,7 +23,7 @@ async function getSchoolData() {
 }
 
 async function getWeekData(week, teacher) {
-    await fetch(`${URL}/teacher/${encodeURIComponent(teacher)}week/${week}`)
+    await fetch(`${URL}/teacher/${encodeURIComponent(teacher)}/week/${week}`)
         .then(res => res.json())
         .then((data) => {
             WEEK_DATA = data
@@ -72,12 +72,12 @@ async function createTable() {
     const header = document.createElement('tr')
 
     const dayTh = document.createElement('th')
-    dayTh.innerText = 'DAY'
+    dayTh.innerText = 'day'
     header.appendChild(dayTh)
 
     for (let i = 1; i <= maxLessons; i++) {
         const th = document.createElement('th')
-        th.innerText = `${i}.`
+        th.innerText = `${i}. period`
         header.appendChild(th)
     }
 
@@ -91,10 +91,18 @@ async function createTable() {
         row.appendChild(dayCell)
 
         day.data.forEach(lesson => {
-            const cell = document.createElement('td');
-            cell.innerText = `${lesson.name}<br>(${lesson.class} | ${lesson.classroom})`
-            row.appendChild(cell)
-        });
+            const cellContainer = document.createElement('td')
+            const cell = document.createElement('div')
+
+            if (lesson != null) {
+                cell.classList.add("lesson-cell")
+                cell.style.backgroundColor = randomColorFromString(lesson.class)
+                cell.innerHTML = `${lesson.name}<br>(${lesson.class} | ${lesson.classroom})`
+            }
+
+            cellContainer.appendChild(cell)
+            row.appendChild(cellContainer)
+        })
 
         const missing = maxLessons - day.data.length;
         for (let i = 0; i < missing; i++) {
@@ -104,7 +112,7 @@ async function createTable() {
         }
 
         table.appendChild(row)
-    });
+    })
 
     CONTAINER.appendChild(table)
 }
@@ -122,7 +130,7 @@ async function init() {
 
     if (params.has('teacher')) {
         TEACHER = params.get('teacher')
-        TEACHER_SELECT.value = TEACHER1
+        TEACHER_SELECT.value = TEACHER
     } else {
         TEACHER = TEACHER_SELECT.value
     }
@@ -144,5 +152,21 @@ TEACHER_SELECT.addEventListener('change', async (e) => {
     await getWeekData(WEEK, TEACHER)
     createTable()
 })
+
+function hashCode(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i)
+        hash |= 0
+    }
+    return hash
+}
+
+function randomColorFromString(str) {
+    const hue = Math.abs(hashCode(str)) % 360
+    const sat = 60 + (Math.abs(hashCode(str)) % 20) 
+
+    return `hsl(${hue}, ${sat}%, 25%)`
+}
 
 init()
