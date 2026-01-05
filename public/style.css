@@ -124,6 +124,22 @@ form, select{
     border-radius: 0.25rem;
 }
 
+/* =========== DOWNLOAD BUTTON =========== */
+
+.downloadContainer {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+
+#downloadBtn {
+    background-color: var(--dgray);
+    color: var(--text);
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
 
 @media screen and (max-aspect-ratio: 4/3) {
     form {

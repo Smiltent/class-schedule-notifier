@@ -23,11 +23,13 @@ export const settings = {
 //
 //   utils
 //
-async function getSchoolData(type) {
+async function getSchoolData(type, ignore) {
     await fetch(`${settings.url}/list`)
         .then(res => res.json())
         .then((data) => {
-            settings.values.week = data.currentWeek
+            if (!ignore[0]) {
+                settings.values.week = data.currentWeek
+            }
 
             setWeekOptions(settings.elements.week, data["weeks"], data.currentWeek)
         })
@@ -35,9 +37,11 @@ async function getSchoolData(type) {
     await fetch(`${settings.url}/${type}/list`)
         .then(res => res.json())
         .then((data) => {
-            settings.values.main = data["data"][0]
+            if (!ignore[1]) {
+                settings.values.main = data["data"][0]
+            }
 
-            setMainOptions(settings.elements.main, data["data"])
+            setMainOptions(settings.elements.main, data["data"], ignore[1] ? settings.values.main : null)
         })
 }
 
@@ -139,9 +143,13 @@ function setWeekOptions(element, data, primary = null) {
     })
 }
 
-function setMainOptions(element, data) {
+function setMainOptions(element, data, primary = null) {
     data.forEach((info) => {
         const option = document.createElement('option')
+
+        if (info === primary) {
+            option.selected = true
+        }
 
         option.value = info
         option.innerHTML = info
@@ -172,11 +180,11 @@ function randomColorFromString(str) {
 //
 //   main
 //
-export async function setup(type) {
+export async function setup(type, ignore) {
     const table = document.getElementById('tableContainer')
 
     // get information from API
-    await getSchoolData(type)
+    await getSchoolData(type, ignore)
     await getWeekData(type, settings.values.week, settings.values.main)
 
     createTable(type, table)
