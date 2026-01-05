@@ -15,8 +15,8 @@ export const settings = {
         teacher: `%name%<br>(%class% | %classroom%)`,
     },
     coloring: { // yes, i know its stupid, but i had no other idea on how to do it
-        class: '%name%',
-        teacher: '%class%',
+        class: '%name%-%teacher%',
+        teacher: '%name%-%class%',
     }
 }
 
