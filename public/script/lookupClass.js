@@ -38,11 +38,12 @@ function setWeekOptions(data, selected) {
 
         if (week === selected) {
             option.selected = true
+            option.innerHTML = `${week} (current)`
+        } else {
+            option.innerHTML = `${week}`
         }
 
         option.value = week
-        option.innerHTML = `${week} (00.00.0000 - 00.00.0000)`
-
         WEEK_SELECT.appendChild(option)
     })
 }
@@ -89,14 +90,20 @@ async function createTable() {
 
         const dayCell = document.createElement('td')
         dayCell.innerText = day.day
+
         row.appendChild(dayCell)
 
         day.data.forEach(lesson => {
-            const cell = document.createElement('td');
-            console.log(lesson)
-            cell.innerText = `${lesson.name} (${lesson.teacher})`
-            row.appendChild(cell)
-        });
+            const cellContainer = document.createElement('td')
+            const cell = document.createElement('div')
+
+            cell.classList.add("lesson-cell")
+            cell.style.backgroundColor = randomColorFromString(lesson.name)
+            cell.innerHTML = `${lesson.name}<br>(${lesson.teacher} | ${lesson.classroom})`
+
+            cellContainer.appendChild(cell)
+            row.appendChild(cellContainer)
+        })
 
         const missing = maxLessons - day.data.length;
         for (let i = 0; i < missing; i++) {
@@ -106,7 +113,7 @@ async function createTable() {
         }
 
         table.appendChild(row)
-    });
+    })
 
     CONTAINER.appendChild(table)
 }
@@ -117,12 +124,14 @@ async function init() {
     const params = new URLSearchParams(window.location.search)
     if (params.has('week')) {
         WEEK = params.get('week')
+        WEEK_SELECT.value = WEEK
     } else {
         WEEK = WEEK_SELECT.value
     }
 
     if (params.has('class')) {
         CLASS = params.get('class')
+        CLASS_SELECT.value = CLASS
     } else {
         CLASS = CLASS_SELECT.value
     }
@@ -144,5 +153,21 @@ CLASS_SELECT.addEventListener('change', async (e) => {
     await getWeekData(WEEK, CLASS)
     createTable()
 })
+
+function hashCode(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i)
+        hash |= 0
+    }
+    return hash
+}
+
+function randomColorFromString(str) {
+    const hue = Math.abs(hashCode(str)) % 360
+    const sat = 60 + (Math.abs(hashCode(str)) % 20) 
+
+    return `hsl(${hue}, ${sat}%, 25%)`
+}
 
 init()

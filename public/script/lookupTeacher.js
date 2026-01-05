@@ -36,11 +36,12 @@ function setWeekOptions(data, selected) {
 
         if (week === selected) {
             option.selected = true
+            option.innerHTML = `${week} (current)`
+        } else {
+            option.innerHTML = `${week}`
         }
 
         option.value = week
-        option.innerHTML = `${week}`
-
         WEEK_SELECT.appendChild(option)
     })
 }
@@ -91,7 +92,7 @@ async function createTable() {
 
         day.data.forEach(lesson => {
             const cell = document.createElement('td');
-            cell.innerText = `${lesson.name} (${lesson.class})`
+            cell.innerText = `${lesson.name}<br>(${lesson.class} | ${lesson.classroom})`
             row.appendChild(cell)
         });
 
@@ -114,12 +115,14 @@ async function init() {
     const params = new URLSearchParams(window.location.search)
     if (params.has('week')) {
         WEEK = params.get('week')
+        WEEK_SELECT.value = WEEK
     } else {
         WEEK = WEEK_SELECT.value
     }
 
     if (params.has('teacher')) {
         TEACHER = params.get('teacher')
+        TEACHER_SELECT.value = TEACHER1
     } else {
         TEACHER = TEACHER_SELECT.value
     }

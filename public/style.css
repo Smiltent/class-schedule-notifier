@@ -119,6 +119,11 @@ form, select{
     width: 15rem
 }
 
+.lesson-cell {
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+}
+
 
 @media screen and (max-aspect-ratio: 4/3) {
     form {

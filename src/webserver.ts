@@ -55,12 +55,13 @@ export default class WebServer {
 
     // ================= EXPRESS =================
     private express() {
+        const isDev = process.env.ENV === 'dev'
         this.app.use(
             '/public',
             express.static(path.join(__dirname, '..', 'public'), {
-                etag: true,
-                lastModified: true,
-                maxAge: '30d',
+                etag: !isDev,
+                lastModified: !isDev,
+                maxAge: isDev ? 0 : '30d',
             })
         )
         this.app.set("view engine", "ejs");
