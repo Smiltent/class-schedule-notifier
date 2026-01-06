@@ -32,7 +32,7 @@ router.post('/register', LOGIN_REGISTER_RATELIMIT, async (req, res) => {
 
         // validate
         if (username.length < 3 || username.length > 20) throw new Error("username must be between 3 and 20 characters")
-        if (username.match(/[^a-zA-Z0-9_]/)) throw new Error("username can only contain letters, numbers and underscores")
+        if (username.match(/[^a-zA-Z0-9_]/)) throw new Error("username may only contain letters, numbers and underscores")
 
         await register(username, password, favoriteNumber)
     

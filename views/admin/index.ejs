@@ -7,34 +7,12 @@
 
     <link rel="stylesheet" href="/public/style.css">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <%- include('../components/$fonts.ejs') %>
 
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <div class="header">
-        <!-- Left side / GitHub Latest Commit -->
-        <div class="left">
-            <div class="flex-row">
-                <a href="/">home</a>
-                <p class="c-orange"> // </p>
-                <a href="<%= gitUrl %>"><%= gitHash %></a>
-            </div>
-        </div>
-
-        <!-- Right Side / Login & Register -->
-        <div class="right">
-            <span class="role c-gray"></span>
-            <span class="user c-yellow"></span>
-            <div class="flex-row">
-                <p><%= user.name %> (<%= user.role %>)</p>
-                <p class="c-orange"> // </p>
-                <a href="/logout">logout</a>
-            </div>
-        </div>
-    </div>
+    <%- include('../components/$header.ejs') %>
 
     <div class="main flex-col">
         <h1>users</h1>

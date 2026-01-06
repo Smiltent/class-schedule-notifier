@@ -1,0 +1,27 @@
+<div class="header">
+    <!-- Left side / GitHub Latest Commit -->
+    <div class="left">
+        <div class="flex-row">
+            <a href="/">home</a>
+            <p class="c-orange"> // </p>
+            <a href="<%= gitUrl %>"><%= gitHash %></a>
+        </div>
+    </div>
+
+    <!-- Right Side / Login & Register -->
+    <div class="right">
+        <span class="role c-gray"></span>
+        <span class="user c-yellow"></span>
+        <div class="flex-row">
+            <% if (user.loggedIn) { %>
+                <p><%= user.name %> (<%= user.role %>)</p>
+                <p class="c-orange"> // </p>
+                <a href="/logout">logout</a>
+            <% } else { %>
+                <a href="/login">login</a>
+                <p class="c-orange"> // </p>
+                <a href="/register">register</a>
+            <% } %>
+        </div>
+    </div>
+</div>
