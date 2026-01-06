@@ -78,7 +78,7 @@ export default class Scraper {
     private async getWeeksData() {
         try {
             const currentYear = new Date().getFullYear() 
-            const res = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, 2026], __gsh: "00000000"}, {
+            const res = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, currentYear], __gsh: "00000000"}, {
                 headers: HEADERS(this.url)
             })
 
