@@ -180,7 +180,7 @@ function randomColorFromString(str) {
 //
 //   main
 //
-export async function setup(type, ignore) {
+export async function setup(type, ignore = [false, false]) {
     const table = document.getElementById('tableContainer')
 
     // get information from API

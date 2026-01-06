@@ -43,7 +43,7 @@
     </div>
 
     <div class="main flex-col">
-        <h1>lookup class</h1>
+        <h1>lookup teacher</h1>
         <div>
             <label for="selectWeek">select week: </label>
             <select name="selectWeek" id="selectWeek"></select>
@@ -58,11 +58,22 @@
 
     <script type="module">
         import { settings, setup } from "/public/lookup.js"
+        const params = new URLSearchParams(window.location.search)
 
         settings.elements.week = document.getElementById('selectWeek')
         settings.elements.main = document.getElementById('selectTeacher')
 
-        setup("teacher")
+        var ignore = [false, false]
+        if (params.get("week") != null) {
+            settings.values.week = params.get("week")
+            ignore[0] = true
+        }
+        if (params.get("teacher") != null) {
+            settings.values.main = params.get("teacher")
+            ignore[1] = true
+        }
+
+        setup("teacher", ignore)
     </script>
 </body>
 </html>
