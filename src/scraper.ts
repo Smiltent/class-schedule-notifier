@@ -83,8 +83,8 @@ export default class Scraper {
 
             var data = res.data["r"]["regular"]
             if (data["default_num"] == null || data["default_num"] === "") {
-                console.warn("Edupage didn't update their year or default_num is empty...")
-                data["default_num"] = data["timetables"][0]["tt_num"]
+                console.warn("Edupage didn't update their year or default_num is empty...") // otherwise, gets the last week available (most likely recent)
+                data["default_num"] = data["timetables"][data["timetables"].length - 1]["tt_num"]
             }
 
             return data
