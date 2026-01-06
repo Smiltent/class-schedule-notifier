@@ -5,7 +5,6 @@ import { isEqual } from "lodash"
 import axios from "axios"
 
 import RawScheduleData from "./db/models/RawScheduleData.ts"
-import wait from "./util/wait.ts"
 
 const HEADERS = (url: string) => ({
     "Referer": url,
@@ -82,14 +81,13 @@ export default class Scraper {
                 headers: HEADERS(this.url)
             })
 
-            if (res.data["r"]["regular"]["default_numb"] === "") {
-                const oldYear = currentYear - 1
-                res = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, oldYear], __gsh: "00000000"}, {
-                    headers: HEADERS(this.url)
-                })
+            var data = res.data["r"]["regular"]
+            if (data["default_num"] == null || data["default_num"] === "") {
+                console.warn("Edupage didn't update their year or default_num is empty...")
+                data["default_num"] = data["timetables"][0]["tt_num"]
             }
 
-            return res.data["r"]["regular"]
+            return data
         } catch (err) {
             console.error(`Failed to fetch weeks data from ${this.url}: ${err}`)
             return null
