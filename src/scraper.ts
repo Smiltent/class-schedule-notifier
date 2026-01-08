@@ -91,7 +91,8 @@ export default class Scraper {
                 // gets the last week available (most likely recent)
                 data.default_num = data.timetables[data.timetables.length - 1].tt_num
 
-                if (!alreadyWarned) return console.warn("Edupage didn't update their year or default_num is empty...")
+                // gosh i love returns in try statements
+                if (!alreadyWarned) { console.warn("Edupage didn't update their year or default_num is empty...") }
                 alreadyWarned = true
             }
 
