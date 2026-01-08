@@ -5,6 +5,8 @@ import { isEqual } from "lodash"
 import axios from "axios"
 
 import RawScheduleData from "./db/models/RawScheduleData.ts"
+import checkDiff from "./util/diff.ts"
+import sendWebhook from "./util/webhook.ts"
 
 const HEADERS = (url: string) => ({
     "Referer": url,
@@ -112,14 +114,23 @@ export default class Scraper {
             const old = await RawScheduleData.findOne({ week });
 
             if (!old) {
-                console.debug(`Week ${week} is brand new (never been stored)`);
+                console.debug(`Week ${week} is brand new (never been stored)`)
+
                 webserverClient.sendWSMessage(JSON.stringify({
                     week,
                     type: "new",
                 }))
             } else {
                 if (!isEqual(old?.data, data.dbiAccessorRes.tables)) {
-                    console.debug(`Week ${week} has been modified!`);
+                    console.debug(`Week ${week} has been modified!`)
+
+                    // temporary - send difference to a webhook
+                    const check = checkDiff(old?.data, data.dbiAccessorRes.tables)
+                    await sendWebhook(
+                        String(process.env.DISCORD_WEBHOOK_URL), 
+                        check
+                    )
+
                     webserverClient.sendWSMessage(JSON.stringify({
                         week,
                         type: "updated",

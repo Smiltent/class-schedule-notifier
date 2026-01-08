@@ -18,7 +18,17 @@ const LOGIN_REGISTER_RATELIMIT = rateLimit({
     windowMs: 20 * 60 * 1000, // 20 min
     limit: 10,
     handler: (req, res) => {
-        res.status(429).render("error")
+
+        switch (req.path) {
+            case '/login':
+                return res.status(429).render("login", { dMsg: "you are being ratelimited", dType: "bad" } )
+            
+            case '/register':
+                return res.status(429).render("register", { dMsg: "you are being ratelimited", dType: "bad" } )
+
+            default:
+                return res.status(429).send("You are being ratelimited. Try again later!")
+        }
     }
 })
 

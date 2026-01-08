@@ -65,6 +65,11 @@ export default class WebServer {
             })
         )
         this.app.set("view engine", "ejs");
+        this.app.set("trust proxy", [
+            "loopback",
+            "linklocal",
+            "uniquelocal"
+        ])
 
         this.app.use(bodyParser.urlencoded({ extended: true }))
         this.app.use(cookieParser())
