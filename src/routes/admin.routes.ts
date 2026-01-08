@@ -48,7 +48,7 @@ router.get(`/sendTestNotification`, userAuth, requireRole('admin'), (req, res) =
     console.warn("Manual test notification sent from panel")
 
     webserverClient.sendWSMessage(JSON.stringify({
-        week: "0",
+        week: scraperClient.current_week,
         type: "test",
     }))
 
