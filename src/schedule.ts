@@ -39,6 +39,8 @@ export default class Schedule {
             const teacher = this.index.teachers[lesson.teacherids[0]] 
             const subject = this.index.subjects[lesson.subjectid]
             // const clazz = this.index.classes[lesson.classids[0]] // TODO: There could be multiple classes...
+
+            // if (lesson.classids.length >= 2) return console.log(lesson.classids)
             const classes = lesson.classids.map((id: string) => this.index.classes[id])
 
             // get day info

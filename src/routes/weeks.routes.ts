@@ -1,12 +1,11 @@
 
 import RawScheduleData from '../db/models/RawScheduleData'
-
-import classRouter from './weeks/class.subroutes'
-import teacherRouter from './weeks/teacher.subroutes'
-
 import { scraperClient } from '../..'
-import { Router } from 'express'
 
+import teacherRouter from './weeks/teacher.subroutes'
+import classRouter from './weeks/class.subroutes'
+
+import { Router } from 'express'
 const router = Router()
 
 /** 

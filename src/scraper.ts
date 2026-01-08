@@ -1,12 +1,12 @@
 
 import { webserverClient } from "../index.ts"
+import sendWebhook from "./util/webhook.ts"
+import checkDiff from "./util/diff.ts"
 import Schedule from "./schedule.ts"
 import { isEqual } from "lodash"
 import axios from "axios"
 
 import RawScheduleData from "./db/models/RawScheduleData.ts"
-import checkDiff from "./util/diff.ts"
-import sendWebhook from "./util/webhook.ts"
 
 const HEADERS = (url: string) => ({
     "Referer": url,
@@ -47,14 +47,13 @@ export default class Scraper {
         try {
             this.weeks = await this.getWeeksData()
 
-            // this.current_week = this.weeks["timetables"][(this.weeks["timetables"].length - 1)]["tt_num"]
-            this.current_week = this.weeks["default_num"] //* bro im so stupid... it's LITERALLY a variable in the response
+            this.current_week = this.weeks.default_num
 
-            for (const week of this.weeks["timetables"]) {
-                const canParse = await this.storeWeekToDatabase(week["tt_num"])
+            for (const week of this.weeks.timetables) {
+                const canParse = await this.storeWeekToDatabase(week.tt_num)
                 if (!canParse) continue
                 
-                await this.parser.i(week["tt_num"])
+                await this.parser.i(week.tt_num)
 
                 await this.parser.storeClassData()
                 await this.parser.storeTeacherData()
@@ -86,14 +85,14 @@ export default class Scraper {
                 headers: HEADERS(this.url)
             })
 
-            var data = res.data["r"]["regular"]
+            var data = res.data.r.regular
 
-            if (data["default_num"] == null || data["default_num"] === "") {
-                if (alreadyWarned) return
+            if (data.default_num == null || data.default_num === "") {
+                // gets the last week available (most likely recent)
+                data.default_num = data.timetables[data.timetables.length - 1].tt_num
+
+                if (!alreadyWarned) return console.warn("Edupage didn't update their year or default_num is empty...")
                 alreadyWarned = true
-
-                console.warn("Edupage didn't update their year or default_num is empty...") // otherwise, gets the last week available (most likely recent)
-                data["default_num"] = data["timetables"][data["timetables"].length - 1]["tt_num"]
             }
 
             return data
@@ -158,7 +157,7 @@ export default class Scraper {
             await RawScheduleData.updateOne(
                 { week },
                 { $set: { 
-                    data: data["dbiAccessorRes"]["tables"] 
+                    data: data.dbiAccessorRes.tables
                 }},
                 { upsert: true }
             )

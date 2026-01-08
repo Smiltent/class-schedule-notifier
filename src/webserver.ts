@@ -89,8 +89,8 @@ export default class WebServer {
 
     // ================= API =================
     private api_v1() {
-        this.app.use('/api/v1/weeks', weeksRoutes)
-        this.app.use(`/api/v1/admin`, adminRoutes)
+        this.app.use('/v1/weeks', weeksRoutes)
+        this.app.use(`/v1/admin`, adminRoutes)
 
         this.app.use('/', publicRoutes)
         this.app.use((req, res) => {
@@ -99,6 +99,6 @@ export default class WebServer {
     }
     
     private start() {
-        this.server.listen(this.port, () => console.info(`Starting http server on 0.0.0.0:${this.port}`))
+        this.server.listen(this.port, () => console.info(`Starting HTTP server on 0.0.0.0:${this.port}`))
     }
 } 

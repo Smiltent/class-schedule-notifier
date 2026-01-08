@@ -1,6 +1,6 @@
 
 import type { Request, Response, NextFunction } from "express"
-import getClientIp from "../util/getIp"
+import getClientIp from "../util/realip"
 import jwt from "jsonwebtoken"
 
 import User from "../db/models/User"
@@ -13,6 +13,7 @@ async function root(req: Request, res: Response, next: NextFunction) {
             // set locals with user data (displayed in /)
             const payload: any = jwt.verify(token, String(process.env.JWT_SECRET))
             const user = await User.findById(payload.id).lean()
+
             if (!user) throw new Error('user not found')
 
             res.locals.user = {

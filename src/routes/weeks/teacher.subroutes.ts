@@ -158,7 +158,6 @@ router.get('/:id/upcomingweek', async (req, res) => {
     }
 })
 
-
 /** 
  * Get teacher data for a specific week
  * @param id Teacher ID

@@ -16,7 +16,6 @@ export default function checkDiff(oldd: unknown, neww: unknown): string {
     const extracted = extractChanges(diff, 3)
 
     if (extracted.trim()) {
-        console.log('```diff\n' + extracted + '\n```')
         return '```diff\n' + extracted + '\n```'
     } else {
         return "no changes"

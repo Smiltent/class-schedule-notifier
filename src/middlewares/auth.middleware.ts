@@ -11,21 +11,20 @@ interface AuthRequest extends Request {
 async function userAuth(req: AuthRequest, res: Response, next: NextFunction) {
     try {
         const token = req.cookies?.token
-        if (!token) // if no token found
-            return res.status(403).render("error") 
-
+        if (!token) return res.status(403).render("error") // if no token found
+            
         const payload: any = jwt.verify(token, String(process.env.JWT_SECRET))
 
         const user = await User.findById(payload.id)
-        if (!user) // if user doesnt exist
-            return res.status(403).render("error")
-
+        if (!user) return res.status(403).render("error") // if user doesnt exist
+            
         req.user = user
         req.type = 'jwt'
+        
         next()
     } catch (err) {
         console.error(`JWT Authentication error: ${err}`)
-        return res.status(500).render("error")
+        return res.status(401).render("error")
     }
 }
 

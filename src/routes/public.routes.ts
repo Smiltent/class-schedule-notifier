@@ -18,7 +18,6 @@ const LOGIN_REGISTER_RATELIMIT = rateLimit({
     windowMs: 20 * 60 * 1000, // 20 min
     limit: 10,
     handler: (req, res) => {
-
         switch (req.path) {
             case '/login':
                 return res.status(429).render("login", { dMsg: "you are being ratelimited", dType: "bad" } )
@@ -46,7 +45,7 @@ router.post('/register', LOGIN_REGISTER_RATELIMIT, async (req, res) => {
 
         await register(username, password, favoriteNumber)
     
-        res.status(400).render("login", { dMsg: "you have registered. please log in!", dType: "good"} )
+        res.render("login", { dMsg: "you have registered. please log in!", dType: "good"} )
     } catch (err: any) {
         console.error(`Error registering user: ${err}`)
         res.status(400).render("register", { dMsg: err.message, dType: "bad" } )
@@ -87,20 +86,16 @@ router.get('/logout', userAuth, async (_, res) => {
 })
 
 // ===========================================================
-router.get('/lookup', (_, res) => {
-    res.redirect('/')
+router.get('/class', (_, res) => {
+    res.render("lookup/class")
 })
 
-router.get('/lookup/class', (_, res) => {
-    res.render("pages/lookupClass")
-})
-
-// router.get('/lookup/classroom', (_, res) => {
-//     res.render("pages/lookupClassroom")
+// router.get('/classroom', (_, res) => {
+//     res.render("lookup/classroom")
 // })
 
-router.get('/lookup/teacher', (_, res) => {
-    res.render("pages/lookupTeacher")
+router.get('/teacher', (_, res) => {
+    res.render("lookup/teacher")
 })
 
 // ===========================================================

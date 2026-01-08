@@ -1,6 +1,6 @@
 
 export const settings = {
-    url: `${window.location.origin}/api/v1/weeks`,
+    url: `${window.location.origin}/v1/weeks`,
     weekData: null,
     values: {
         week: null,
