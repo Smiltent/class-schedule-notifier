@@ -51,7 +51,10 @@ export default class WebServer {
         })
     }
 
-    public sendWSMessage(msg: string) { this.wss.clients.forEach(c => c.send(msg)) }
+    public sendWSMessage(msg: string) { 
+        console.debug(`Sent WS message: ${msg}`)
+        this.wss.clients.forEach(c => c.send(msg)) 
+    }
 
     // ================= EXPRESS =================
     private express() {

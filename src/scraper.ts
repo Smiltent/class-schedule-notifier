@@ -49,7 +49,8 @@ export default class Scraper {
             this.current_week = this.weeks["default_num"] //* bro im so stupid... it's LITERALLY a variable in the response
 
             for (const week of this.weeks["timetables"]) {
-                await this.storeWeekToDatabase(week["tt_num"])
+                const canParse = await this.storeWeekToDatabase(week["tt_num"])
+                if (!canParse) continue
                 
                 await this.parser.i(week["tt_num"])
 
@@ -84,6 +85,7 @@ export default class Scraper {
             })
 
             var data = res.data["r"]["regular"]
+
             if (data["default_num"] == null || data["default_num"] === "") {
                 console.warn("Edupage didn't update their year or default_num is empty...") // otherwise, gets the last week available (most likely recent)
                 data["default_num"] = data["timetables"][data["timetables"].length - 1]["tt_num"]
@@ -102,10 +104,10 @@ export default class Scraper {
                 headers: HEADERS(this.url)
             })
             
-            const data = res.data["r"]
+            const data = res.data.r
 
             // refreshed the weeks - yes, the message is in plural
-            if (res.data["error"] === "Timetable does not exists") {
+            if (res.data.error === "Timetable does not exists") {
                 this.weeks = await this.getWeeksData()
                 return console.debug(`Week ${week} has been removed`)
             }
@@ -113,6 +115,7 @@ export default class Scraper {
             // checks if its been modified
             const old = await RawScheduleData.findOne({ week });
 
+            var shouldUpdate = false
             if (!old) {
                 console.debug(`Week ${week} is brand new (never been stored)`)
 
@@ -120,12 +123,15 @@ export default class Scraper {
                     week,
                     type: "new",
                 }))
+
+                shouldUpdate = true
             } else {
                 if (!isEqual(old?.data, data.dbiAccessorRes.tables)) {
                     console.debug(`Week ${week} has been modified!`)
 
                     // temporary - send difference to a webhook
                     const check = checkDiff(old?.data, data.dbiAccessorRes.tables)
+
                     await sendWebhook(
                         String(process.env.DISCORD_WEBHOOK_URL), 
                         check
@@ -135,18 +141,27 @@ export default class Scraper {
                         week,
                         type: "updated",
                     }))
-                } else return
+                                    
+                    shouldUpdate = true
+                }
             }
 
+            if (!shouldUpdate) return false
+
             // store into database
-            console.debug(`Storing Week ${week} into Database`)
+            console.debug(`Storing Raw Week ${week} into Database`)
             await RawScheduleData.updateOne(
                 { week },
-                { $set: { data: data["dbiAccessorRes"]["tables"] }}, // dateFrom: this.weeks[week].text.split
+                { $set: { 
+                    data: data["dbiAccessorRes"]["tables"] 
+                }},
                 { upsert: true }
             )
+
+            return true
         } catch (err) {
             console.error(`Failed to fetch data from ${this.url}: ${err}`)
+            return false
         }
     }
 }

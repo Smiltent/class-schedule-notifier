@@ -7,7 +7,9 @@ import axios from 'axios'
  * @param message String.
  * @returns Sends the webook.
  */
-export default async function sendWebhook(url: string, message: any) {
+export default async function sendWebhook(url: string, message: string) {
+    console.debug(`Sending a webhook`)
+
     await axios.post(url, {
         content: message
     })

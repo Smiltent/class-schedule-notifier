@@ -43,4 +43,4 @@ console.debug(`Current week: ${scraperClient.current_week}`)
 
 setInterval(async () => {    
     await scraperClient.storeAllWeeksToDatabase()
-}, 15 * 60 * 1000) // 15 min
+}, 5 * 60 * 1000) // 5 min

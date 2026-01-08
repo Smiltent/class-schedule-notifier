@@ -28,11 +28,8 @@ export default class Schedule {
         const endData: Record<string, any> = {}
         
         for (const card of this.index.cards) {
-            //// if (!card.days || !card.period) continue // check if it has a day / period
-
             // get lesson information
             const lesson = this.index.lessons[card.lessonid]
-            //// if (!lesson) continue
 
             // period division, much more easier to work with
             var period = Math.ceil(card.period / 2) 
@@ -66,7 +63,6 @@ export default class Schedule {
                         name: subject?.name ?? "N/A",
                         teacher: teacher?.name ?? "N/A",
                         classroom: classroom?.name ?? "N/A",
-                        // ...(lesson.groupnames ? { group: lesson.groupnames } : {}) // tmp
                     }
                 }
             }
@@ -91,18 +87,8 @@ export default class Schedule {
         const endData: Record<string, any> = {}
         
         for (const card of this.index.cards) {
-            //// if (!card.days || !card.period) {
-            ////     console.log(card.days)
-            ////     console.log(card.period)   
-            ////     continue // check if it has a day / period
-            //// }
-
             // get lesson information
             const lesson = this.index.lessons[card.lessonid]
-            //// if (!lesson) {
-            ////     console.log(lesson || 0)
-            ////     continue
-            //// }
 
             // period division, much more easier to work with
             var period = Math.ceil(card.period / 2)
