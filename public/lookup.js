@@ -131,11 +131,13 @@ function setWeekOptions(element, data, primary = null) {
     data.forEach((week) => {
         const option = document.createElement('option')
 
+        const weekDisplay = week == "67" ? "that one un-funny number" : week
+
         if (week === primary) {
             option.selected = true
-            option.innerHTML = `${week} (current)`
+            option.innerHTML = `${weekDisplay} (current)`
         } else {
-            option.innerHTML = `${week}`
+            option.innerHTML = `${weekDisplay}`
         }
 
         option.value = week
