@@ -23,10 +23,13 @@ export default function checkDiff(oldd: unknown, neww: unknown): string {
 }
 
 /**
- * Helper function to only get differences and not the whole data.
+ * Helper function to only get differences and not the whole data. Uses Git Hunk formatting.
  */
 function extractChanges(changes: Change[], context: number = 0) {
     const lines = []
+
+    var oldLine = 1
+    var newLine = 1
 
     for (var i = 0; i < changes.length; i++) {
         const part = changes[i]
@@ -34,31 +37,105 @@ function extractChanges(changes: Change[], context: number = 0) {
         if (!part?.added && !part?.removed) continue
         if (typeof part.value !== "string") continue
 
+        if (!part.added && !part.removed) {
+            oldLine += countLines(part.value)
+            newLine += countLines(part.value)
+
+            continue
+        }
+
+        const hLines: string[] = []
+
+        var oldStart = oldLine
+        var newStart = newLine
+
+        var oldCount = 0
+        var newCount = 0
+
         if (context > 0 && i > 0) {
             const prev = changes[i - 1]
 
             if (prev && !prev.added && !prev.removed && typeof prev.value === "string") {
                 const ctxLine = prev.value.split(/\r?\n/).slice(-context)
-                ctxLine.forEach(l => l.trim() && lines.push("  " + l))
+                // ctxLine.forEach(l => l.trim() && lines.push("  " + l))
+
+                ctxLine.forEach(l => {
+                    if (l.trim()) {
+                        hLines.push(` ${l}`)
+
+                        oldCount++
+                        newCount++
+                    }
+                })
+
+                oldStart -= oldCount
+                newStart -= newCount
             }
         }
 
-        const prefix = part.added ? "+" : "-"
-        for (const line of part.value.split(/\r?\n/)) {
-            if (line.trim()) {
-                lines.push(`${prefix} ${line}`)
-            }
+        // const prefix = part.added ? "+" : "-"
+        // for (const line of part.value.split(/\r?\n/)) {
+        //     if (line.trim()) {
+        //         lines.push(`${prefix} ${line}`)
+        //     }
+        // }
+
+        while (i < changes.length) {
+            const curr = changes[i]
+            if (!curr || typeof curr.value !== "string") break
+
+            if (curr.added) {
+                curr.value.split(/\r?\n/).forEach(l => {
+                    if (l.trim()) {
+                        hLines.push(`+${l}`)
+                        newCount++
+                    }
+                })
+            } else if (curr.removed) {
+                curr.value.split(/\r?\n/).forEach(l => {
+                    if (l.trim()) {
+                        hLines.push(`-${l}`)
+                        oldCount++
+                    }
+                })
+            } else break
+
+            i++
         }
+
+        i--
 
         if (context > 0 && i < changes.length - 1) {
             const next = changes[i + 1]
             
             if (next && !next.added && !next.removed && typeof next.value === "string") {
                 const ctxLine = next.value.split(/\r?\n/).slice(0, context)
-                ctxLine.forEach(l => l.trim() && lines.push("  " + l))
+                // ctxLine.forEach(l => l.trim() && lines.push("  " + l))
+
+                ctxLine.forEach(l => {
+                    if (l.trim()) {
+                        hLines.push(` ${l}`)
+
+                        oldCount++
+                        newCount++
+                    }
+                })
             }
         }
+
+        lines.push(
+            `@@ -${oldStart},${oldCount} +${newStart},${newCount} @@`
+        )
+
+        lines.push(...hLines)
+
+        oldLine += oldCount
+        newLine += newCount
     }
 
     return [... new Set(lines)].join('\n')
+}
+
+function countLines(str: string) {
+    return str.split(/\r?\n/).filter(Boolean).length
 }

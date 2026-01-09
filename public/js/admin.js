@@ -2,10 +2,13 @@
 export const settings = {
     url: `${window.location.origin}/v1/admin`,
     elements: {
-        users: document.getElementById("userSelect")
+        users: document.getElementById("userTable")
     },
 }
 
+//
+//   utils
+//
 async function getUsers() {
     await fetch(`${settings.url}/users/list`)
         .then(res => res.json())
@@ -15,5 +18,21 @@ async function getUsers() {
 }
 
 function setUsers(element, data) {
+    element.innerHTML = ''
 
+    const table = document.createElement('table')
+    table.style.borderCollapse = 'collapse'
+
+    const maxUsers = data.data.length
+
+    data.forEach((info) => {
+
+    })
+}
+
+//
+//   main
+//
+export default async function init() {
+    await getUsers()
 }
