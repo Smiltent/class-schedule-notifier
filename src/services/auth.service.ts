@@ -65,7 +65,7 @@ async function modify(ogUsername: string, newData: UserData) {
 }
 
 async function list() {
-    return await User.find()
+    return await User.find().select("-password -__v")
 }
 
 export { register, login, del, modify, list }

@@ -153,12 +153,13 @@ form, select{
 }
 
 @media (max-width: 700px) {
-    #tableContainer table thead {
-        display: none;
+    #tableContainer table {
+        border-collapse: collapse;
+        border-color: transparent;
     }
 
-    #tableContainer table {
-        border-color: transparent;
+    #tableContainer table thead {
+        display: none;
     }
 
     #tableContainer table tbody tr {

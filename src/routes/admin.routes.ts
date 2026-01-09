@@ -1,5 +1,5 @@
 
-import { del, modify, register } from "../services/auth.service"
+import { del, list, modify, register } from "../services/auth.service"
 import { userAuth, requireRole } from "../middlewares/auth.middleware"
 import { scraperClient, webserverClient } from "../.."
 
@@ -51,9 +51,11 @@ router.post(`/user/modify`, userAuth, requireRole('admin'), async (req, res) => 
     }
 })
 
-router.get(`/user/list`, userAuth, requireRole('admin'), (req, res) => {
+router.get(`/user/list`, userAuth, requireRole('admin'), async (req, res) => {
     try {
-        
+        const users = await list()
+
+        res.status(200).json({ success: true, data: users })
     } catch (err) {
         console.error(`User list error: ${err}`)
         res.status(500).json({ success: false, data: 'Internal Server Error' })
