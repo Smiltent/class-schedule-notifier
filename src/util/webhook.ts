@@ -10,7 +10,11 @@ import axios from 'axios'
 export default async function sendWebhook(url: string, message: string) {
     console.debug(`Sending a webhook`)
 
-    await axios.post(url, {
-        content: message
-    })
+    try {
+        await axios.post(url, {
+            content: message
+        })
+    } catch (err) {
+        console.error(`Failed to send webhook: ${err}`)
+    }
 }
