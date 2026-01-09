@@ -1,4 +1,4 @@
-import { settings } from "/public/lookup.js"
+import { settings } from "/public/js/lookup.js"
 
 const button = document.getElementById("downloadBtn")
 const table = document.getElementById("tableContainer")

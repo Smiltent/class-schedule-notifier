@@ -68,26 +68,34 @@ function createTable(type, container) {
     )
 
     // header logic
-    const header = document.createElement('tr')
+    const thead = document.createElement('thead')
+    const dayTr = document.createElement('tr')
 
     const dayTh = document.createElement('th')
     dayTh.innerText = 'day'
-    header.appendChild(dayTh)
+    dayTr.appendChild(dayTh)
 
     for (let i = 1; i <= maxLessons; i++) {
         const th = document.createElement('th')
         th.innerText = `${i}. period`
-        header.appendChild(th)
+        dayTr.appendChild(th)
     }
 
-    table.appendChild(header)
+    thead.appendChild(dayTr)
+    table.appendChild(thead)
 
-    // insert days
+    const tbody = document.createElement('tbody')
+
+    // insert lessons and days
     Object.values(settings.weekData.data).forEach(day => {
         const row = document.createElement('tr')
 
         const dayCell = document.createElement('td')
-        dayCell.innerText = day.day
+        dayCell.classList.add('day')
+
+        const dayParts = day.day.split(',').map(part => part.trim())
+        dayCell.innerText = dayParts.join(', ')
+
         row.appendChild(dayCell)
 
         day.data.forEach(lesson => {
@@ -121,9 +129,10 @@ function createTable(type, container) {
             row.appendChild(emptyCell)
         }
 
-        table.appendChild(row)
+        tbody.appendChild(row)
     })
 
+    table.appendChild(tbody)
     container.appendChild(table)
 }
 
@@ -148,6 +157,8 @@ function setWeekOptions(element, data, primary = null) {
 function setMainOptions(element, data, primary = null) {
     data.forEach((info) => {
         const option = document.createElement('option')
+
+        if (info === "Koordinators") return
 
         if (info === primary) {
             option.selected = true

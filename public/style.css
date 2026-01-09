@@ -151,3 +151,32 @@ form, select{
         width: 100%;
     }
 }
+
+@media (max-width: 700px) {
+    #tableContainer table thead {
+        display: none;
+    }
+
+    #tableContainer table {
+        border-color: transparent;
+    }
+
+    #tableContainer table tbody tr {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #tableContainer table td {
+        display: flex;
+    }
+
+    #tableContainer table td.day {
+        font-weight: bold;
+    }
+
+    .lesson-cell {
+        width: 100%;
+    }
+}
