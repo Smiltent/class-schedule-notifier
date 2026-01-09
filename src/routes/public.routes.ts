@@ -43,6 +43,10 @@ router.post('/register', LOGIN_REGISTER_RATELIMIT, async (req, res) => {
         if (username.length < 3 || username.length > 20) throw new Error("username must be between 3 and 20 characters")
         if (username.match(/[^a-zA-Z0-9_]/)) throw new Error("username may only contain letters, numbers and underscores")
 
+        if (password.length < 6 || password.length > 64) throw new Error("password must be between 6 and 64 characters")
+
+        if (typeof password !== 'string' || typeof username !== 'string') throw new Error("how did you manage this? are you trying to inject?")
+
         await register(username, password, favoriteNumber)
     
         res.render("login", { dMsg: "you have registered. please log in!", dType: "good"} )
@@ -64,6 +68,8 @@ router.post('/login', LOGIN_REGISTER_RATELIMIT, async (req, res) => {
     try {
         const { username, password } = req.body
         const token = await login(username, password)
+
+        if (typeof password !== 'string' || typeof username !== 'string') throw new Error("how did you manage this? are you trying to inject?")
 
         res.cookie('token', token, COOKIE)
 
