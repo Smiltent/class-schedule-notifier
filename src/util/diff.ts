@@ -5,7 +5,7 @@ import { diffLines, type Change } from "diff"
  * Checks the difference between two strings.
  * @param oldd Old string.
  * @param neww New string.
- * @returns Difference between both strings, if there are - returned in a code block format.
+ * @returns Difference between both strings, if there are - returned
  */
 export default function checkDiff(oldd: unknown, neww: unknown): string {
     const diff = diffLines(

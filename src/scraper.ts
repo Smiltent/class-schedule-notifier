@@ -3,7 +3,6 @@ import { webserverClient } from "../index.ts"
 import sendWebhook from "./util/webhook.ts"
 import checkDiff from "./util/diff.ts"
 import Schedule from "./schedule.ts"
-import { isEqual } from "lodash"
 import axios from "axios"
 
 import RawScheduleData from "./db/models/RawScheduleData.ts"
@@ -131,20 +130,14 @@ export default class Scraper {
 
                 shouldUpdate = true
             } else {
-                if (!isEqual(old?.data, data.dbiAccessorRes.tables)) {
+                const changes = checkDiff(old?.data, data.dbiAccessorRes.tables)
+                if (changes !== "no changes") {
                     console.debug(`Week ${week} has been modified!`)
-
-                    // temporary - send difference to a webhook
-                    const check = checkDiff(old?.data, data.dbiAccessorRes.tables)
-
-                    await sendWebhook(
-                        String(process.env.DISCORD_WEBHOOK_URL), 
-                        check
-                    )
 
                     webserverClient.sendWSMessage(JSON.stringify({
                         week,
                         type: "updated",
+                        groups: [ ]
                     }))
                                     
                     shouldUpdate = true

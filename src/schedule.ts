@@ -3,6 +3,9 @@ import RawScheduleData from "./db/models/RawScheduleData.ts"
 import TeacherWeekData from "./db/models/TeacherWeekData.ts"
 import ClassWeekData from "./db/models/ClassWeekData.ts"
 
+import sendWebhook from "./util/webhook.ts"
+import checkDiff from "./util/diff.ts"
+
 export default class Schedule {
     private week!: string
 
@@ -70,11 +73,21 @@ export default class Schedule {
             }
         }
 
+        // get previous data
+        const prevData = await ClassWeekData.findOne({ week: this.week })
+
         // update in database
         await ClassWeekData.updateOne(
             { week: this.week },
             { $set: { data: endData }},
             { upsert: true }
+        )
+
+        // temporary - send difference to a webhook
+        const changes = checkDiff(prevData, { data: endData })
+        await sendWebhook(
+            String(process.env.DISCORD_WEBHOOK_URL), 
+            changes
         )
 
         console.debug(`Stored Class Data for Week ${this.week}`)

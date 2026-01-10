@@ -2,16 +2,16 @@
 // ================= IMPORTS =================
 import Database from "./src/db/database.ts"
 import Webserver from "./src/webserver.ts"
-import GitHub from "./src/util/github.ts"
 import Scraper from "./src/scraper.ts"
 
 import logging from "./src/util/logging.ts"
+import gitHash from "./src/util/github.ts"
 
 import dotenv from "dotenv"
 dotenv.config()
 
 // ================= VARIABLES =================
-export const { hash, url } = await GitHub()
+export const { hash, url } = await gitHash()
 var DEBUG_MODE: boolean = false
 
 // ================= ARGUMENTS ================= 
