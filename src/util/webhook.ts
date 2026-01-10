@@ -25,7 +25,8 @@ export default async function sendWebhook(url: string, message: string) {
         messages.forEach(async (message) => {
             await wait(5000)
             await axios.post(url, {
-                content: message
+                content: 
+                '```diff\n' + message + '\n```'
             })
         })
     } catch (err) {
