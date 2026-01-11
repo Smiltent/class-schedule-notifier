@@ -12,13 +12,13 @@ export default async function sendWebhook(url: string, message: string) {
     console.debug(`Sending a webhook`)
 
     const hunks = message
-        .split('%m%')
+        .split('%m')
         .map(m => m.trim())
         .filter(Boolean)
 
     const messages: string[] = []
     var current = ""
-    
+
     for (const hunk of hunks) {
         const formated = `${hunk}\n\n`
 
