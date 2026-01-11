@@ -11,24 +11,37 @@ import wait from './wait'
 export default async function sendWebhook(url: string, message: string) {
     console.debug(`Sending a webhook`)
 
-    const messages: string[] = []
+    const hunks = message
+        .split('%m%')
+        .map(m => m.trim())
+        .filter(Boolean)
 
-    if (message.length > 1800) {
-        for (let i = 0; i < message.length; i += 1800) {
-            messages.push(message.slice(i, i + 1800))
+    const messages: string[] = []
+    var current = ""
+    
+    for (const hunk of hunks) {
+        const formated = `${hunk}\n\n`
+
+        if ((current + formated).length > 1800) {
+            messages.push(current.trimEnd())
+            current = formated
+        } else {
+            current += formated
         }
-    } else {
-        messages.push(message)
+    }
+
+    if (current.trim()) {
+        messages.push(current.trimEnd())
     }
 
     try {
-        messages.forEach(async (message) => {
+        for (var i = 0; i < messages.length; i++) {
             await wait(5000)
+
             await axios.post(url, {
-                content: 
-                '```diff\n' + message + '\n```'
+                content: '```diff\n' + messages[i] + '\n```'
             })
-        })
+        }
     } catch (err) {
         console.error(`Failed to send webhook: ${err}`)
     }

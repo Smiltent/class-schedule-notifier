@@ -124,7 +124,7 @@ function extractChanges(changes: Change[], context: number = 0) {
         }
 
         lines.push(
-            `@@ -${oldStart},${oldCount} +${newStart},${newCount} @@`
+            `%m@@ -${oldStart},${oldCount} +${newStart},${newCount} @@`
         )
 
         lines.push(...hLines)
