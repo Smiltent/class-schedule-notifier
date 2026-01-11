@@ -1,7 +1,6 @@
 
 import User from "../db/models/User"
 import jwt from "jsonwebtoken"
-import { pick } from "lodash"
 import bcrypt from "bcrypt"
 
 interface UserData {
@@ -53,10 +52,14 @@ async function modify(ogUsername: string, newData: UserData) {
     if (!user) throw new Error("user not found")
 
     // hash the password, if changed
+    if ('password' in newData && !newData.password) {
+        delete newData.password
+    }
+
     newData.password = newData.password ? await bcrypt.hash(newData.password, 10) : undefined
 
     // security check / save data
-    Object.assign(user, pick(newData, allowedFields))
+    Object.assign(user, newData)
     await user.save()
 
     console.debug(`user ${ogUsername} modified`)
