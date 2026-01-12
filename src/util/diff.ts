@@ -28,8 +28,8 @@ export default function checkDiff(oldd: unknown, neww: unknown): string {
 function extractChanges(changes: Change[], context: number = 0) {
     const lines = []
 
-    var oldLine = 1
-    var newLine = 1
+    var oldLine = 5
+    var newLine = 5
 
     for (var i = 0; i < changes.length; i++) {
         const part = changes[i]
