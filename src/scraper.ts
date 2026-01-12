@@ -1,6 +1,5 @@
 
 import { webserverClient } from "../index.ts"
-import sendWebhook from "./util/webhook.ts"
 import checkDiff from "./util/diff.ts"
 import Schedule from "./schedule.ts"
 import axios from "axios"
