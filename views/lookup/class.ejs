@@ -47,6 +47,12 @@
         settings.elements.main = document.getElementById('selectClass')
 
         var ignore = [false, false]
+        if (localStorage.getItem("lastLookupClass")) {
+            console.log("hi")
+            settings.values.main = localStorage.getItem("lastLookupClass")
+            ignore[1] = true
+        }
+
         if (params.get("week") != null) {
             settings.values.week = params.get("week")
             ignore[0] = true

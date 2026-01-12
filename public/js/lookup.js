@@ -213,6 +213,9 @@ export async function setup(type, ignore = [false, false]) {
     settings.elements.main.addEventListener('change', async (e) => {
         settings.values.main = e.target.value
 
+        // Store last lookup in localStorage
+        localStorage.setItem("lastLookup" + (type.charAt(0).toUpperCase() + type.slice(1)), settings.values.main)
+
         await getWeekData(type, settings.values.week, settings.values.main)
         createTable(type, table)
     })

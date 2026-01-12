@@ -46,6 +46,11 @@
         settings.elements.main = document.getElementById('selectTeacher')
 
         var ignore = [false, false]
+        if (localStorage.getItem("lastLookupTeacher") != null) {
+            settings.values.main = localStorage.getItem("lastLookupTeacher")
+            ignore[1] = true
+        }
+
         if (params.get("week") != null) {
             settings.values.week = params.get("week")
             ignore[0] = true
