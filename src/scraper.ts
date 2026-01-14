@@ -131,14 +131,7 @@ export default class Scraper {
             } else {
                 const changes = checkDiff(old?.data, data.dbiAccessorRes.tables)
                 if (changes !== "no changes") {
-                    console.debug(`Week ${week} has been modified!`)
-
-                    webserverClient.sendWSMessage(JSON.stringify({
-                        week,
-                        type: "updated",
-                        groups: [ ]
-                    }))
-                                    
+                    console.debug(`Week ${week} has been modified!`)  
                     shouldUpdate = true
                 }
             }

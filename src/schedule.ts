@@ -5,6 +5,7 @@ import ClassWeekData from "./db/models/ClassWeekData.ts"
 
 import sendWebhook from "./util/webhook.ts"
 import checkDiff from "./util/diff.ts"
+import { webserverClient } from "../index.ts"
 
 export default class Schedule {
     private week!: string
@@ -83,12 +84,35 @@ export default class Schedule {
             { upsert: true }
         )
 
-        // temporary - send difference to a webhook
         const changes = checkDiff(prevData, { data: endData })
-        await sendWebhook(
-            String(process.env.DISCORD_WEBHOOK_URL), 
-            changes
-        )
+
+        const changedClasses: string[] = []
+
+        for (const name of Object.keys(endData)) {
+            const prevClass = prevData?.data?.[name]
+
+            if (!prevClass) {
+                changedClasses.push(name)
+                continue
+            }
+
+            const oldNorm = this.normalizeClassData(prevClass)
+            const newNorm = this.normalizeClassData(endData[name])
+
+            if (JSON.stringify(oldNorm) !== JSON.stringify(newNorm)) {
+                changedClasses.push(name)
+            }
+        }
+
+        // notify via websocket
+        webserverClient.sendWSMessage(JSON.stringify({
+            week: this.week,
+            type: "updated.classes",
+            changedClasses
+        }))
+
+        // temporary - send difference to a webhook
+        sendWebhook(changes)
 
         console.debug(`Stored Class Data for Week ${this.week}`)
     }
@@ -268,4 +292,31 @@ export default class Schedule {
             isLastDayOfWeek: index === dayRows.length - 1 // checks if its the last one
         }
     }
+    /**
+     * Normalizes class data by filtering out empty periods and structuring the data
+     * @param clazz Class data
+     * @returns Normalized class data
+     */
+    private normalizeClassData(clazz: any) {
+        const out: any = {}
+
+        for (const day of Object.keys(clazz)) {
+            out[day] = {
+                day: clazz[day].day,
+                dayShort: clazz[day].dayShort,
+                data: (clazz[day].data ?? [])
+                    .filter(Boolean)
+                    .map((p: { start: any; end: any; name: any; teacher: any; classroom: any }) => ({
+                        start: p.start,
+                        end: p.end,
+                        name: p.name,
+                        teacher: p.teacher,
+                        classroom: p.classroom
+                    }))
+            }
+        }
+
+        return out
+    }
+
 }

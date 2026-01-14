@@ -8,9 +8,11 @@ import wait from './wait'
  * @param message String.
  * @returns Sends the webook.
  */
-export default async function sendWebhook(url: string, message: string) {
+export default async function sendWebhook(message: string,) {
     console.debug(`Sending a webhook`)
 
+    // TODO: pls fix @smil
+    // TODO: this entire function sucks, please rewrite some day
     const hunks = message
         .split('%m')
         .map(m => m.trim())
@@ -38,7 +40,7 @@ export default async function sendWebhook(url: string, message: string) {
         for (var i = 0; i < messages.length; i++) {
             await wait(5000)
 
-            await axios.post(url, {
+            await axios.post(String(process.env.DISCORD_WEBHOOK_URL), {
                 content: '```diff\n' + messages[i] + '\n```'
             })
         }
