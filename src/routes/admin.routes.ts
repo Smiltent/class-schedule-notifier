@@ -90,10 +90,26 @@ router.get(`/sendTestNotification`, userAuth, requireRole('admin'), (req, res) =
     webserverClient.sendWSMessage(JSON.stringify({
         week: scraperClient.current_week,
         type: "test",
+        changedClasses: ["all"]
     }))
 
     res.redirect('/admin')
 })
+
+router.get(`/sendSpecificTestNotification`, userAuth, requireRole('admin'), (req, res) => {
+    const { clazz } = req.query || "all"
+
+    console.warn("Manual test notification sent from panel")
+
+    webserverClient.sendWSMessage(JSON.stringify({
+        week: scraperClient.current_week,
+        type: "test",
+        changedClasses: [ String(clazz) ]
+    }))
+
+    res.redirect('/admin')
+})
+
 
 // ===========================================================
 
