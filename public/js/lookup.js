@@ -104,7 +104,8 @@ function createTable(type, container) {
 
             if (lesson != null) {
                 cell.classList.add("lesson-cell")
-                cell.style.backgroundColor = randomColorFromString(
+
+                cell.style.backgroundColor = lesson.teacher === "Toms Ričards Krieviņš" ? "#5c5c5c" : randomColorFromString(
                     settings.coloring[type]
                         .replace('%name%', lesson.name)
                         .replace('%teacher%', lesson.teacher)
@@ -113,8 +114,8 @@ function createTable(type, container) {
 
                 cell.innerHTML = settings.formats[type]
                     .replace('%name%', lesson.name)
-                    .replace('%teacher%', lesson.teacher)
-                    .replace('%class%', lesson.class)
+                    .replace('%teacher%', `<a class="colorText" href="/teacher?teacher=${encodeURIComponent(lesson.teacher)}">${lesson.teacher}</a>`)
+                    .replace('%class%', `<a class="colorText" href="/class?class=${encodeURIComponent(lesson.class)}">${lesson.class}</a>`)
                     .replace('%classroom%', lesson.classroom)
             }
 

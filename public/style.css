@@ -39,6 +39,9 @@ a, a:visited {
     width: fit-content;
 }
 
+.colorText { color: var(--text) }
+.colorText:visited { color: var(--text) }
+
 /*   flex   */
 .flex-col {
     display: flex;
