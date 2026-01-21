@@ -16,6 +16,7 @@ const HEADERS = (url: string) => ({
 })
 
 var alreadyWarned = false
+var alreadyDisplayedCurrentYear = false
 
 export default class Scraper {
     private url: string
@@ -95,7 +96,8 @@ export default class Scraper {
                 currentYear = JSON.parse(objString).year_auto
             }
 
-            console.debug(`Current year (by EduPage): ${currentYear}`)
+            alreadyDisplayedCurrentYear ? console.debug(`Current year (by EduPage): ${currentYear}`) : null
+            alreadyDisplayedCurrentYear = true
 
             const dataRes = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, currentYear], __gsh: "00000000"}, {
                 headers: HEADERS(this.url)
