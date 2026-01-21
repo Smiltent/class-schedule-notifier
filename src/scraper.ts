@@ -78,12 +78,30 @@ export default class Scraper {
 
     private async getWeeksData() {
         try {
-            const currentYear = new Date().getFullYear() 
-            var res = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, currentYear], __gsh: "00000000"}, {
+            var currentYear = new Date().getFullYear()
+            const yearRes = await axios.get(`${this.url}/timetable/view.php`, {
                 headers: HEADERS(this.url)
             })
 
-            var data = res.data.r.regular
+            // extracts the year variable from the page
+            const match = yearRes.data.match(/ASC\.req_props\s*=\s*({[\s\S]*?});/)
+            if (match) {
+                var objString = match[1];
+
+                objString = objString
+                    .replace(/(\w+):/g, '"$1":')
+                    .replace(/'/g, '"')
+
+                currentYear = JSON.parse(objString).year_auto
+            }
+
+            console.debug(`Current year (by EduPage): ${currentYear}`)
+
+            const dataRes = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, currentYear], __gsh: "00000000"}, {
+                headers: HEADERS(this.url)
+            })
+
+            var data = dataRes.data.r.regular
 
             if (data.default_num == null || data.default_num === "") {
                 // gets the last week available (most likely recent)
