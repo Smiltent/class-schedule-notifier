@@ -101,4 +101,4 @@ export default class WebServer {
     private start() {
         this.server.listen(this.port, () => console.info(`Starting HTTP server on 0.0.0.0:${this.port}`))
     }
-} 
+}
