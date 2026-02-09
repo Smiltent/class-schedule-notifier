@@ -17,6 +17,24 @@ export const settings = {
     coloring: { // yes, i know its stupid, but i had no other idea on how to do it
         class: '%name%-%teacher%',
         teacher: '%name%-%class%',
+    },
+    times: {
+        normal: [
+            ["8:30", "9:50"],
+            ["9:10", "11:30"],
+            ["12:30", "13:50"],
+            ["14:00", "15:20"],
+            ["15:30", "16:50"],
+            ["17:00", "18:20"]
+        ],
+        weekend: [
+            ["8:10", "9:30"],
+            ["9:40", "11:00"],
+            ["11:10", "12:30"],
+            ["13:00", "14:20"],
+            ["14:30", "15:50"],
+            ["16:00", "17:20"]
+        ]
     }
 }
 
@@ -100,6 +118,14 @@ function createTable(type, container) {
 
         day.data.forEach(lesson => {
             const cellContainer = document.createElement('td')
+
+            // cellContainer.style.backgroundColor = randomColorFromStringPastel(
+            //         settings.coloring[type]
+            //             .replace('%name%', lesson.name)
+            //             .replace('%teacher%', lesson.teacher)
+            //             .replace('%class%', lesson.class)
+            //     )
+
             const cell = document.createElement('div')
 
             if (lesson != null) {
@@ -189,6 +215,13 @@ function randomColorFromString(str) {
     const sat = 60 + (Math.abs(hashCode(str)) % 20) 
 
     return `hsl(${hue}, ${sat}%, 25%)`
+}
+
+function randomColorFromStringPastel(str) {
+    const hue = Math.abs(hashCode(str)) % 360
+    const sat = 90 + (Math.abs(hashCode(str)) % 20) 
+
+    return `hsl(${hue}, ${sat}%, 30%)`
 }
 
 //

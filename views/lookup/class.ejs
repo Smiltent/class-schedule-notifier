@@ -30,9 +30,6 @@
             <div class="downloadContainer">
                 <button id="downloadBtn">download</button>
             </div>
-            <!-- <div class="copyLinkContainer">
-                <button id="copyLinkBtn">copy link</button>
-            </div> -->
         </div>
 
         <div id="tableContainer"></div>
@@ -48,7 +45,7 @@
 
         var ignore = [false, false]
         if (localStorage.getItem("lastLookupClass")) {
-            console.log("hi")
+            console.log("hi") // unsure when this stray console.log hi was added, but im keeping it
             settings.values.main = localStorage.getItem("lastLookupClass")
             ignore[1] = true
         }
