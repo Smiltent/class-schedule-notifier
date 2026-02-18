@@ -1,6 +1,6 @@
 
 import type { Request, Response, NextFunction } from "express"
-import User from "../db/models/User"
+import User from "../db/User"
 import jwt from "jsonwebtoken"
 
 interface AuthRequest extends Request {
@@ -42,7 +42,20 @@ function requireRole(role: string) {
         next()
     }
 }
+/*
+    Permissions:
+        * basic - view basic stuff....
+        * notes:create - create personal notes
+        * notes:modify - modify personal notes
+        * notes:
+        * groups:view - view group schedules
+        * groups:modify - modify group schedules that you own
+        * groups:create - create groups
+        * groups:admin - admin access to everything related to groups
+        * 
+        * smil:smil - 
 
+*/
 function requirePermission(...permissions: string[]) {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
         if (!req.user) return res.status(401).render("error")

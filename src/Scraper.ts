@@ -4,7 +4,7 @@ import checkDiff from "./util/diff.ts"
 import Schedule from "./schedule.ts"
 import axios from "axios"
 
-import RawScheduleData from "./db/models/RawScheduleData.ts"
+import RawScheduleData from "./db/RawScheduleData.ts"
 
 const HEADERS = (url: string) => ({
     "Referer": url,

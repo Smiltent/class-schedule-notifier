@@ -1,6 +1,6 @@
 
 // ================= IMPORTS =================
-import Database from "./src/db/database.ts"
+import Database from "./src/MongoDB.ts"
 import Webserver from "./src/Express.ts"
 // import Scraper from "./src/scraper.ts"
 

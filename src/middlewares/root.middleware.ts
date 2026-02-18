@@ -3,7 +3,7 @@ import type { Request, Response, NextFunction } from "express"
 import getClientIp from "../util/realip"
 import jwt from "jsonwebtoken"
 
-import User from "../db/models/User"
+import User from "../db/User"
 
 async function root(req: Request, res: Response, next: NextFunction) {
     // EJS locals

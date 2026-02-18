@@ -1,7 +1,7 @@
 
-import RawScheduleData from "./db/models/RawScheduleData.ts"
-import TeacherWeekData from "./db/models/TeacherWeekData.ts"
-import ClassWeekData from "./db/models/ClassWeekData.ts"
+import RawScheduleData from "./db/RawScheduleData.ts"
+import TeacherWeekData from "./db/TeacherWeekData.ts"
+import ClassWeekData from "./db/ClassWeekData.ts"
 
 import sendWebhook from "./util/webhook.ts"
 import checkDiff, { checkScheduleChanges } from "./util/diff.ts"
@@ -45,9 +45,6 @@ export default class Schedule {
 
             const classroom = this.index.classrooms[card.classroomids]
             const subject = this.index.subjects[lesson.subjectid]
-            
-            // console.log(JSON.stringify(groups))
-            // teachers.length > 1 ? console.log(JSON.stringify(teachers)) : null
 
             // get day info
             const dayInfo = await this.getDayById(card.days)
@@ -64,14 +61,6 @@ export default class Schedule {
                 for (var i = 0; i < duration; i++, period++) {
                     const times = this.getPeriodTimes(period, isLastDayOfWeek)
                     if (!times) continue
-
-                    // endData[clazz.name][day].data[period - 1] = {
-                    //     start: times[0],
-                    //     end: times[1],
-                    //     name: subject?.name ?? "N/A",
-                    //     teacher: teacher?.name ?? "N/A",
-                    //     classroom: classroom?.name ?? "N/A",
-                    // }
 
 
                     console.log(JSON.stringify({

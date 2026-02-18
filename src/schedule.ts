@@ -1,7 +1,7 @@
 
-import RawScheduleData from "./db/models/RawScheduleData.ts"
-import TeacherWeekData from "./db/models/TeacherWeekData.ts"
-import ClassWeekData from "./db/models/ClassWeekData.ts"
+import RawScheduleData from "./db/RawScheduleData.ts"
+import TeacherWeekData from "./db/TeacherWeekData.ts"
+import ClassWeekData from "./db/ClassWeekData.ts"
 
 import sendWebhook from "./util/webhook.ts"
 import checkDiff, { checkScheduleChanges } from "./util/diff.ts"

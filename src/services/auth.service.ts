@@ -1,5 +1,5 @@
 
-import User from "../db/models/User"
+import User from "../db/User"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 

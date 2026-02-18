@@ -5,6 +5,8 @@ export default mongoose.model('User', new Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     favoriteNumber: { type: Number, required: true }, 
-    permissions: { type: [ String ], required: true, default: [ 'basic' ]},
+
+    roles: { type: [ Schema.Types.ObjectId ], ref: "Role", required: true },
+    
     createdAt: { type: Date, required: true, default: Date.now }
 }))
