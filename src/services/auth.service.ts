@@ -7,7 +7,8 @@ interface UserData {
     username?: string,
     password?: string,
     favoriteNumber?: string,
-    role?: string
+    role?: string,
+    roles?: string[]
 }
 
 async function register(username: string, password: string, favoriteNumber: number, role: string = 'user') {

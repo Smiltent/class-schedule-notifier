@@ -24,9 +24,9 @@ export default class Schedule {
     }
 
     /**
-     * Stores the parsed class into the Database
+     * Stores the parsed lesson into the database
      */
-    public async storeClassData() {
+    public async storeLessonData() {
         if (!this.index) await this.loadIndex(this.week)
 
         const endData: Record<string, any> = {}
@@ -39,13 +39,15 @@ export default class Schedule {
             var period = Math.ceil(card.period / 2) 
 
             // index information
-            const classroom = this.index.classrooms[card.classroomids[0]]
-            const teacher = this.index.teachers[lesson.teacherids[0]] 
-            const subject = this.index.subjects[lesson.subjectid]
-            // const clazz = this.index.classes[lesson.classids[0]] // TODO: There could be multiple classes...
-
-            // if (lesson.classids.length >= 2) return console.log(lesson.classids)
+            const teachers = lesson.teacherids?.map((id: string) => this.index.teachers[id])
             const classes = lesson.classids.map((id: string) => this.index.classes[id])
+            const groups = lesson.groupids?.map((id: string) => this.index.groups[id])
+
+            const classroom = this.index.classrooms[card.classroomids]
+            const subject = this.index.subjects[lesson.subjectid]
+            
+            // console.log(JSON.stringify(groups))
+            // teachers.length > 1 ? console.log(JSON.stringify(teachers)) : null
 
             // get day info
             const dayInfo = await this.getDayById(card.days)
@@ -56,112 +58,56 @@ export default class Schedule {
 
             for (const clazz of classes) {
                 // ensures day object exists
-                this.ensureDay(endData, clazz.name, day, name, shortName)
+                // this.ensureDay(endData, clazz.name, day, name, shortName)
 
                 // store each period
                 for (var i = 0; i < duration; i++, period++) {
                     const times = this.getPeriodTimes(period, isLastDayOfWeek)
                     if (!times) continue
 
-                    endData[clazz.name][day].data[period - 1] = {
+                    // endData[clazz.name][day].data[period - 1] = {
+                    //     start: times[0],
+                    //     end: times[1],
+                    //     name: subject?.name ?? "N/A",
+                    //     teacher: teacher?.name ?? "N/A",
+                    //     classroom: classroom?.name ?? "N/A",
+                    // }
+
+
+                    console.log(JSON.stringify({
+                        class: clazz.name,
+                        day,
+                        period,
                         start: times[0],
                         end: times[1],
                         name: subject?.name ?? "N/A",
-                        teacher: teacher?.name ?? "N/A",
+                        teachers: teachers?.map((t: any) => t.name) ?? [],
                         classroom: classroom?.name ?? "N/A",
-                    }
+                    }))
                 }
             }
         }
 
-        // get previous data
-        const prevData = await ClassWeekData.findOne({ week: this.week })
+        // // get previous data
+        // const prevData = await ClassWeekData.findOne({ week: this.week })
 
-        // update in database
-        await ClassWeekData.updateOne(
-            { week: this.week },
-            { $set: { data: endData }},
-            { upsert: true }
-        )
+        // // update in database
+        // await ClassWeekData.updateOne(
+        //     { week: this.week },
+        //     { $set: { data: endData }},
+        //     { upsert: true }
+        // )
 
-        const changes = checkScheduleChanges(prevData, endData)
+        // const changes = checkScheduleChanges(prevData, endData)
 
-        // notify via websocket
-        webserverClient.sendWSMessage(JSON.stringify({
-            week: this.week,
-            type: "updated.classes",
-            changes
-        }))
+        // // notify via websocket
+        // webserverClient.sendWSMessage(JSON.stringify({
+        //     week: this.week,
+        //     type: "updated.classes",
+        //     changes
+        // }))
 
         console.debug(`Stored Class Data for Week ${this.week}`)
-    }
-
-    /**
-     * Stores the parsed teacher into the Database
-     */
-    public async storeTeacherData() {
-        if (!this.index) await this.loadIndex(this.week)
-
-        const endData: Record<string, any> = {}
-        
-        for (const card of this.index.cards) {
-            // get lesson information
-            const lesson = this.index.lessons[card.lessonid]
-
-            // period division, much more easier to work with
-            var period = Math.ceil(card.period / 2)
-
-            // index information
-            const classroom = this.index.classrooms[card.classroomids[0]]
-            const teacher = this.index.teachers[lesson.teacherids[0]] // TODO: There could be multiple teachers...
-            const subject = this.index.subjects[lesson.subjectid]
-            const clazz = this.index.classes[lesson.classids[0]] // TODO: There could be multiple classes...
-
-            // get day info
-            const dayInfo = await this.getDayById(card.days)
-            if (!dayInfo) continue
-
-            const { day, name, shortName, isLastDayOfWeek } = dayInfo
-            const duration = Math.ceil(lesson.durationperiods / 2)
-
-            // if teacher name doesn't exist, skip
-            if (teacher?.name === null || teacher?.name === undefined) {
-                const format = `${this.week}-${clazz?.name}`
-
-                if (this.ignoreFutureWarnings.includes(format)) return
-                this.ignoreFutureWarnings.push(format)
-
-                console.warn(`Skipping storing class for teacher because no name provided. week = ${this.week}; class = ${clazz?.name ?? "N/A"}`)
-                continue
-            }
-
-            // ensures day object exists
-            this.ensureDay(endData, teacher.name, day, name, shortName)
-
-            // store each period
-            for (var i = 0; i < duration; i++, period++) {
-                const times = this.getPeriodTimes(period, isLastDayOfWeek)
-                if (!times) continue
-
-                endData[teacher.name][day].data[period - 1] = {
-                    start: times[0],
-                    end: times[1],
-                    name: subject?.name ?? "N/A",
-                    class: clazz?.name ?? "N/A",
-                    classroom: classroom?.name ?? "N/A",
-                    // ...(lesson.groupnames ? { group: lesson.groupnames } : {}) //* tmp
-                }
-            }
-        }
-
-        // update in database
-        await TeacherWeekData.updateOne(
-            { week: this.week },
-            { $set: { data: endData }},
-            { upsert: true }
-        )
-
-        console.debug(`Stored Teacher Data for Week ${this.week}`)
     }
 
     /**
@@ -178,6 +124,7 @@ export default class Schedule {
             classrooms: this.indexById(this.data[11]["data_rows"]),
             teachers: this.indexById(this.data[14]["data_rows"]),
             subjects: this.indexById(this.data[13]["data_rows"]),
+            groups: this.indexById(this.data[15]["data_rows"]),
             classes: this.indexById(this.data[12]["data_rows"]),
 
             dayDefs: this.data[4]["data_rows"],
@@ -212,7 +159,7 @@ export default class Schedule {
      * @param shortName Short name of the day
      */
     private ensureDay(obj: any, parent: string, day: string, name: string, shortName: string) {
-        // if (!obj[parent]) obj[parent] = {}
+        if (!obj[parent]) obj[parent] = {}
         if (!obj[parent][day]) {
             obj[parent][day] = {
                 day: name,
@@ -277,26 +224,25 @@ export default class Schedule {
      * @returns Normalized class data
      * @deprecated when the hell did I make this... why didn't I use this???
      */
-    private normalizeClassData(clazz: any) {
-        const out: any = {}
+    // private normalizeClassData(clazz: any) {
+    //     const out: any = {}
 
-        for (const day of Object.keys(clazz)) {
-            out[day] = {
-                day: clazz[day].day,
-                dayShort: clazz[day].dayShort,
-                data: (clazz[day].data ?? [])
-                    .filter(Boolean)
-                    .map((p: { start: any; end: any; name: any; teacher: any; classroom: any }) => ({
-                        start: p.start,
-                        end: p.end,
-                        name: p.name,
-                        teacher: p.teacher,
-                        classroom: p.classroom
-                    }))
-            }
-        }
+    //     for (const day of Object.keys(clazz)) {
+    //         out[day] = {
+    //             day: clazz[day].day,
+    //             dayShort: clazz[day].dayShort,
+    //             data: (clazz[day].data ?? [])
+    //                 .filter(Boolean)
+    //                 .map((p: { start: any; end: any; name: any; teacher: any; classroom: any }) => ({
+    //                     start: p.start,
+    //                     end: p.end,
+    //                     name: p.name,
+    //                     teacher: p.teacher,
+    //                     classroom: p.classroom
+    //                 }))
+    //         }
+    //     }
 
-        return out
-    }
-
+    //     return out
+    // }
 }

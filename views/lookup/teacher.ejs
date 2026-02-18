@@ -14,7 +14,7 @@
 <body>
     <%- include('../components/$header.ejs') %>
 
-<div class="main flex-col">
+    <div class="main flex-col">
         <h1>lookup teacher</h1>
         <div class="flex-row">
             <div class="flex-col">
@@ -24,9 +24,10 @@
                 </div>
                 <div>
                     <label for="selectTeacher">select teacher: </label>
-                    <select id="selectTeacher"></select> 
+                    <select id="selectTeacher" style="display: none; width: 0; margin: 0; padding: 0; height: 0;"></select> 
                 </div>
             </div>
+
             <div class="downloadContainer">
                 <button id="downloadBtn">download</button>
             </div>
@@ -58,6 +59,13 @@
         }
 
         setup("teacher", ignore)
+    </script>
+
+    <!-- search -->
+    <script type="module">
+        import { setup } from "/public/js/search.js"
+
+        setup(document.getElementById("selectTeacher"))
     </script>
 
     <!-- download schedule system -->

@@ -28,7 +28,7 @@ body {
     padding: 1rem;
 }
 
-/*   common tags   */
+/* =========== COMMON TAGS =========== */
 h1, h2, h3, h4, h5, h6 { color: var(--text); }
 h2, h3, h4, h5, h6 { padding-top: 0.75rem; }
 p, label { color: var(--subtext1); }
@@ -130,7 +130,6 @@ form, select{
 }
 
 /* =========== DOWNLOAD BUTTON =========== */
-
 .downloadContainer {
     margin-top: auto;
     margin-bottom: auto;
@@ -145,6 +144,76 @@ form, select{
     cursor: pointer;
 }
 
+/* =========== SEARCH ============ */
+.customSelect {
+    position: relative;
+    width: 220px; /* adjust if needed */
+    font-family: inherit;
+}
+
+/* Input (fake select) */
+.customSelect input {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+/* Focus state */
+.customSelect input:focus {
+    outline: none;
+    border-color: #4c8bf5;
+    box-shadow: 0 0 0 3px rgba(76, 139, 245, 0.15);
+}
+
+/* Dropdown container */
+.customOptions {
+    position: absolute;
+    top: 105%;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    max-height: 220px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    animation: fadeIn 0.15s ease;
+}
+
+/* Option item */
+.customOptions div {
+    padding: 8px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+/* Hover state */
+.customOptions div:hover {
+    background: #f2f6ff;
+}
+
+/* =========== CTRL+P =========== */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #tableContainer, #tableContainer * {
+        visibility: visible;
+    }
+}
+
+/* =========== RESPONSIVE DESIGN =========== */
 @media screen and (max-aspect-ratio: 4/3) {
     form {
         width: 100%;

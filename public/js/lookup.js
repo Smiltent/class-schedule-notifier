@@ -41,7 +41,7 @@ export const settings = {
 //
 //   utils
 //
-async function getSchoolData(type, ignore) {
+async function getSchoolData(type, ignore, searchable) {
     await fetch(`${settings.url}/list`)
         .then(res => res.json())
         .then((data) => {
@@ -59,7 +59,7 @@ async function getSchoolData(type, ignore) {
                 settings.values.main = data["data"][0]
             }
 
-            setMainOptions(settings.elements.main, data["data"], ignore[1] ? settings.values.main : null)
+            setMainOptions(settings.elements.main, data["data"], ignore[1] ? settings.values.main : null, searchable)
         })
 }
 
@@ -131,7 +131,7 @@ function createTable(type, container) {
             if (lesson != null) {
                 cell.classList.add("lesson-cell")
 
-                cell.style.backgroundColor = lesson.teacher === "Toms Ričards Krieviņš" ? "#5c5c5c" : randomColorFromString(
+                cell.style.backgroundColor = randomColorFromString(
                     settings.coloring[type]
                         .replace('%name%', lesson.name)
                         .replace('%teacher%', lesson.teacher)
@@ -167,7 +167,8 @@ function setWeekOptions(element, data, primary = null) {
     data.forEach((week) => {
         const option = document.createElement('option')
 
-        const weekDisplay = week == "67" ? "that one un-funny number" : week
+        // const weekDisplay = week == "67" ? "that one un-funny number" : week
+        const weekDisplay = week
 
         if (week === primary) {
             option.selected = true
@@ -181,11 +182,10 @@ function setWeekOptions(element, data, primary = null) {
     })
 }
 
-function setMainOptions(element, data, primary = null) {
+function setMainOptions(element, data, primary = null, searchable) {
     data.forEach((info) => {
         const option = document.createElement('option')
-
-        if (info === "Koordinators") return
+        if (info === "Koordinators") return 
 
         if (info === primary) {
             option.selected = true
@@ -196,6 +196,15 @@ function setMainOptions(element, data, primary = null) {
 
         element.appendChild(option)
     })
+
+    searchable && makeSearchable(element)
+}
+
+// turns a select element, into a searchable one (for search.js)
+function makeSearchable(element) {
+    element.style.display = "none"
+
+    const wrapper = 
 }
 
 //
@@ -227,7 +236,7 @@ function randomColorFromStringPastel(str) {
 //
 //   main
 //
-export async function setup(type, ignore = [false, false]) {
+export async function setup(type, ignore = [false, false], searchable = false) {
     const table = document.getElementById('tableContainer')
 
     // get information from API
@@ -240,7 +249,7 @@ export async function setup(type, ignore = [false, false]) {
     settings.elements.week.addEventListener('change', async (e) => {
         settings.values.week = e.target.value
 
-        await getWeekData(type, settings.values.week, settings.values.main)
+        await getWeekData(type, settings.values.week, settings.values.main, searchable)
         createTable(type, table)
     })
 
@@ -250,7 +259,7 @@ export async function setup(type, ignore = [false, false]) {
         // Store last lookup in localStorage
         localStorage.setItem("lastLookup" + (type.charAt(0).toUpperCase() + type.slice(1)), settings.values.main)
 
-        await getWeekData(type, settings.values.week, settings.values.main)
+        await getWeekData(type, settings.values.week, settings.values.main, searchable)
         createTable(type, table)
     })
 }

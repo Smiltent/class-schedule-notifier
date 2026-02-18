@@ -8,7 +8,7 @@ import path from 'path'
 import http from 'http'
 
 import { root } from './middlewares/root.middleware.ts'
-import publicRoutes from './routes/public.routes.ts'
+import publicRoutes from './routes/root.routes.ts'
 import adminRoutes from './routes/admin.routes.ts'
 import weeksRoutes from './routes/weeks.routes.ts'
 
@@ -100,6 +100,6 @@ export default class WebServer {
     }
     
     private start() {
-        this.server.listen(this.port, () => console.info(`Starting HTTP server on 0.0.0.0:${this.port}`))
+        this.server.listen(this.port, () => console.info(`Starting HTTP server on http://0.0.0.0:${this.port}`))
     }
 }

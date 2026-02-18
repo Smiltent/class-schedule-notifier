@@ -96,7 +96,7 @@ export default class Scraper {
                 currentYear = JSON.parse(objString).year_auto
             }
 
-            !alreadyDisplayedCurrentYear ? console.debug(`Current year (by EduPage): ${currentYear}`) : null
+            !alreadyDisplayedCurrentYear ? console.info(`Current school year (by EduPage): ${currentYear}`) : null
             alreadyDisplayedCurrentYear = true
 
             const dataRes = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, currentYear], __gsh: "00000000"}, {
