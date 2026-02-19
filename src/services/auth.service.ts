@@ -1,13 +1,14 @@
 
-import User from "../db/models/User"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
+
+import User from "../db/User"
 
 interface UserData {
     username?: string,
     password?: string,
     favoriteNumber?: string,
-    role?: string
+    roles?: string[]
 }
 
 async function register(username: string, password: string, favoriteNumber: number, role: string = 'user') {
@@ -24,7 +25,7 @@ async function register(username: string, password: string, favoriteNumber: numb
 
 async function login(username: string, password: string) {
     const user = await User.findOne({ username })
-    if (!user) throw new Error("user not found")
+    if (!user) throw new Error("user with that password not found")
 
     const isValid = await bcrypt.compare(password, user.password)
     if (!isValid) throw new Error("user with that password not found")

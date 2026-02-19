@@ -1,3 +1,4 @@
+
 import { settings } from "/public/js/lookup.js"
 
 const button = document.getElementById("downloadBtn")

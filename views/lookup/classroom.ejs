@@ -15,7 +15,7 @@
     <%- include('../components/$header.ejs') %>
 
     <div class="main flex-col">
-        <h1>lookup teacher</h1>
+        <h1>lookup classroom</h1>
         <div class="flex-row">
             <div class="flex-col">
                 <div>
@@ -23,8 +23,8 @@
                     <select name="selectWeek" id="selectWeek"></select>
                 </div>
                 <div>
-                    <label for="selectTeacher">select teacher: </label>
-                    <select id="selectTeacher" style="display: none; width: 0; margin: 0; padding: 0; height: 0;"></select> 
+                    <label for="selectClassroom">select classroom: </label>
+                    <select id="selectClassroom" style="display: none; width: 0; margin: 0; padding: 0; height: 0;"></select> 
                 </div>
             </div>
 
@@ -41,11 +41,11 @@
         const params = new URLSearchParams(window.location.search)
 
         settings.elements.week = document.getElementById('selectWeek')
-        settings.elements.main = document.getElementById('selectTeacher')
+        settings.elements.main = document.getElementById('selectClassroom')
 
         var ignore = [false, false]
-        if (localStorage.getItem("lastLookupTeacher") != null) {
-            settings.values.main = localStorage.getItem("lastLookupTeacher")
+        if (localStorage.getItem("lastLookupClassroom") != null) {
+            settings.values.main = localStorage.getItem("lastLookupClassroom")
             ignore[1] = true
         }
 
@@ -53,19 +53,19 @@
             settings.values.week = params.get("week")
             ignore[0] = true
         }
-        if (params.get("teacher") != null) {
-            settings.values.main = params.get("teacher")
+        if (params.get("classroom") != null) {
+            settings.values.main = params.get("classroom")
             ignore[1] = true
         }
 
-        setup("teacher", ignore)
+        setup("classroom", ignore)
     </script>
 
     <!-- search -->
     <script type="module">
         import { setup } from "/public/js/search.js"
 
-        setup(document.getElementById("selectTeacher"))
+        setup(document.getElementById("selectClassroom"))
     </script>
 
     <!-- download schedule system -->

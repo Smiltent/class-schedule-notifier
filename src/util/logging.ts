@@ -10,13 +10,10 @@ const RED = chalk.hex("#d20f39")
 
 /**
  * Get the current time in a specific format
- * @returns Current time in [DD.MM] HH:MM:SS:MS format
+ * @returns Current time in HH:MM:SS:MS format
  */
 function getTime() {
     const date = new Date()
-    
-    const day = String(date.getDate()).padStart(2, '0')
-    const month = String(date.getMonth() + 1).padStart(2, '0')
 
     const hours = String(date.getHours()).padStart(2, '0')
     const minutes = String(date.getMinutes()).padStart(2, '0')
@@ -24,7 +21,7 @@ function getTime() {
     const seconds = String(date.getSeconds()).padStart(2, '0')
     const milliseconds = String(date.getMilliseconds()).padStart(3, '0')
 
-    return `[${day}.${month}] ${hours}:${minutes}:${seconds}:${milliseconds}`
+    return `${hours}:${minutes}:${seconds}.${milliseconds}`
 }
 
 /**

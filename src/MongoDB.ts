@@ -1,4 +1,5 @@
 
+import migrations from "./util/migrations"
 import mongoose from "mongoose"
 
 export default class Database {
@@ -10,6 +11,7 @@ export default class Database {
         try {
             console.debug(`Connecting to Database...`)
             await mongoose.connect(uri)
+            await migrations()
 
             console.info("Connected to Database!")
         } catch (err) {

@@ -8,20 +8,17 @@ import path from 'path'
 import http from 'http'
 
 import { root } from './middlewares/root.middleware.ts'
-import publicRoutes from './routes/public.routes.ts'
-import adminRoutes from './routes/admin.routes.ts'
-import weeksRoutes from './routes/weeks.routes.ts'
-
-import { hash, url } from '../index.ts'
+import rootRoutes from './routes/root.routes.ts'
+import getGitInfo from './util/githash.ts'
 
 export default class WebServer {
     private app: express.Express
     private wss: WebSocketServer
     private server: http.Server
-    private port: string
+    private port: string | number
 
     constructor(port: string) {
-        console.debug("Running a new webserver.ts instance...")
+        console.debug("Running a new Express.ts instance...")
 
         this.port = port
         
@@ -30,12 +27,55 @@ export default class WebServer {
         this.wss = new WebSocketServer({ server: this.server })
         
         this.express() 
-        this.api_v1()
+        this.routes()
         this.ws()
 
         this.start()
     }
 
+    // ================= EXPRESS =================
+    private async express() {
+        const isDev = process.env.ENV === 'dev'
+        this.app.use(
+            '/public',
+            express.static(
+                path.join(__dirname, '..', 'public'), {
+                    etag: !isDev,
+                    lastModified: !isDev,
+                    maxAge: isDev ? 0 : '10s',
+                }
+            )
+        )
+        this.app.set("view engine", "ejs");
+        this.app.set("trust proxy", [
+            "loopback",
+            "linklocal",
+            "uniquelocal"
+        ])
+
+        this.app.use(bodyParser.urlencoded({ extended: true }))
+        this.app.use(cookieParser())
+        this.app.use(express.json())
+        this.app.use(cors())
+        
+        this.app.use(root)
+        
+        this.app.locals.metaUrl = process.env.META_URL || "https://example.com"
+        this.app.locals.metaTitle = process.env.META_TITLE || "School Name"
+
+        const gitInfo = await getGitInfo()
+        this.app.locals.gitHash = gitInfo.hash
+        this.app.locals.gitUrl = gitInfo.url
+    }
+
+    // ================= API =================
+    private routes() {
+        this.app.use('/', rootRoutes)
+        this.app.use((req, res) => {
+            res.status(404).render("error")
+        })
+    }
+    
     // ================= WEBSOCKETS =================
     private ws() {
         this.wss.on('connection', (ws, req) => {
@@ -56,50 +96,7 @@ export default class WebServer {
         this.wss.clients.forEach(c => c.send(msg)) 
     }
 
-    // ================= EXPRESS =================
-    private express() {
-        const isDev = process.env.ENV === 'dev'
-        this.app.use(
-            '/public',
-            express.static(path.join(__dirname, '..', 'public'), {
-                etag: !isDev,
-                lastModified: !isDev,
-                maxAge: isDev ? 0 : '10s',
-            })
-        )
-        this.app.set("view engine", "ejs");
-        this.app.set("trust proxy", [
-            "loopback",
-            "linklocal",
-            "uniquelocal"
-        ])
-
-        this.app.use(bodyParser.urlencoded({ extended: true }))
-        this.app.use(cookieParser())
-        this.app.use(express.json())
-        this.app.use(cors())
-        
-        this.app.use(root)
-        
-        this.app.locals.metaUrl = process.env.META_URL || "https://example.com"
-        this.app.locals.metaTitle = process.env.META_TITLE || "School Name"
-
-        this.app.locals.gitHash = hash
-        this.app.locals.gitUrl = url
-    }
-
-    // ================= API =================
-    private api_v1() {
-        this.app.use('/v1/weeks', weeksRoutes)
-        this.app.use(`/v1/admin`, adminRoutes)
-
-        this.app.use('/', publicRoutes)
-        this.app.use((req, res) => {
-            res.status(404).render("error")
-        })
-    }
-    
     private start() {
-        this.server.listen(this.port, () => console.info(`Starting HTTP server on 0.0.0.0:${this.port}`))
+        this.server.listen(this.port, () => console.info(`Starting HTTP server on http://0.0.0.0:${this.port}`))
     }
 }
