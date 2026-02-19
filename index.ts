@@ -8,7 +8,7 @@ import logging from "./src/util/logging.ts"
 import gitHash from "./src/util/github.ts"
 
 import dotenv from "dotenv"
-import Schedule from "./src/Schedule.ts"
+import Schedule from "./src/Schedule2.ts"
 dotenv.config()
 
 // ================= VARIABLES =================
@@ -38,7 +38,9 @@ new Database(String(process.env.CONNECTION_STRING))
 
 // export const scraperClient = new Scraper(String(process.env.WEBSITE_URL))
 export const scraperClient = null
-export const webserverClient = new Webserver(String(process.env.PORT) || "3000")
+// export const webserverClient = new Webserver(String(process.env.PORT) || "3000")
+export const webserverClient = null
+
 
 // await scraperClient.storeAllWeeksToDatabase()
 // console.debug(`Current week: ${scraperClient.current_week}`)

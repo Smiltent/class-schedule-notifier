@@ -1,11 +1,6 @@
 
+import { couldStartTrivia } from "typescript"
 import RawScheduleData from "./db/RawScheduleData.ts"
-import TeacherWeekData from "./db/TeacherWeekData.ts"
-import ClassWeekData from "./db/ClassWeekData.ts"
-
-import sendWebhook from "./util/webhook.ts"
-import checkDiff, { checkScheduleChanges } from "./util/diff.ts"
-import { webserverClient } from "../index.ts"
 
 export default class Schedule {
     private week!: string
@@ -13,7 +8,7 @@ export default class Schedule {
     private data: any
     private index: any
 
-    private ignoreFutureWarnings: string[] = []
+    // private ignoreFutureWarnings: string[] = []
 
     /**
      * Initializes the Schedule parser for a specific week
@@ -28,8 +23,6 @@ export default class Schedule {
      */
     public async storeLessonData() {
         if (!this.index) await this.loadIndex(this.week)
-
-        const endData: Record<string, any> = {}
         
         for (const card of this.index.cards) {
             // get lesson information
@@ -42,7 +35,7 @@ export default class Schedule {
             const teachers = lesson.teacherids?.map((id: string) => this.index.teachers[id])
             const classes = lesson.classids.map((id: string) => this.index.classes[id])
             const groups = lesson.groupids?.map((id: string) => this.index.groups[id])
-
+            
             const classroom = this.index.classrooms[card.classroomids]
             const subject = this.index.subjects[lesson.subjectid]
 
@@ -54,25 +47,42 @@ export default class Schedule {
             const duration = Math.ceil(lesson.durationperiods / 2)
 
             for (const clazz of classes) {
-                // ensures day object exists
-                // this.ensureDay(endData, clazz.name, day, name, shortName)
-
                 // store each period
                 for (var i = 0; i < duration; i++, period++) {
                     const times = this.getPeriodTimes(period, isLastDayOfWeek)
                     if (!times) continue
 
+                    const group = groups.find((g: any) => g.classid === clazz.id)
+                    group.entireclass === false ? console.log(group.name) : null
 
+                    continue
                     console.log(JSON.stringify({
-                        class: clazz.name,
+                        week: this.week,
                         day,
+
                         period,
-                        start: times[0],
-                        end: times[1],
-                        name: subject?.name ?? "N/A",
-                        teachers: teachers?.map((t: any) => t.name) ?? [],
                         classroom: classroom?.name ?? "N/A",
+                        name: subject?.name ?? "N/A",
+
+                        class: clazz.name,
+                        group,
+
+                        teachers: teachers?.map((t: any) => t.name) ?? [],
                     }))
+
+//                     export default mongoose.model('Lesson', new Schema({
+//     week: { type: Schema.Types.ObjectId, ref: "Week", required: true },
+//     date: { type: Date, required: true },           // 2024-09-01
+
+//     period: { type: Number, required: true },       // 1, 2, 3, 4
+//     classroom: { type: String, required: true },    // P.203, C.201
+//     name: { type: String, required: true },         // Math
+
+//     class: { type: [String], required: true },        // IP24, IP25, IP26...
+//     group: { type: [String], required: true },        // 1, 2, 3 ...
+
+//     teacher: { type: [String], required: true }       // John Lemon
+// }))
                 }
             }
         }
@@ -109,12 +119,12 @@ export default class Schedule {
 
         this.data = payload.data
         this.index = {
-            lessons: this.indexById(this.data[18]["data_rows"]),
             classrooms: this.indexById(this.data[11]["data_rows"]),
-            teachers: this.indexById(this.data[14]["data_rows"]),
-            subjects: this.indexById(this.data[13]["data_rows"]),
-            groups: this.indexById(this.data[15]["data_rows"]),
             classes: this.indexById(this.data[12]["data_rows"]),
+            subjects: this.indexById(this.data[13]["data_rows"]),
+            teachers: this.indexById(this.data[14]["data_rows"]),
+            groups: this.indexById(this.data[15]["data_rows"]),
+            lessons: this.indexById(this.data[18]["data_rows"]),
 
             dayDefs: this.data[4]["data_rows"],
             daysRows: this.data[7]["data_rows"],
@@ -136,25 +146,6 @@ export default class Schedule {
                 ["14:30", "15:50"],
                 ["16:00", "17:20"]
             ]
-        }
-    }
-
-    /**
-     * Ensures that the day object exists
-     * @param obj JSON object
-     * @param clazz Parent key
-     * @param day Day key
-     * @param name Name of the day
-     * @param shortName Short name of the day
-     */
-    private ensureDay(obj: any, parent: string, day: string, name: string, shortName: string) {
-        if (!obj[parent]) obj[parent] = {}
-        if (!obj[parent][day]) {
-            obj[parent][day] = {
-                day: name,
-                dayShort: shortName,
-                data: []
-            }
         }
     }
 
@@ -207,31 +198,4 @@ export default class Schedule {
             isLastDayOfWeek: index === dayRows.length - 1 // checks if its the last one
         }
     }
-    /**
-     * Normalizes class data by filtering out empty periods and structuring the data
-     * @param clazz Class data
-     * @returns Normalized class data
-     * @deprecated when the hell did I make this... why didn't I use this???
-     */
-    // private normalizeClassData(clazz: any) {
-    //     const out: any = {}
-
-    //     for (const day of Object.keys(clazz)) {
-    //         out[day] = {
-    //             day: clazz[day].day,
-    //             dayShort: clazz[day].dayShort,
-    //             data: (clazz[day].data ?? [])
-    //                 .filter(Boolean)
-    //                 .map((p: { start: any; end: any; name: any; teacher: any; classroom: any }) => ({
-    //                     start: p.start,
-    //                     end: p.end,
-    //                     name: p.name,
-    //                     teacher: p.teacher,
-    //                     classroom: p.classroom
-    //                 }))
-    //         }
-    //     }
-
-    //     return out
-    // }
 }
