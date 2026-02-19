@@ -9,6 +9,7 @@ import http from 'http'
 
 import { root } from './middlewares/root.middleware.ts'
 import rootRoutes from './routes/root.routes.ts'
+import getGitInfo from './util/githash.ts'
 
 export default class WebServer {
     private app: express.Express
@@ -33,7 +34,7 @@ export default class WebServer {
     }
 
     // ================= EXPRESS =================
-    private express() {
+    private async express() {
         const isDev = process.env.ENV === 'dev'
         this.app.use(
             '/public',
@@ -61,6 +62,10 @@ export default class WebServer {
         
         this.app.locals.metaUrl = process.env.META_URL || "https://example.com"
         this.app.locals.metaTitle = process.env.META_TITLE || "School Name"
+
+        const gitInfo = await getGitInfo()
+        this.app.locals.gitHash = gitInfo.hash
+        this.app.locals.gitUrl = gitInfo.url
     }
 
     // ================= API =================

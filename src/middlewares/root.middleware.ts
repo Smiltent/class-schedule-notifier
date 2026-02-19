@@ -19,7 +19,7 @@ async function root(req: Request, res: Response, next: NextFunction) {
             res.locals.user = {
                 id: user._id,
                 name: user.username,
-                role: user.role,
+                roles: user.roles,
                 loggedIn: true,
                 favoriteNumber: user.favoriteNumber
             }
@@ -38,28 +38,6 @@ async function root(req: Request, res: Response, next: NextFunction) {
         res.locals.httpStatus = code
         return ogStatus(code)
     }
-
-    // [DEPRECATED] set teacher, class and classroom data
-    // const { type, week, q } = req.query
-
-    // try {
-    //     if (type === 'class' && week && q) {
-    //         const b = await ClassWeekData.findOne(
-    //             { [`data.${q}`]: { $exists: true}, week }
-    //         )
-
-    //     } else if (type === 'teacher' && week && q) {
-    //         res.locals.teacher = await TeacherWeekData.find({ week, data: q })
-    //     } else if (type === 'classroom' && week && q) {
-    //         res.locals.classroom = await ClassroomWeekData.find({ week, data: q })
-    //     } else {
-    //         res.locals.class = null
-    //         res.locals.teacher = null
-    //         res.locals.classroom = null
-    //     }
-    // } catch (err) {
-    //     console.error(`Query error: ${err}`)
-    // }
 
     // [DEPRECATED] return http status
     res.locals.dType = ""
