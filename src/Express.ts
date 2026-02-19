@@ -9,8 +9,8 @@ import http from 'http'
 
 import { root } from './middlewares/root.middleware.ts'
 import publicRoutes from './routes/root.routes.ts'
-import adminRoutes from './routes/admin.routes.ts'
-import weeksRoutes from './routes/weeks.routes.ts'
+import adminRoutes from './routes/v1/admin.routes.ts'
+import weeksRoutes from './routes/v1/weeks.routes.ts'
 
 import { hash, url } from '../index.ts'
 

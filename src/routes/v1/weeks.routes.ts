@@ -1,6 +1,6 @@
 
-import RawScheduleData from '../db/RawScheduleData'
-import { scraperClient } from '../..'
+import RawScheduleData from '../../db/RawScheduleData'
+import { scraperClient } from '../../..'
 
 import teacherRouter from './weeks/teacher.subroutes'
 import classRouter from './weeks/class.subroutes'

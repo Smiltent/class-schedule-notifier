@@ -1,7 +1,7 @@
 
-import { del, list, modify, register } from "../services/auth.service"
-import { userAuth, requireRole } from "../middlewares/auth.middleware"
-import { scraperClient, webserverClient } from "../.."
+import { del, list, modify, register } from "../../services/auth.service"
+import { userAuth, requireRole } from "../../middlewares/auth.middleware"
+import { scraperClient, webserverClient } from "../../.."
 
 import { Router } from 'express'
 const router = Router()
