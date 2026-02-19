@@ -8,7 +8,7 @@ import logging from "./src/util/logging.ts"
 import gitHash from "./src/util/github.ts"
 
 import dotenv from "dotenv"
-import Schedule from "./src/Schedule2.ts"
+import Schedule from "./src/Schedule.ts"
 dotenv.config()
 
 // ================= VARIABLES =================
