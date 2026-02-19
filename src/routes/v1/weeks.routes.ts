@@ -15,7 +15,7 @@ const router = Router()
 router.get('/list', async (_, res) => {
     try {
         const weeks = await RawScheduleData.distinct('week')
-        const currentWeek = scraperClient.current_week
+        const currentWeek = scraperClient.currentWeek
 
         res.json({ success: true, currentWeek, weeks })
     } catch (err) {

@@ -38,12 +38,13 @@ export default class Scraper {
      */
     public async storeAllWeeksToDatabase() {
         try {
-            this.weeks = await this.getWeeksData()
             this.currentYear = await this.fetchYear()
+            this.weeks = await this.getWeeksData()
 
             this.currentWeek = this.weeks.default_num
 
             for (const week of this.weeks.timetables) {
+                // TODO: there could be a chance, where the storing is too slow, and it doesn't finish before it can start parsing
                 await Week.updateOne(
                     { id: week.tt_num },
                     { $set: { id: week.tt_num, year: week.year, dateFrom: week.datefrom } },
@@ -84,9 +85,9 @@ export default class Scraper {
      */
     public async getWeeksData() {
         try {
-            const { data: res} = await axios.post(
+            const { data: res } = await axios.post(
                 `${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, 
-                { __args: [null, this.currentYear], __gsh: "00000000" }, 
+                { __args: [ null, this.currentYear ], __gsh: "00000000" }, 
                 { headers: createHeaders(this.url) }
             )
 
@@ -174,7 +175,7 @@ export default class Scraper {
             year = JSON.parse(objString).year_auto
         }
 
-        !displayedYear ? console.info(`Current school year (by EduPage): ${year}`) : null
+        !displayedYear ? console.info(`Current School Year: ${year}`) : null
         displayedYear = true
 
         return String(year)

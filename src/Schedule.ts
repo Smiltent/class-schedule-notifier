@@ -26,7 +26,7 @@ export default class Schedule {
     public async storeLessonData() {
         if (!this.index) await this.loadIndex(this.week)
 
-        const weekObjectId = await Week.findOne({ weekId: this.week })
+        const weekObjectId = await Week.findOne({ id: this.week })
         if (weekObjectId === null) {
             console.error("Week doesn't exist...")
             return
