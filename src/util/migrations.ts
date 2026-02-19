@@ -1,5 +1,5 @@
 
-import Role from "../db/Role";
+import Role from "../db/Role"
 
 export default async function migrations() {
     const roles = [

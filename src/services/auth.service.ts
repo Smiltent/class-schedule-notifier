@@ -1,7 +1,8 @@
 
-import User from "../db/User"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
+
+import User from "../db/User"
 
 interface UserData {
     username?: string,

@@ -27,7 +27,7 @@ export default class Scraper {
     public currentYear: string = "0000"
 
     constructor(url: string) {
-        console.debug("Running a new scraper.ts instance...")
+        console.debug("Running a new Scraper.ts instance...")
 
         this.url = this.normalizeUrl(url)
         this.parser = new Schedule()

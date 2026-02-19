@@ -18,7 +18,7 @@ export default class WebServer {
     private port: string | number
 
     constructor(port: string) {
-        console.debug("Running a new webserver.ts instance...")
+        console.debug("Running a new Express.ts instance...")
 
         this.port = port
         

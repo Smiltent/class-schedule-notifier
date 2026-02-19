@@ -1,6 +1,6 @@
 
-import Lesson from "./db/Lesson.ts"
 import RawScheduleData from "./db/RawScheduleData.ts"
+import Lesson from "./db/Lesson.ts"
 import Week from "./db/Week.ts"
 
 export default class Schedule {
