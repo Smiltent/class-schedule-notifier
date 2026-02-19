@@ -6,8 +6,12 @@ export default async function migrations() {
         {
             name: "admin",
             permissions: [ 
-                "basic", 
+                "basic",
+
+                "group", 
                 "group:manage",
+
+                "admin",
                 "admin:groups",
                 "admin:users",
                 "admin:roles",
@@ -18,6 +22,7 @@ export default async function migrations() {
             name: "teacher",
             permissions: [ 
                 "basic", 
+                "group",
                 "group:manage"
             ]
         },

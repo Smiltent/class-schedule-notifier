@@ -1,6 +1,6 @@
 
 export const settings = {
-    url: `${window.location.origin}/v1/weeks`,
+    url: `${window.location.origin}/v2/weeks`,
     weekData: null,
     values: {
         week: null,
@@ -197,8 +197,6 @@ function setMainOptions(element, data, primary = null, searchable) {
 // turns a select element, into a searchable one (for search.js)
 function makeSearchable(element) {
     element.style.display = "none"
-
-    const wrapper = 
 }
 
 //

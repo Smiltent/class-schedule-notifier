@@ -1,6 +1,6 @@
 
 export const settings = {
-    url: `${window.location.origin}/v1/admin`,
+    url: `${window.location.origin}/v2/admin`,
     elements: {
         users: document.getElementById("userTable")
     },
