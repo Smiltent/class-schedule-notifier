@@ -13,10 +13,12 @@ export const settings = {
     formats: {
         class: `%name%<br>(%teacher% | %classroom%)`,
         teacher: `%name%<br>(%class% | %classroom%)`,
+        classroom: `%name%<br>(%teacher% | %class%)`
     },
     coloring: { // yes, i know its stupid, but i had no other idea on how to do it
         class: '%name%-%teacher%',
         teacher: '%name%-%class%',
+        classroom: '%name%-%teacher%-%class%'
     },
     times: {
         normal: [
@@ -119,13 +121,6 @@ function createTable(type, container) {
         day.data.forEach(lesson => {
             const cellContainer = document.createElement('td')
 
-            // cellContainer.style.backgroundColor = randomColorFromStringPastel(
-            //         settings.coloring[type]
-            //             .replace('%name%', lesson.name)
-            //             .replace('%teacher%', lesson.teacher)
-            //             .replace('%class%', lesson.class)
-            //     )
-
             const cell = document.createElement('div')
 
             if (lesson != null) {
@@ -142,7 +137,7 @@ function createTable(type, container) {
                     .replace('%name%', lesson.name)
                     .replace('%teacher%', `<a class="colorText" href="/teacher?teacher=${encodeURIComponent(lesson.teacher)}">${lesson.teacher}</a>`)
                     .replace('%class%', `<a class="colorText" href="/class?class=${encodeURIComponent(lesson.class)}">${lesson.class}</a>`)
-                    .replace('%classroom%', lesson.classroom)
+                    .replace('%classroom%', `<a class="colorText" href="/classroom?classroom=${encodeURIComponent(lesson.classroom)}">${lesson.classroom}</a>`)
             }
 
             cellContainer.appendChild(cell)
@@ -167,7 +162,6 @@ function setWeekOptions(element, data, primary = null) {
     data.forEach((week) => {
         const option = document.createElement('option')
 
-        // const weekDisplay = week == "67" ? "that one un-funny number" : week
         const weekDisplay = week
 
         if (week === primary) {
@@ -224,13 +218,6 @@ function randomColorFromString(str) {
     const sat = 60 + (Math.abs(hashCode(str)) % 20) 
 
     return `hsl(${hue}, ${sat}%, 25%)`
-}
-
-function randomColorFromStringPastel(str) {
-    const hue = Math.abs(hashCode(str)) % 360
-    const sat = 90 + (Math.abs(hashCode(str)) % 20) 
-
-    return `hsl(${hue}, ${sat}%, 30%)`
 }
 
 //

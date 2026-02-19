@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>schedule</title>
+
+    <link rel="stylesheet" href="/public/style.css">
+
+    <%- include('../components/$fonts.ejs') %>
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <%- include('../components/$header.ejs') %>
+
+    <div class="main flex-col">
+        <h1>lookup classroom</h1>
+        <div class="flex-row">
+            <div class="flex-col">
+                <div>
+                    <label for="selectWeek">select week: </label>
+                    <select name="selectWeek" id="selectWeek"></select>
+                </div>
+                <div>
+                    <label for="selectClassroom">select classroom: </label>
+                    <select id="selectClassroom" style="display: none; width: 0; margin: 0; padding: 0; height: 0;"></select> 
+                </div>
+            </div>
+
+            <div class="downloadContainer">
+                <button id="downloadBtn">download</button>
+            </div>
+        </div>
+
+        <div id="tableContainer"></div>
+    </div>
+
+    <script type="module">
+        import { settings, setup } from "/public/js/lookup.js"
+        const params = new URLSearchParams(window.location.search)
+
+        settings.elements.week = document.getElementById('selectWeek')
+        settings.elements.main = document.getElementById('selectClassroom')
+
+        var ignore = [false, false]
+        if (localStorage.getItem("lastLookupClassroom") != null) {
+            settings.values.main = localStorage.getItem("lastLookupClassroom")
+            ignore[1] = true
+        }
+
+        if (params.get("week") != null) {
+            settings.values.week = params.get("week")
+            ignore[0] = true
+        }
+        if (params.get("classroom") != null) {
+            settings.values.main = params.get("classroom")
+            ignore[1] = true
+        }
+
+        setup("classroom", ignore)
+    </script>
+
+    <!-- search -->
+    <script type="module">
+        import { setup } from "/public/js/search.js"
+
+        setup(document.getElementById("selectClassroom"))
+    </script>
+
+    <!-- download schedule system -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script type="module" src="/public/js/download.js"></script>
+</body>
+</html>
