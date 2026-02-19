@@ -14,7 +14,7 @@ async function root(req: Request, res: Response, next: NextFunction) {
             const payload: any = jwt.verify(token, String(process.env.JWT_SECRET))
             const user = await User.findById(payload.id).lean()
 
-            if (!user) throw new Error('user not found')
+            if (!user) return res.status(403).render("error")
 
             res.locals.user = {
                 id: user._id,
