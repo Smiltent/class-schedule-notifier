@@ -1,21 +1,24 @@
 
-import { couldStartTrivia } from "typescript"
+import type { ObjectId } from "mongoose"
+import Lesson from "./db/Lesson.ts"
 import RawScheduleData from "./db/RawScheduleData.ts"
+import Week from "./db/Week.ts"
 
 export default class Schedule {
     private week!: string
 
-    private data: any
     private index: any
-
-    // private ignoreFutureWarnings: string[] = []
+    private data: any
 
     /**
      * Initializes the Schedule parser for a specific week
      * @param week The week to parse from Edupage
      */
-    public async i(week: string) {
-        await this.loadIndex(this.week = week)
+    public async i(
+        week: string,
+    ) {
+        this.week = week 
+        await this.loadIndex(week)
     }
 
     /**
@@ -23,7 +26,13 @@ export default class Schedule {
      */
     public async storeLessonData() {
         if (!this.index) await this.loadIndex(this.week)
-        
+
+        const weekObjectId = await Week.findOne({ weekId: this.week })
+        if (weekObjectId === null) {
+            console.error("Week doesn't exist...")
+            return
+        }
+
         for (const card of this.index.cards) {
             // get lesson information
             const lesson = this.index.lessons[card.lessonid]
@@ -46,65 +55,63 @@ export default class Schedule {
             const { day, name, shortName, isLastDayOfWeek } = dayInfo
             const duration = Math.ceil(lesson.durationperiods / 2)
 
-            for (const clazz of classes) {
-                // store each period
-                for (var i = 0; i < duration; i++, period++) {
-                    const times = this.getPeriodTimes(period, isLastDayOfWeek)
-                    if (!times) continue
+            try {
+                for (const clazz of classes) {
+                    // store each period
+                    for (var i = 0; i < duration; i++, period++) {
+                        const times = this.getPeriodTimes(period, isLastDayOfWeek)
+                        if (!times) continue
 
-                    const group = groups.find((g: any) => g.classid === clazz.id)
-                    group.entireclass === false ? console.log(group.name) : null
+                        const group = groups.find((g: any) => g.classid === clazz.id)
 
-                    continue
-                    console.log(JSON.stringify({
-                        week: this.week,
-                        day,
+                        const query = {
+                            week: weekObjectId,
+                            period,
+                            day,
+                            class: clazz.name,
+                            group: group.entireclass ? "all" : group.name
+                        }
 
-                        period,
-                        classroom: classroom?.name ?? "N/A",
-                        name: subject?.name ?? "N/A",
+                        const data = {
+                            classroom: classroom?.name ?? "N/A",
+                            name: subject?.name ?? "N/A",
+                            teachers: teachers?.map((t: any) => t.name) ?? [],
+                        }
 
-                        class: clazz.name,
-                        group,
+                        const existing = await Lesson.findOne(query)
+                        const changes: any[] = []
 
-                        teachers: teachers?.map((t: any) => t.name) ?? [],
-                    }))
+                        if (existing) {
+                            if (existing.classroom !== data.classroom) changes.push({
+                                date: new Date(), type: "classroom", from: existing.classroom, to: data.classroom
+                            })
 
-//                     export default mongoose.model('Lesson', new Schema({
-//     week: { type: Schema.Types.ObjectId, ref: "Week", required: true },
-//     date: { type: Date, required: true },           // 2024-09-01
+                            if (existing.name !== data.name) changes.push({ 
+                                date: new Date(), type: "name", from: existing.name, to: data.name
+                            })
 
-//     period: { type: Number, required: true },       // 1, 2, 3, 4
-//     classroom: { type: String, required: true },    // P.203, C.201
-//     name: { type: String, required: true },         // Math
+                            if (JSON.stringify(existing.teachers.sort()) !== JSON.stringify(data.teachers.sort())) changes.push({
+                                date: new Date(), type: "teachers", from: existing.teachers, to: data.teachers
+                            })
+                        }
 
-//     class: { type: [String], required: true },        // IP24, IP25, IP26...
-//     group: { type: [String], required: true },        // 1, 2, 3 ...
-
-//     teacher: { type: [String], required: true }       // John Lemon
-// }))
+                        await Lesson.updateOne(
+                            query,
+                            {
+                                $set: data,
+                                $push: {
+                                    changes: { $each: changes }
+                                },
+                                $setOnInsert: { changes: [] }
+                            },
+                            { upsert: true }
+                        )
+                    }
                 }
+            } catch (err) {
+                console.error(`Error trying to store Lesson Data: ${err}`)
             }
         }
-
-        // // get previous data
-        // const prevData = await ClassWeekData.findOne({ week: this.week })
-
-        // // update in database
-        // await ClassWeekData.updateOne(
-        //     { week: this.week },
-        //     { $set: { data: endData }},
-        //     { upsert: true }
-        // )
-
-        // const changes = checkScheduleChanges(prevData, endData)
-
-        // // notify via websocket
-        // webserverClient.sendWSMessage(JSON.stringify({
-        //     week: this.week,
-        //     type: "updated.classes",
-        //     changes
-        // }))
 
         console.debug(`Stored Class Data for Week ${this.week}`)
     }

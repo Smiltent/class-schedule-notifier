@@ -9,10 +9,11 @@ import gitHash from "./src/util/github.ts"
 
 import dotenv from "dotenv"
 import Schedule from "./src/Schedule.ts"
+import Scraper from "./src/Scraper.ts"
 dotenv.config()
 
 // ================= VARIABLES =================
-export const { hash, url } = await gitHash()
+// export const { hash, url } = await gitHash()
 var DEBUG_MODE: boolean = false
 
 // ================= ARGUMENTS ================= 
@@ -52,3 +53,10 @@ export const webserverClient = null
 const dev = new Schedule()
 dev.i("76")
 dev.storeLessonData()
+
+const scrape = new Scraper(String(process.env.WEBSITE_URL))
+console.log(
+    JSON.stringify(
+        await scrape.getWeeksData()
+    )
+)

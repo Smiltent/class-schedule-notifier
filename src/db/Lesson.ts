@@ -12,5 +12,5 @@ export default mongoose.model('Lesson', new Schema({
     class: { type: [String], required: true },        // IP24, IP25, IP26...
     group: { type: [String], required: true },        // 1, 2, 3 ...
 
-    teacher: { type: [String], required: true }       // John Lemon
+    teachers: { type: [String], required: true }       // John Lemon
 }))

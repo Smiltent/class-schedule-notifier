@@ -5,8 +5,9 @@ import Schedule from "./schedule.ts"
 import axios from "axios"
 
 import RawScheduleData from "./db/RawScheduleData.ts"
+import Week from "./db/Week.ts"
 
-const HEADERS = (url: string) => ({
+const createHeaders = (url: string) => ({
     "Referer": url,
     "Content-Type": "application/json; charset=utf-8",
     "Accept-Language": "en-US,en;q=0.5",
@@ -16,39 +17,38 @@ const HEADERS = (url: string) => ({
 })
 
 var alreadyWarned = false
-var alreadyDisplayedCurrentYear = false
+var displayedYear = false
 
 export default class Scraper {
     private url: string
     private weeks: any
     private parser: Schedule
 
-    public current_week: string = "0"
+    public currentWeek: string = "0"
+    public currentYear: string = "0000"
 
     constructor(url: string) {
         console.debug("Running a new scraper.ts instance...")
 
-        this.url = url
+
+        this.url = this.normalizeUrl(url)
         this.parser = new Schedule()
-
-        // adds the edupage domain
-        if (!this.url.includes("edupage.org")) {
-            this.url = `${this.url}.edupage.org`
-        }
-
-        // adds the https tag, if the url does not provide it
-        if (!this.url.startsWith("https://") && !this.url.startsWith("http://")) {
-            this.url = `https://${this.url}`
-        }
     }
 
     public async storeAllWeeksToDatabase() {
         try {
             this.weeks = await this.getWeeksData()
+            this.currentYear = await this.fetchYear()
 
-            this.current_week = this.weeks.default_num
+            this.currentWeek = this.weeks.default_num
 
             for (const week of this.weeks.timetables) {
+                await Week.updateOne(
+                    { id: week.tt_num },
+                    { $set: { id: week.tt_num, year: week.year, dateFrom: week.datefrom } },
+                    { upsert: true }
+                )
+
                 const canParse = await this.storeWeekToDatabase(week.tt_num)
                 if (!canParse) continue
                 
@@ -77,41 +77,24 @@ export default class Scraper {
         }
     }
 
-    private async getWeeksData() {
+    public async getWeeksData() {
         try {
-            var currentYear = new Date().getFullYear()
-            const yearRes = await axios.get(`${this.url}/timetable/view.php`, {
-                headers: HEADERS(this.url)
-            })
+            const { data: res} = await axios.post(
+                `${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, 
+                { __args: [null, this.currentYear], __gsh: "00000000" }, 
+                { headers: createHeaders(this.url) }
+            )
 
-            // extracts the year variable from the page
-            const match = yearRes.data.match(/ASC\.req_props\s*=\s*({[\s\S]*?});/)
-            if (match) {
-                var objString = match[1];
+            var data = res.r.regular
 
-                objString = objString
-                    .replace(/(\w+):/g, '"$1":')
-                    .replace(/'/g, '"')
+            // edge case - in case if it's empty or null
+            if (!data.default_num) {
+                data.default_num = data.timetables.at(-1).tt_num
 
-                currentYear = JSON.parse(objString).year_auto
-            }
-
-            !alreadyDisplayedCurrentYear ? console.info(`Current school year (by EduPage): ${currentYear}`) : null
-            alreadyDisplayedCurrentYear = true
-
-            const dataRes = await axios.post(`${this.url}/timetable/server/ttviewer.js?__func=getTTViewerData`, {__args: [null, currentYear], __gsh: "00000000"}, {
-                headers: HEADERS(this.url)
-            })
-
-            var data = dataRes.data.r.regular
-
-            if (data.default_num == null || data.default_num === "") {
-                // gets the last week available (most likely recent)
-                data.default_num = data.timetables[data.timetables.length - 1].tt_num
-
-                // gosh i love returns in try statements
-                if (!alreadyWarned) { console.warn("Edupage didn't update their year or default_num is empty...") }
-                alreadyWarned = true
+                if (!alreadyWarned) {
+                    console.warn("Default_num is empty, falling back to most recent week...")
+                    alreadyWarned = true
+                }
             }
 
             return data
@@ -121,57 +104,86 @@ export default class Scraper {
         }
     }
 
+    /**
+     * Store the week into the database
+     * @param week EduPage week
+     * @returns successfullness
+     */
     private async storeWeekToDatabase(week: string) {
         try {
-            const res = await axios.post(`${this.url}/timetable/server/regulartt.js?__func=regularttGetData`, { __args: [null, week], __gsh: "00000000" }, {
-                headers: HEADERS(this.url)
-            })
+            const { data: res } = await axios.post(
+                `${this.url}/timetable/server/regulartt.js?__func=regularttGetData`, 
+                { __args: [null, week], __gsh: "00000000" },
+                { headers: createHeaders(this.url) }
+            )
             
-            const data = res.data.r
-
             // refreshed the weeks - yes, the message is in plural
-            if (res.data.error === "Timetable does not exists") {
+            if (res.error === "Timetable does not exists") {
                 this.weeks = await this.getWeeksData()
-                return console.debug(`Week ${week} has been removed`)
+                console.debug(`Week ${week} has been removed`)
+
+                return false
             }
 
-            // checks if its been modified
-            const old = await RawScheduleData.findOne({ week });
+            const incoming = res.r.dbiAccessorRes.tables
+            const existing = await RawScheduleData.findOne({ week })
 
-            var shouldUpdate = false
-            if (!old) {
-                console.debug(`Week ${week} is brand new (never been stored)`)
+            const isNew = !existing
+            const isModified = existing && checkDiff(existing.data, incoming) !== "no changes"
 
-                webserverClient.sendWSMessage(JSON.stringify({
-                    week,
-                    type: "new",
-                }))
+            if (!isNew && !isModified) return false
+            console.debug(`${isNew ? "New" : "Modified"} week ${week} — storing to database.`)
 
-                shouldUpdate = true
-            } else {
-                const changes = checkDiff(old?.data, data.dbiAccessorRes.tables)
-                if (changes !== "no changes") {
-                    console.debug(`Week ${week} has been modified!`)  
-                    shouldUpdate = true
-                }
-            }
-
-            if (!shouldUpdate) return false
-
-            // store into database
-            console.debug(`Storing Raw Week ${week} into Database`)
             await RawScheduleData.updateOne(
                 { week },
-                { $set: { 
-                    data: data.dbiAccessorRes.tables
-                }},
+                { $set: { data: incoming } },
                 { upsert: true }
             )
 
             return true
         } catch (err) {
-            console.error(`Failed to fetch data from ${this.url}: ${err}`)
+            console.error(`Failed to fetch week ${week} from ${this.url}: ${err}`)
             return false
         }
+    }
+
+    /**
+     * Obtains the year variable from EduPage. Why don't they just get the current year?
+     * @returns the current school year from EduPage
+     */
+    private async fetchYear() {
+        var year = new Date().getFullYear()
+        const yearRes = await axios.get(`${this.url}/timetable/view.php`, {
+            headers: createHeaders(this.url)
+        })
+
+        // extracts the year variable from the page
+        const match = yearRes.data.match(/ASC\.req_props\s*=\s*({[\s\S]*?});/)
+        if (match) {
+            var objString = match[1];
+
+            objString = objString
+                .replace(/(\w+):/g, '"$1":')
+                .replace(/'/g, '"')
+
+            year = JSON.parse(objString).year_auto
+        }
+
+        !displayedYear ? console.info(`Current school year (by EduPage): ${year}`) : null
+        displayedYear = true
+
+        return String(year)
+    }
+
+    /**
+     * Edge-case handling URL normalization, in case user forgets to add protocol or the domain
+     * @param url uncomplete EduPage URL
+     * @returns complete EduPage URL
+     */
+    private normalizeUrl(url: string) {
+        if (!url.includes("edupage.org")) url = `${url}.edupage.org`
+        if (!url.startsWith("https://") && !url.startsWith("http://")) url = `https://${url}`
+
+        return url
     }
 }
