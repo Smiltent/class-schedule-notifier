@@ -5,7 +5,6 @@ import Webserver from "./src/Express.ts"
 // import Scraper from "./src/scraper.ts"
 
 import logging from "./src/util/logging.ts"
-import gitHash from "./src/util/github.ts"
 
 import dotenv from "dotenv"
 import Schedule from "./src/Schedule.ts"
@@ -13,7 +12,6 @@ import Scraper from "./src/Scraper.ts"
 dotenv.config()
 
 // ================= VARIABLES =================
-// export const { hash, url } = await gitHash()
 var DEBUG_MODE: boolean = false
 
 // ================= ARGUMENTS ================= 
@@ -37,10 +35,8 @@ logging(DEBUG_MODE)
 // ================= MAIN =================
 new Database(String(process.env.CONNECTION_STRING))
 
-// export const scraperClient = new Scraper(String(process.env.WEBSITE_URL))
-export const scraperClient = null
-// export const webserverClient = new Webserver(String(process.env.PORT) || "3000")
-export const webserverClient = null
+export const scraperClient = new Scraper(String(process.env.WEBSITE_URL))
+export const webserverClient = new Webserver(String(process.env.PORT) || "3000")
 
 
 // await scraperClient.storeAllWeeksToDatabase()

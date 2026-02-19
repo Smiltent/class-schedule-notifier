@@ -1,7 +1,6 @@
 
-import { webserverClient } from "../index.ts"
 import checkDiff from "./util/diff.ts"
-import Schedule from "./schedule.ts"
+import Schedule from "./Schedule.ts"
 import axios from "axios"
 
 import RawScheduleData from "./db/RawScheduleData.ts"
@@ -30,11 +29,13 @@ export default class Scraper {
     constructor(url: string) {
         console.debug("Running a new scraper.ts instance...")
 
-
         this.url = this.normalizeUrl(url)
         this.parser = new Schedule()
     }
 
+    /**
+     * Fetches all the weeks from EduPage and stores them into the database
+     */
     public async storeAllWeeksToDatabase() {
         try {
             this.weeks = await this.getWeeksData()
@@ -53,30 +54,34 @@ export default class Scraper {
                 if (!canParse) continue
                 
                 await this.parser.i(week.tt_num)
-
-                await this.parser.storeClassData()
-                await this.parser.storeTeacherData()
+                await this.parser.storeLessonData()
             }
         } catch (err) {
             console.error(`Failed to store all weeks to database: ${err}`)
         }
     }
 
+    /**
+     * Reparses every single stored week in the Database
+     * Useful for when schema has changed
+     */
     public async reparseAllWeeksInDatabase() {
         try {
             this.weeks = await RawScheduleData.find({})
 
             for (const week of this.weeks) {
                 await this.parser.i(week.week)
-
-                await this.parser.storeClassData()
-                await this.parser.storeTeacherData()
+                await this.parser.storeLessonData()
             }
         } catch (err) {
             console.error(`Failed to reparse weeks in database: ${err}`)
         }
     }
 
+    /**
+     * Obtain the weeks data from EduPage
+     * @returns Weeks Data
+     */
     public async getWeeksData() {
         try {
             const { data: res} = await axios.post(

@@ -1,5 +1,4 @@
 
-import type { ObjectId } from "mongoose"
 import Lesson from "./db/Lesson.ts"
 import RawScheduleData from "./db/RawScheduleData.ts"
 import Week from "./db/Week.ts"
