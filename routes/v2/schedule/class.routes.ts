@@ -2,7 +2,7 @@
 import ClassWeekData from '../../db/models/ClassWeekData'
 
 import { Router } from 'express'
-import Lesson from '../../../db/Lesson'
+import Lesson from '../../../models/Lesson'
 import { scraperClient } from '../../..'
 
 const router = Router()

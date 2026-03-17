@@ -2,7 +2,7 @@
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 
-import User from "../db/User"
+import User from "../models/User"
 
 interface UserData {
     username?: string,

@@ -1,8 +1,8 @@
 
 import type { Request, Response, NextFunction } from "express"
-import User from "../db/User"
+import User from "../models/User"
 import jwt from "jsonwebtoken"
-import Role from "../db/Role"
+import Role from "../models/Role"
 
 interface AuthRequest extends Request {
     user?: any
