@@ -1,10 +1,10 @@
 
-import checkDiff from "./util/diff.ts"
+import checkDiff from "../util/diff.ts"
 import Schedule from "./Schedule.ts"
 import axios from "axios"
 
-import RawScheduleData from "./db/RawScheduleData.ts"
-import Week from "./db/Week.ts"
+import RawScheduleData from "../db/RawScheduleData.ts"
+import Week from "../db/Week.ts"
 
 const createHeaders = (url: string) => ({
     "Referer": url,

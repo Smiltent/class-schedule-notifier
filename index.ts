@@ -4,7 +4,7 @@ import Database from "./src/MongoDB.ts"
 import Webserver from "./src/Express.ts"
 import Scraper from "./src/Scraper.ts"
 
-import logging from "./src/util/logging.ts"
+import logging from "./util/logging.ts"
 
 import dotenv from "dotenv"
 dotenv.config()
