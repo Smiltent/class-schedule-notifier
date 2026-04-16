@@ -2,11 +2,11 @@
 import chalk from "chalk"
 import path from "path"
 
-const YELLOW = chalk.hex("#dfbc1dff")
-const ORANGE = chalk.hex("#fe640b")
-const BLUE = chalk.hex("#1e66f5")
+const YELLOW = chalk.bgHex("hsl(49, 77%, 49%)")
+const ORANGE = chalk.bgHex("#f05e0a")
+const BLUE = chalk.bgHex("#1e66f5")
 const GRAY = chalk.hex("#232634")
-const RED = chalk.hex("#d20f39")
+const RED = chalk.bgHex("#d20f39")
 
 /**
  * Get the current time in a specific format
@@ -48,21 +48,20 @@ function getCaller() {
     return `${path.basename(filePath)}:${line}`
 }
 
-export default function logging(debugModeEnabled: boolean) {
-    const base = (...args: any[]) => {
+export default function log(debug: boolean) {
+    const base = (level: string, ...args: any[]) => {
         const caller = getCaller()
 
         process.stdout.write(
-            `${GRAY(`[${caller}]`)} ${GRAY(getTime())} ${args}\n`
+            `${level}${GRAY(` [${caller}] ${getTime()} `)} ${args}\n`
         )
     }
 
-    console.log = (...args) => base(...args)
+    console.log = (...args) => base("", ...args)
+    console.warn = (...args) => base(`${YELLOW(" warn ")}`, ...args)
+    console.error = (...args) => base(`${RED(" error ")}`, ...args)
+    console.info = (...args) => base(`${BLUE(" info ")}`, ...args)
 
-    console.warn = (...args) => base(`${YELLOW("[WARN]")} ${args}`)
-    console.error = (...args) => base(`${RED("[ERROR]")} ${args}`)
-    console.info = (...args) => base(`${BLUE("[INFO]")} ${args}`)
-
-    debugModeEnabled ? console.debug = (...args) => base(`${ORANGE("[DEBUG]")} ${args}`) : console.debug = () => {}
+    debug ? console.debug = (...args) => base(`${ORANGE("[DEBUG]")} ${args}`) : console.debug = () => {}
     console.debug("Debug mode is enabled")
 }

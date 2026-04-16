@@ -4,7 +4,7 @@ import Database from "./src/MongoDB.ts"
 import Express from "./src/Express.ts"
 import Scraper from "./src/Scraper.ts"
 
-import logging from "./util/logging.ts"
+import logging from "./util/log.ts"
 require("dotenv").config()
 
 // ================= VARIABLES =================
