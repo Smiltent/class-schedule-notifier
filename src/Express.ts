@@ -7,9 +7,9 @@ import cors from 'cors'
 import path from 'path'
 import http from 'http'
 
-import { root } from '../middlewares/root.middleware.ts'
-import rootRoutes from '../routes/root.routes.ts'
-import getGitInfo from '../util/githash.ts'
+import { root } from '@/middlewares/root.middleware.ts'
+import rootRoutes from '@/routes/root.routes.ts'
+import getGitInfo from '@/util/githash.ts'
 
 export default class WebServer {
     private app: express.Express

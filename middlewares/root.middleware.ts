@@ -1,6 +1,6 @@
 
 import type { Request, Response, NextFunction } from "express"
-import getClientIp from "../util/realip"
+import getClientIp from "@/util/realip"
 import jwt from "jsonwebtoken"
 
 import User from "../models/User"

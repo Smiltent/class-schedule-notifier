@@ -1,10 +1,10 @@
 
-import checkDiff from "../util/diff.ts"
-import Schedule from "./Schedule.ts"
+import checkDiff from "@/util/diff"
+import Schedule from "./Schedule"
 import axios from "axios"
 
-import RawScheduleData from "../models/RawScheduleData.ts"
-import Week from "../models/Week.ts"
+import RawScheduleData from "@/models/RawScheduleData.ts"
+import Week from "@/models/Week.ts"
 
 const createHeaders = (url: string) => ({
     "Referer": url,
@@ -31,6 +31,11 @@ export default class Scraper {
 
         this.url = this.normalizeUrl(url)
         this.parser = new Schedule()
+
+        setInterval(async () => {    
+            await this.storeAllWeeksToDatabase()
+        }, 5 * 60 * 1000) // 5 min
+        console.debug(`Current week: ${this.currentWeek}`)
     }
 
     /**

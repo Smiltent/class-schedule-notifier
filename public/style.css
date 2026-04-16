@@ -250,6 +250,7 @@ form, select{
     }
 
     .lesson-cell {
+        height: 45px;
         width: 100%;
     }
 }

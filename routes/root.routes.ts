@@ -36,6 +36,8 @@ router.post('/register', LOGIN_REGISTER_RATELIMIT, async (req, res) => {
     if (process.env.REGISTER == "false") return res.status(400).render("register", { dMsg: "registering is disabled", dType: "bad" } )
     if (req.cookies?.token) return res.redirect('/')
 
+    
+
     try {
         const { username, password, favoriteNumber } = req.body
 
@@ -109,7 +111,7 @@ router.get('/', (_, res) => {
 })
 
 router.get('/favicon.ico', (_, res) => {
-    res.sendFile(path.join(__dirname, '..', '..', 'public', 'favicon.ico'))
+    res.sendFile(path.join(__dirname, '..', 'public', 'favicon.ico'))
 })
 
 router.get('/teapot', (_, res) => {

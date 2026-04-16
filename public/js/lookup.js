@@ -11,14 +11,9 @@ export const settings = {
         main: null
     },
     formats: {
-        class: `%name%<br>(%teacher% | %classroom%)`,
-        teacher: `%name%<br>(%class% | %classroom%)`,
+        class: `%name%<br>(%classroom% | %teacher%)`,
+        teacher: `%name%<br>(%classroom% | %class%)`,
         classroom: `%name%<br>(%teacher% | %class%)`
-    },
-    coloring: { // yes, i know its stupid, but i had no other idea on how to do it
-        class: '%name%-%teacher%',
-        teacher: '%name%-%class%',
-        classroom: '%name%-%teacher%-%class%'
     },
     times: {
         normal: [
@@ -127,10 +122,7 @@ function createTable(type, container) {
                 cell.classList.add("lesson-cell")
 
                 cell.style.backgroundColor = randomColorFromString(
-                    settings.coloring[type]
-                        .replace('%name%', lesson.name)
-                        .replace('%teacher%', lesson.teacher)
-                        .replace('%class%', lesson.class)
+                    lesson.name
                 )
 
                 cell.innerHTML = settings.formats[type]

@@ -1,9 +1,8 @@
 
-import ClassWeekData from '../../db/models/ClassWeekData'
+import Lesson from '@/models/Lesson'
 
+import { scraper } from '@/index'
 import { Router } from 'express'
-import Lesson from '../../../models/Lesson'
-import { scraperClient } from '../../..'
 
 const router = Router()
 
@@ -14,7 +13,7 @@ const router = Router()
 router.get('/list', async (_, res) => {
     try {
         // get data from db
-        const find = await Lesson.findOne({ [`data`]: { $exists: true }, week: scraperClient.currentWeek })
+        const find = await Lesson.findOne({ [`data`]: { $exists: true }, week: scraper.currentWeek })
         const data = Object.keys(find?.data || {})
 
         // return data
@@ -35,7 +34,7 @@ router.get('/list', async (_, res) => {
 router.get(`/all/currentweek`, async (_, res) => {
     try {
         // get data from db
-        const find = await ClassWeekData.findOne({ [`data`]: { $exists: true }, week: scraperClient.currentWeek })
+        const find = await Lesson.findOne({ [`data`]: { $exists: true }, week: scraper.currentWeek })
         const data = find?.data
 
         // return data
@@ -56,7 +55,7 @@ router.get(`/all/currentweek`, async (_, res) => {
 router.get(`/all/upcomingweek`, async (_, res) => {
     try {
         // get data from db
-        const find = await ClassWeekData.findOne({ [`data`]: { $exists: true }, week: scraperClient.currentWeek + 1 })
+        const find = await Lesson.findOne({ [`data`]: { $exists: true }, week: scraper.currentWeek + 1 })
         const data = find?.data
 
         // if data not found, return 404
@@ -84,7 +83,7 @@ router.get(`/all/week/:week`, async (req, res) => {
 
     try {
         // get data from db
-        const find = await ClassWeekData.findOne({ [`data`]: { $exists: true }, week })
+        const find = await Lesson.findOne({ [`data`]: { $exists: true }, week })
         const data = find?.data
 
         // if data not found, return 404
@@ -113,7 +112,7 @@ router.get('/:id/currentweek', async (req, res) => {
 
     try {
         // get data from db
-        const find = await ClassWeekData.findOne({ [`data.${id}`]: { $exists: true }, week: scraperClient.currentWeek })
+        const find = await Lesson.findOne({ [`data.${id}`]: { $exists: true }, week: scraper.currentWeek })
         const data = find?.data[id]
 
         // if data not found, return 404
@@ -142,7 +141,7 @@ router.get('/:id/upcomingweek', async (req, res) => {
 
     try {
         // get data from db
-        const find = await ClassWeekData.findOne({ [`data.${id}`]: { $exists: true }, week: scraperClient.currentWeek + 1 })
+        const find = await Lesson.findOne({ [`data.${id}`]: { $exists: true }, week: scraper.currentWeek + 1 })
         const data = find?.data[id]
 
         // if data not found, return 404
@@ -172,7 +171,7 @@ router.get('/:id/week/:week', async (req, res) => {
 
     try {
         // get data from db
-        const find = await ClassWeekData.findOne({ [`data.${id}`]: { $exists: true }, week })
+        const find = await Lesson.findOne({ [`data.${id}`]: { $exists: true }, week })
         const data = find?.data[id]
 
         // if data not found, return 404

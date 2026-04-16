@@ -1,7 +1,7 @@
 
-import RawScheduleData from "../models/RawScheduleData.ts"
-import Lesson from "../models/Lesson.ts"
-import Week from "../models/Week.ts"
+import RawScheduleData from "@/models/RawScheduleData.ts"
+import Lesson from "@/models/Lesson.ts"
+import Week from "@/models/Week.ts"
 
 export default class Schedule {
     private week!: string
