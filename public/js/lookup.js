@@ -127,10 +127,9 @@ function createTable(type, container) {
             //     )
 
             const cell = document.createElement('div')
+            cell.classList.add("lesson-cell")
 
             if (lesson != null) {
-                cell.classList.add("lesson-cell")
-
                 cell.style.backgroundColor = lesson.teacher === "Toms Ričards Krieviņš" ? "#5c5c5c" : randomColorFromString(
                     settings.coloring[type]
                         .replace('%name%', lesson.name)
