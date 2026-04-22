@@ -75,6 +75,8 @@ export default class Schedule {
                             classroom: classroom?.name ?? "N/A",
                             name: subject?.name ?? "N/A",
                             teachers: teachers?.map((t: any) => t.name) ?? [],
+                            lessonStart: times[0],
+                            lessonEnd: times[1]
                         }
 
                         const existing = await Lesson.findOne(query)
@@ -91,6 +93,10 @@ export default class Schedule {
 
                             if (JSON.stringify(existing.teachers.sort()) !== JSON.stringify(data.teachers.sort())) changes.push({
                                 date: new Date(), type: "teachers", from: existing.teachers, to: data.teachers
+                            })
+
+                            if (existing.lessonStart !== data.lessonStart || existing.lessonEnd !== data.lessonEnd) changes.push({
+                                date: new Date(), type: "times", from: `${existing.lessonStart}-${existing.lessonEnd}`, to: `${data.lessonStart}-${data.lessonEnd}`
                             })
                         }
 

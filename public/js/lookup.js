@@ -1,6 +1,6 @@
 
 export const settings = {
-    url: `${window.location.origin}/v2/weeks`,
+    url: `${window.location.origin}/v2/schedule`,
     weekData: null,
     values: {
         week: null,
@@ -39,14 +39,14 @@ export const settings = {
 //   utils
 //
 async function getSchoolData(type, ignore, searchable) {
-    await fetch(`${settings.url}/list`)
+    await fetch(`${settings.url}/weeks/list`)
         .then(res => res.json())
         .then((data) => {
             if (!ignore[0]) {
                 settings.values.week = data.currentWeek
             }
 
-            setWeekOptions(settings.elements.week, data["weeks"], data.currentWeek)
+            setWeekOptions(settings.elements.week, data["data"], data.currentWeek)
         })
 
     await fetch(`${settings.url}/${type}/list`)
@@ -154,13 +154,11 @@ function setWeekOptions(element, data, primary = null) {
     data.forEach((week) => {
         const option = document.createElement('option')
 
-        const weekDisplay = week
-
-        if (week === primary) {
+        if (week.id === primary) {
             option.selected = true
-            option.innerHTML = `${weekDisplay} (current)`
+            option.innerHTML = `${week.id} [${week.dateFrom}] (current)`
         } else {
-            option.innerHTML = `${weekDisplay}`
+            option.innerHTML = `${week.id} [${week.dateFrom}]`
         }
 
         option.value = week

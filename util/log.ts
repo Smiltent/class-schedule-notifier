@@ -2,7 +2,7 @@
 import chalk from "chalk"
 import path from "path"
 
-const YELLOW = chalk.bgHex("hsl(49, 77%, 49%)")
+const YELLOW = chalk.bgHex("#ebc415")
 const ORANGE = chalk.bgHex("#f05e0a")
 const BLUE = chalk.bgHex("#1e66f5")
 const GRAY = chalk.hex("#232634")
@@ -62,6 +62,6 @@ export default function log(debug: boolean) {
     console.error = (...args) => base(`${RED(" error ")}`, ...args)
     console.info = (...args) => base(`${BLUE(" info ")}`, ...args)
 
-    debug ? console.debug = (...args) => base(`${ORANGE("[DEBUG]")} ${args}`) : console.debug = () => {}
+    debug ? console.debug = (...args) => base(`${ORANGE(" debug ")}`, ...args) : console.debug = () => {}
     console.debug("Debug mode is enabled")
 }

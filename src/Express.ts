@@ -1,4 +1,5 @@
 
+import expressLayouts from 'express-ejs-layouts'
 import cookieParser from 'cookie-parser'
 import { WebSocketServer } from 'ws'
 import bodyParser from 'body-parser'
@@ -10,6 +11,7 @@ import http from 'http'
 import { root } from '@/middlewares/root.middleware.ts'
 import rootRoutes from '@/routes/root.routes.ts'
 import getGitInfo from '@/util/githash.ts'
+import registerRoutes from './express/registerRoutes'
 
 export default class WebServer {
     private app: express.Express
@@ -46,7 +48,10 @@ export default class WebServer {
                 }
             )
         )
-        this.app.set("view engine", "ejs");
+        this.app.set("view engine", "ejs")
+        this.app.set("layout", "partials/$layout")
+        this.app.use(expressLayouts)
+
         this.app.set("trust proxy", [
             "loopback",
             "linklocal",
@@ -69,8 +74,9 @@ export default class WebServer {
     }
 
     // ================= API =================
-    private routes() {
-        this.app.use('/', rootRoutes)
+    private async routes() {
+        await registerRoutes(this.app)
+
         this.app.use((req, res) => {
             res.status(404).render("error")
         })

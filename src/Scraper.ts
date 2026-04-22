@@ -30,12 +30,17 @@ export default class Scraper {
         console.debug("Running a new Scraper.ts instance...")
 
         this.url = this.normalizeUrl(url)
-        this.parser = new Schedule()
+        this.parser = new Schedule();
 
-        setInterval(async () => {    
+        (async () => {
             await this.storeAllWeeksToDatabase()
-        }, 5 * 60 * 1000) // 5 min
-        console.debug(`Current week: ${this.currentWeek}`)
+            
+            setInterval(async () => {    
+                await this.storeAllWeeksToDatabase()
+            }, 5 * 60 * 1000) // 5 min
+
+            console.debug(`Current week: ${this.currentWeek}`)
+        })()
     }
 
     /**

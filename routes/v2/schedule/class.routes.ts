@@ -1,10 +1,20 @@
 
 import Lesson from '@/models/Lesson'
+import Week from '@/models/Week'
 
 import { scraper } from '@/index'
 import { Router } from 'express'
-
+import { get } from 'lodash'
 const router = Router()
+
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+/**
+ * Helper functions
+ */
+async function getWeekId(week: string) {
+    const data = await Week.findOne({ id: week })
+    return data?._id ?? null
+}
 
 /** 
  * List all the class names
@@ -13,9 +23,10 @@ const router = Router()
 router.get('/list', async (_, res) => {
     try {
         // get data from db
-        const find = await Lesson.findOne({ [`data`]: { $exists: true }, week: scraper.currentWeek })
-        const data = Object.keys(find?.data || {})
+        const week = await getWeekId(scraper.currentWeek)
+        const classes = await Lesson.distinct('class', { week })
 
+        const data = [...new Set(classes.flat())]
         // return data
         return res.json({
             success: true,
@@ -160,7 +171,7 @@ router.get('/:id/upcomingweek', async (req, res) => {
 
 /** 
  * Get class data for a specific week
- * @param id Class ID
+ * @param id Class
  * @param week Week number
  * @returns Class data for that week
 */
@@ -170,6 +181,10 @@ router.get('/:id/week/:week', async (req, res) => {
     if (!week) return res.status(400).json({ success: false, data: 'Missing week number' })
 
     try {
+        const weekId = await getWeekId(week)
+
+        const lessons = await Lesson.find({ week: weekId, class: id })
+
         // get data from db
         const find = await Lesson.findOne({ [`data.${id}`]: { $exists: true }, week })
         const data = find?.data[id]

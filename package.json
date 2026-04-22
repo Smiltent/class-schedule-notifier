@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "dev": "bun run --watch index.ts --debug",
     "start": "bun run index.ts"
   },
   "devDependencies": {
@@ -17,6 +18,7 @@
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
+    "@types/express-ejs-layouts": "^2.5.4",
     "@types/express-ws": "^3.0.6",
     "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
@@ -32,6 +34,7 @@
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
+    "express-ejs-layouts": "^2.5.1",
     "express-rate-limit": "^8.2.1",
     "express-ws": "^5.0.2",
     "jest": "^30.2.0",
