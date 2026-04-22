@@ -127,6 +127,7 @@ form, select{
 .lesson-cell {
     padding: 0.25rem;
     border-radius: 0.25rem;
+    min-height: 20px;
 }
 
 /* =========== DOWNLOAD BUTTON =========== */
