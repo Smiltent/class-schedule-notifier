@@ -144,7 +144,7 @@ function createTable(type, container) {
                     .replace('%classroom%', lesson.classroom)
             } else {
                 cell.style.backgroundColor = "var(--dgray)"
-                cell.innerHTML = "None<br>"
+                cell.innerHTML = "No<br>Class"
             }
 
             cellContainer.appendChild(cell)
@@ -169,13 +169,11 @@ function setWeekOptions(element, data, primary = null) {
     data.forEach((week) => {
         const option = document.createElement('option')
 
-        const weekDisplay = week == "67" ? "that one un-funny number" : week
-
         if (week === primary) {
             option.selected = true
-            option.innerHTML = `${weekDisplay} (current)`
+            option.innerHTML = `${week} (current)`
         } else {
-            option.innerHTML = `${weekDisplay}`
+            option.innerHTML = `${week}`
         }
 
         option.value = week
