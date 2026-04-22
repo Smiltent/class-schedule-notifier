@@ -144,7 +144,7 @@ function createTable(type, container) {
                     .replace('%classroom%', lesson.classroom)
             } else {
                 cell.style.backgroundColor = "var(--dgray)"
-                cell.innerHTML = "None"
+                cell.innerHTML = "None<br>"
             }
 
             cellContainer.appendChild(cell)
