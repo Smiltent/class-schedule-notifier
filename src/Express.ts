@@ -10,7 +10,7 @@ import http from 'http'
 
 import { root } from '@/middlewares/root.middleware.ts'
 import rootRoutes from '@/routes/root.routes.ts'
-import getGitInfo from '@/util/githash.ts'
+import getGitInfo from '@/util/githash'
 import registerRoutes from './express/registerRoutes'
 
 export default class WebServer {

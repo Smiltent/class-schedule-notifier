@@ -8,7 +8,7 @@ const router = Router()
 router.get('/list', async (_, res) => {
     try {
         // get data from db
-        const weeks = await Week.find().select('id year dateFrom -_id').sort({ dateFrom: 1 })
+        const weeks = await Week.find().select('id year dateFrom days -_id').sort({ dateFrom: 1 })
 
         // return data
         return res.json({

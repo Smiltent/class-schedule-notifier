@@ -15,6 +15,11 @@ export const settings = {
         teacher: `%name%<br>(%classroom% | %class%)`,
         classroom: `%name%<br>(%teacher% | %class%)`
     },
+    coloring: { 
+        class: '%name%-%teacher%',
+        teacher: '%name%-%class%',
+        classroom: '%class%-%teacher%'
+    },
     times: {
         normal: [
             ["8:30", "9:50"],
@@ -61,10 +66,50 @@ async function getSchoolData(type, ignore, searchable) {
 }
 
 async function getWeekData(type, week, getter) {
+    const weeksRes = await fetch(`${settings.url}/weeks/list`).then(r => r.json())
+    const weekInfo = weeksRes.data.find(w => w.id === week)
+    const dayNames = weekInfo ? weekInfo.days : ["0", "1", "2", "3", "4"]
+
     await fetch(`${settings.url}/${type}/${getter}/week/${week}`)
         .then(res => res.json())
         .then((data) => {
-            settings.weekData = data
+            const byDay = {}
+
+            data.lessons.forEach(lesson => {
+                const d = lesson.day
+                if (!byDay[d]) byDay[d] = {}
+                byDay[d][lesson.period] = lesson
+            })
+
+            const transformed = {}
+            Object.keys(byDay).sort().forEach(d => {
+                const dayLessons = byDay[d]
+                const maxPeriod = Math.max(...Object.keys(dayLessons).map(Number))
+                const arr = []
+
+                for (let p = 1; p <= maxPeriod; p++) {
+                    const l = dayLessons[p]
+
+                    if (l) {
+                        arr.push({
+                            start: l.lessonStart,
+                            end: l.lessonEnd,
+                            name: l.name,
+                            teacher: l.teachers[0],
+                            classroom: l.classroom,
+                            class: l.class.join(", ")
+                        })
+                    } else {
+                        arr.push(null)
+                    }
+                }
+                transformed[d] = {
+                    day: dayNames[Number(d)] ?? d,
+                    data: arr
+                }
+            })
+
+            settings.weekData = { data: transformed }
         })
 }
 
@@ -109,7 +154,7 @@ function createTable(type, container) {
         dayCell.classList.add('day')
 
         const dayParts = day.day.split(',').map(part => part.trim())
-        dayCell.innerText = dayParts.join(', ')
+        dayCell.innerHTML = dayParts.join(', <br>')
 
         row.appendChild(dayCell)
 
@@ -117,12 +162,14 @@ function createTable(type, container) {
             const cellContainer = document.createElement('td')
 
             const cell = document.createElement('div')
+            cell.classList.add("lesson-cell")
 
             if (lesson != null) {
-                cell.classList.add("lesson-cell")
-
                 cell.style.backgroundColor = randomColorFromString(
-                    lesson.name
+                    settings.coloring[type]
+                        .replace('%name%', lesson.name)
+                        .replace('%teacher%', lesson.teacher)
+                        .replace('%class%', lesson.class)
                 )
 
                 cell.innerHTML = settings.formats[type]
@@ -156,12 +203,12 @@ function setWeekOptions(element, data, primary = null) {
 
         if (week.id === primary) {
             option.selected = true
-            option.innerHTML = `${week.id} [${week.dateFrom}] (current)`
+            option.innerHTML = `${week.dateFrom} [${week.id}] (current)`
         } else {
-            option.innerHTML = `${week.id} [${week.dateFrom}]`
+            option.innerHTML = `${week.dateFrom} [${week.id}]`
         }
 
-        option.value = week
+        option.value = week.id
         element.appendChild(option)
     })
 }
@@ -203,7 +250,7 @@ function hashCode(str) {
 
 function randomColorFromString(str) {
     const hue = Math.abs(hashCode(str)) % 360
-    const sat = 60 + (Math.abs(hashCode(str)) % 20) 
+    const sat = 50 + (Math.abs(hashCode(str)) % 30) 
 
     return `hsl(${hue}, ${sat}%, 25%)`
 }

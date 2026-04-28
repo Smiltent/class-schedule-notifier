@@ -5,5 +5,9 @@ export default mongoose.model('Week', new Schema({
     id: { type: String, required: true },
     year: { type: String, required: true },
 
+    days: [
+        { type: String, required: true }
+    ],
+
     dateFrom: { type: String, required: true }
 }))

@@ -54,7 +54,8 @@ export default class Scraper {
             this.currentWeek = this.weeks.default_num
 
             for (const week of this.weeks.timetables) {
-                // TODO: there could be a chance, where the storing is too slow, and it doesn't finish before it can start parsing
+
+
                 await Week.updateOne(
                     { id: week.tt_num },
                     { $set: { id: week.tt_num, year: week.year, dateFrom: week.datefrom } },

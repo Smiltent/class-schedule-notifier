@@ -1,10 +1,12 @@
 
 import RawScheduleData from "@/models/RawScheduleData.ts"
+import { times, timesWeekend } from "@/util/time"
 import Lesson from "@/models/Lesson.ts"
 import Week from "@/models/Week.ts"
 
 export default class Schedule {
     private week!: string
+    private addedParsedDaysData: string[] = []
 
     private index: any
     private data: any
@@ -27,11 +29,20 @@ export default class Schedule {
         if (!this.index) await this.loadIndex(this.week)
 
         const weekObjectId = await Week.findOne({ id: this.week })
-        if (weekObjectId === null) {
-            console.error("Week doesn't exist...")
-            return
-        }
+        if (weekObjectId === null) return console.error("Week doesn't exist...")
 
+        if (!this.addedParsedDaysData.includes(this.week)) {
+            const days = this.index.daysRows.map((day: any) => day.name);
+
+            await Week.findOneAndUpdate(
+                { id: this.week },
+                { days },
+                { new: true }
+            )
+            
+            this.addedParsedDaysData.push(this.week)
+        }
+            
         for (const card of this.index.cards) {
             // get lesson information
             const lesson = this.index.lessons[card.lessonid]
@@ -51,7 +62,7 @@ export default class Schedule {
             const dayInfo = await this.getDayById(card.days)
             if (!dayInfo) continue
 
-            const { day, name, shortName, isLastDayOfWeek } = dayInfo
+            const { day, name, isLastDayOfWeek } = dayInfo
             const duration = Math.ceil(lesson.durationperiods / 2)
 
             try {
@@ -142,22 +153,8 @@ export default class Schedule {
             daysRows: this.data[7]["data_rows"],
             cards: this.data[20]["data_rows"],
 
-            times: [
-                ["8:30", "9:50"],
-                ["9:10", "11:30"],
-                ["12:30", "13:50"],
-                ["14:00", "15:20"],
-                ["15:30", "16:50"],
-                ["17:00", "18:20"]
-            ],
-            timesWeekend: [
-                ["8:10", "9:30"],
-                ["9:40", "11:00"],
-                ["11:10", "12:30"],
-                ["13:00", "14:20"],
-                ["14:30", "15:50"],
-                ["16:00", "17:20"]
-            ]
+            times,
+            timesWeekend
         }
     }
 
