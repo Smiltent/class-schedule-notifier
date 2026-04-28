@@ -80,30 +80,46 @@ async function getWeekData(type, week, getter) {
 
             data.lessons.forEach(lesson => {
                 const d = lesson.day
+                const p = Number(lesson.period) 
+
                 if (!byDay[d]) byDay[d] = {}
-                byDay[d][lesson.period] = lesson
+                if (!byDay[d][p]) byDay[d][p] = []
+
+                byDay[d][p].push(lesson)
             })
 
             const transformed = {}
+
+            const globalMaxPeriod = Math.max(
+                ...Object.values(byDay).flatMap(day => Object.keys(day).map(Number))
+            )
+
             Object.keys(byDay).sort().forEach(d => {
                 const dayLessons = byDay[d]
-                const maxPeriod = Math.max(...Object.keys(dayLessons).map(Number))
                 const arr = []
 
-                for (let p = 1; p <= maxPeriod; p++) {
-                    const l = dayLessons[p]
+                for (let p = 1; p <= globalMaxPeriod; p++) {
+                    const lessons = dayLessons[p]
 
-                    if (l) {
-                        arr.push({
-                            start: l.lessonStart,
-                            end: l.lessonEnd,
-                            name: l.name,
-                            teacher: l.teachers[0],
-                            classroom: l.classroom,
-                            class: l.class.join(", ")
-                        })
+                    if (lessons) {
+                        arr.push(lessons
+                            .sort((a, b) => {
+                                if (a.group[0] === "all") return -1
+                                if (b.group[0] === "all") return 1
+                                
+                                return a.group[0].localeCompare(b.group[0])
+                            })
+                            .map(l => ({
+                                start: l.lessonStart,
+                                end: l.lessonEnd,
+                                name: l.name,
+                                teacher: l.teachers[0],
+                                classroom: l.classroom,
+                                class: l.class.join(", "),
+                                group: l.group[0] === "all" ? null : l.group[0].replace("grupa", "gr.")
+                            })))
                     } else {
-                        arr.push(null)
+                        arr.push(null) 
                     }
                 }
                 transformed[d] = {
@@ -161,31 +177,50 @@ function createTable(type, container) {
 
         row.appendChild(dayCell)
 
-        day.data.forEach(lesson => {
+        day.data.forEach((lessons, index) => {
             const cellContainer = document.createElement('td')
 
-            const cell = document.createElement('div')
-            cell.classList.add("lesson-cell")
+            if (lessons != null) {
+                lessons.forEach((lesson, i) => {
+                    const cell = document.createElement('div')
+                    cell.classList.add("lesson-cell")
 
-            if (lesson != null) {
-                cell.style.backgroundColor = randomColorFromString(
-                    settings.coloring[type]
+                    cell.style.backgroundColor = randomColorFromString(
+                        settings.coloring[type]
+                            .replace('%name%', lesson.name)
+                            .replace('%teacher%', lesson.teacher)
+                            .replace('%class%', lesson.class)
+                    )
+
+                    const groupBadge = lesson.group
+                        ? `<span class="group-badge">${lesson.group}</span> `
+                        : ''
+
+                    cell.innerHTML = groupBadge + settings.formats[type]
                         .replace('%name%', lesson.name)
-                        .replace('%teacher%', lesson.teacher)
-                        .replace('%class%', lesson.class)
-                )
+                        .replace('%teacher%', `<a class="colorText" href="/teacher?teacher=${encodeURIComponent(lesson.teacher)}">${lesson.teacher}</a>`)
+                        .replace('%class%', `<a class="colorText" href="/class?class=${encodeURIComponent(lesson.class)}">${lesson.class}</a>`)
+                        .replace('%classroom%', `<a class="colorText" href="/classroom?classroom=${encodeURIComponent(lesson.classroom)}">${lesson.classroom}</a>`)
 
-                cell.innerHTML = settings.formats[type]
-                    .replace('%name%', lesson.name)
-                    .replace('%teacher%', `<a class="colorText" href="/teacher?teacher=${encodeURIComponent(lesson.teacher)}">${lesson.teacher}</a>`)
-                    .replace('%class%', `<a class="colorText" href="/class?class=${encodeURIComponent(lesson.class)}">${lesson.class}</a>`)
-                    .replace('%classroom%', `<a class="colorText" href="/classroom?classroom=${encodeURIComponent(lesson.classroom)}">${lesson.classroom}</a>`)
+                    cellContainer.appendChild(cell)
+                })
+            } else {
+                const hasLessonAfter = day.data.slice(index + 1).some(l => l !== null)
+
+                if (hasLessonAfter) {
+                    const cell = document.createElement('div')
+
+                    cell.classList.add("lesson-cell")
+                    cell.style.backgroundColor = "var(--dgray)"
+                    cell.innerHTML = "No<br>Class"
+
+                    cellContainer.appendChild(cell)
+                }
             }
 
-            cellContainer.appendChild(cell)
             row.appendChild(cellContainer)
         })
-
+        
         const missing = maxLessons - day.data.length;
         for (let i = 0; i < missing; i++) {
             const emptyCell = document.createElement('td')

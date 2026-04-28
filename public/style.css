@@ -120,6 +120,15 @@ td:first-child {
     white-space: nowrap;
 }
 
+.group-badge {
+    display: inline-block;
+    font-size: 0.8em;
+    font-weight: bold;
+    opacity: 0.65;
+    margin-bottom: 2px;
+    letter-spacing: 0.03em;
+}
+
 /* =========== FORMS =========== */
 form input, select {
     font-size: 0.9remc;
@@ -254,10 +263,19 @@ form, select{
 
     #tableContainer table td {
         display: flex;
+        flex-direction: column;
     }
 
     #tableContainer table td.day {
         font-weight: bold;
+    }
+
+    #tableContainer table td:has(.lesson-cell:only-child:empty) {
+        display: none;
+    }
+
+    #tableContainer table td:empty {
+        display: none;
     }
 
     th:not(:first-child),
@@ -272,6 +290,5 @@ form, select{
 
     .lesson-cell {
         min-height: 38px;
-        width: 100%;
     }
 }
