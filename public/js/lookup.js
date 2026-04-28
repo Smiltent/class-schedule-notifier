@@ -6,6 +6,7 @@ export const settings = {
         week: null,
         main: null
     },
+    weekDayNames: {},
     elements: {
         week: null,
         main: null
@@ -51,6 +52,10 @@ async function getSchoolData(type, ignore, searchable) {
                 settings.values.week = data.currentWeek
             }
 
+            data["data"].forEach(w => {
+                settings.weekDayNames[w.id] = w.days ?? ["0", "1", "2", "3", "4"]
+            })
+
             setWeekOptions(settings.elements.week, data["data"], data.currentWeek)
         })
 
@@ -66,9 +71,7 @@ async function getSchoolData(type, ignore, searchable) {
 }
 
 async function getWeekData(type, week, getter) {
-    const weeksRes = await fetch(`${settings.url}/weeks/list`).then(r => r.json())
-    const weekInfo = weeksRes.data.find(w => w.id === week)
-    const dayNames = weekInfo ? weekInfo.days : ["0", "1", "2", "3", "4"]
+    const dayNames = settings.weekDayNames[week] ?? ["0", "1", "2", "3", "4"]
 
     await fetch(`${settings.url}/${type}/${getter}/week/${week}`)
         .then(res => res.json())
