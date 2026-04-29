@@ -3,7 +3,8 @@ import type { Request, Response, NextFunction } from "express"
 import getClientIp from "@/util/realip"
 import jwt from "jsonwebtoken"
 
-import User from "../models/User"
+import User from "@/models/User"
+import Role from "@/models/Role"
 
 async function root(req: Request, res: Response, next: NextFunction) {
     // EJS locals
@@ -12,18 +13,25 @@ async function root(req: Request, res: Response, next: NextFunction) {
         try {
             // set locals with user data (displayed in /)
             const payload: any = jwt.verify(token, String(process.env.JWT_SECRET))
-            const user = await User.findById(payload.id).lean()
+            const user = await User.findById(payload.id).populate("roles").lean()
 
-            if (!user) return res.status(403).render("error")
+            if (!user) {
+                res.clearCookie("token")
+                res.locals.user = { loggedIn: false }
+                return next()
+            }
+
+            const roleNames = user.roles.map((role: any) => role.name)
+            const rolesData = await Role.find({ name: { $in: roleNames } })
 
             res.locals.user = {
                 id: user._id,
                 name: user.username,
-                roles: user.roles,
+                roles: roleNames,
+                permissions: rolesData.flatMap(r => r.permissions),
                 loggedIn: true,
                 favoriteNumber: user.favoriteNumber
             }
-
         } catch (err) {
             console.error(`JWT Authentication error: ${err}`)
             res.locals.user = { loggedIn: false }

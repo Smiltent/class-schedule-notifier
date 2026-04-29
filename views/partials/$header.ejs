@@ -14,7 +14,7 @@
         <span class="user c-yellow"></span>
         <div class="flex-row">
             <% if (user.loggedIn) { %>
-                <p><%= user.name %> (<%= user.role %>)</p>
+                <p><%= user.name %> (<%= user.roles[user.roles.length - 1] %>)</p>
                 <p class="c-orange"> // </p>
                 <a href="/logout">logout</a>
             <% } else { %>

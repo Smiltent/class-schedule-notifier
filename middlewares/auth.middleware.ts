@@ -1,12 +1,11 @@
 
 import type { Request, Response, NextFunction } from "express"
 import User from "@/models/User"
-import jwt from "jsonwebtoken"
 import Role from "@/models/Role"
+import jwt from "jsonwebtoken"
 
 interface AuthRequest extends Request {
     user?: any
-    type?: 'jwt'
 }
 
 async function userAuth(req: AuthRequest, res: Response, next: NextFunction) {
@@ -20,7 +19,6 @@ async function userAuth(req: AuthRequest, res: Response, next: NextFunction) {
         if (!user) return res.status(403).render("error")
             
         req.user = user
-        req.type = 'jwt'
         
         return next()
     } catch (err) {
@@ -30,43 +28,21 @@ async function userAuth(req: AuthRequest, res: Response, next: NextFunction) {
 }
 
 /**
- * Check if a user has a role, continue if they do
- * @param role role to check for
- * @returns if they can continue
- * @deprecated in favor of permission based authentication system
- */
-function requireRole(role: string) {
-    return (req: AuthRequest, res: Response, next: NextFunction) => {
-        if (!req.user) return res.status(401).render("error")
-
-        const userRoles: string[] = req.user.roles
-        if (!userRoles.includes(role)) return res.status(403).render("error")
-
-        return next()
-    }
-}
-
-/**
  * Check if a user has valid permissions, continue if they match
  * @param permissions permissions, might require multiple?
  * @returns if they can continue
  */
 function requirePermission(...permissions: string[]) {
-    return async (req: AuthRequest, res: Response, next: NextFunction) => {
+    return (req: AuthRequest, res: Response, next: NextFunction) => {
         if (!req.user) return res.status(401).render("error")
 
-        const userRoles: string[] = req.user.roles
-        const rolesData = await Role.find({ name: { $in: userRoles } })
-
-        const userPermissions = new Set(
-            rolesData.flatMap(r => r.permissions)
-        )
+        const userPermissions = new Set(req.user.permissions)
 
         const hasPerm = permissions.some(p => userPermissions.has(p))
         if (!hasPerm) return res.status(403).render("error")
-        
+
         return next()
     }
 }
 
-export { userAuth, requireRole, requirePermission }
+export { userAuth, requirePermission }

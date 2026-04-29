@@ -1,5 +1,5 @@
 
-import { userAuth, requireRole } from "../middlewares/auth.middleware"
+import { userAuth } from "../middlewares/auth.middleware"
 import { register, login } from "../services/auth.service"
 import rateLimit from "express-rate-limit"
 
@@ -114,10 +114,6 @@ router.get('/favicon.ico', (_, res) => {
 
 router.get('/teapot', (_, res) => {
     res.status(418).render("error")
-})
-
-router.get('/admin', userAuth, requireRole('admin'), (_, res) => {
-    res.render("admin/index")
 })
 
 export default router
