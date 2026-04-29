@@ -2,9 +2,9 @@
 import mongoose, { Schema } from 'mongoose'
 
 const WeekSchema = new Schema({
-    id: { type: String, required: true, unique: true },
+    id: { type: String, required: true },
     year: { type: String, required: true },
-    
+
     days: [{ type: String, required: true }],
 
     dateFrom: { type: String, required: true }

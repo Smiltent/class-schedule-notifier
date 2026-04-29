@@ -88,9 +88,12 @@ export default class Schedule {
 
             const { day, isLastDayOfWeek } = dayInfo
             const duration = Math.ceil(lesson.durationperiods / 2)
+            const basePeriod = Math.ceil(card.period / 2)
 
             try {
                 for (const clazz of classes) {
+                    let period = basePeriod
+
                     // store each period
                     for (var i = 0; i < duration; i++, period++) {
                         const times = this.getPeriodTimes(period, isLastDayOfWeek)
