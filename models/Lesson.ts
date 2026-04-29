@@ -1,19 +1,22 @@
 
 import mongoose, { Schema } from 'mongoose'
 
-export default mongoose.model('Lesson', new Schema({
+const LessonSchema = new Schema({
     week: { type: Schema.Types.ObjectId, ref: "Week", required: true },
-    day: { type: String, required: true },            // 1, 2, 3, 4, 5, 6, 7
+    day: { type: String, required: true },
 
     lessonStart: { type: String, required: true },
     lessonEnd: { type: String, required: true },
 
-    period: { type: Number, required: true },         // 1, 2, 3, 4
-    classroom: { type: String, required: true },      // P.203, C.201
-    name: { type: String, required: true },           // Math
+    period: { type: Number, required: true },
+    classroom: { type: String, required: true },
+    name: { type: String, required: true },
+    
+    class: [{ type: String, required: true }],
+    group: [{ type: String, required: true }],
+    teachers: [{ type: String, required: true }]
+})
 
-    class: [{ type: String, required: true }],        // IP24, IP25, IP26...
-    group: [{ type: String, required: true }],        // 1, 2, 3 ...
+LessonSchema.index({ week: 1, period: 1, day: 1, class: 1, group: 1 })
 
-    teachers: [{ type: String, required: true }]       // John Lemon
-}))
+export default mongoose.model('Lesson', LessonSchema)

@@ -1,4 +1,5 @@
 
+import { pLimit } from "@/util/pLimit"
 import checkDiff from "@/util/diff"
 import Schedule from "./Schedule"
 import axios from "axios"
@@ -21,7 +22,6 @@ var displayedYear = false
 export default class Scraper {
     private url: string
     private weeks: any
-    private parser: Schedule
 
     public currentWeek: string = "0"
     public currentYear: string = "0000"
@@ -29,8 +29,7 @@ export default class Scraper {
     constructor(url: string) {
         console.debug("Running a new Scraper.ts instance...")
 
-        this.url = this.normalizeUrl(url)
-        this.parser = new Schedule();
+        this.url = this.normalizeUrl(url);
 
         (async () => {
             await this.storeAllWeeksToDatabase()
@@ -47,27 +46,30 @@ export default class Scraper {
      * Fetches all the weeks from EduPage and stores them into the database
      */
     public async storeAllWeeksToDatabase() {
+        const limit = pLimit(3)
+
         try {
             this.currentYear = await this.fetchYear()
             this.weeks = await this.getWeeksData()
 
             this.currentWeek = this.weeks.default_num
 
-            for (const week of this.weeks.timetables) {
+            await Week.bulkWrite(this.weeks.timetables.map((week: any) => ({
+                updateOne: {
+                    filter: { id: week.tt_num },
+                    update: { $set: { id: week.tt_num, year: week.year, dateFrom: week.datefrom } },
+                    upsert: true
+                }
+            })))
 
-
-                await Week.updateOne(
-                    { id: week.tt_num },
-                    { $set: { id: week.tt_num, year: week.year, dateFrom: week.datefrom } },
-                    { upsert: true }
-                )
-
+            await Promise.all(this.weeks.timetables.map((week: any) => limit(async () => {
                 const canParse = await this.storeWeekToDatabase(week.tt_num)
-                if (!canParse) continue
-                
-                await this.parser.i(week.tt_num)
-                await this.parser.storeLessonData()
-            }
+                if (!canParse) return
+
+                const parser = new Schedule()
+                await parser.i(week.tt_num)
+                await parser.storeLessonData()
+            })))
         } catch (err) {
             console.error(`Failed to store all weeks to database: ${err}`)
         }
@@ -78,13 +80,26 @@ export default class Scraper {
      * Useful for when schema has changed
      */
     public async reparseAllWeeksInDatabase() {
-        try {
-            this.weeks = await RawScheduleData.find({})
+        console.warn("Reparsing all weeks!")
+        const limit = pLimit(3)
 
-            for (const week of this.weeks) {
-                await this.parser.i(week.week)
-                await this.parser.storeLessonData()
-            }
+        try {
+            this.currentYear = await this.fetchYear()
+            const weekNums = (await RawScheduleData.find({}).select("week -_id")).map(item => item.week)
+
+            await Week.bulkWrite(weekNums.map(week => ({
+                updateOne: {
+                    filter: { id: week },
+                    update: { $setOnInsert: { id: week, year: this.currentYear, dateFrom: "unknown" } },
+                    upsert: true
+                }
+            })))
+
+            await Promise.all(weekNums.map(week => limit(async () => {
+                const parser = new Schedule()
+                await parser.i(week)
+                await parser.storeLessonData()
+            })))
         } catch (err) {
             console.error(`Failed to reparse weeks in database: ${err}`)
         }

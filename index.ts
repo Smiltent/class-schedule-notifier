@@ -19,3 +19,5 @@ logging(DEBUG_MODE)
 new Database(String(process.env.CONNECTION_STRING))
 export const scraper = new Scraper(String(process.env.WEBSITE_URL))
 export const express = new Express(String(process.env.PORT) || "3000")
+
+scraper.reparseAllWeeksInDatabase()

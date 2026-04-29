@@ -4,6 +4,20 @@ import { times, timesWeekend } from "@/util/time"
 import Lesson from "@/models/Lesson.ts"
 import Week from "@/models/Week.ts"
 
+async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Promise<T> {
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await fn()
+        } catch (err: any) {
+            if (i === retries - 1) throw err
+
+            console.warn(`Retrying in ${delay * (i + 1)}ms after: ${err.message}`)
+            await new Promise(r => setTimeout(r, delay * (i + 1)))
+        }
+    }
+    throw new Error("unreachable")
+}
+
 export default class Schedule {
     private week!: string
     private addedParsedDaysData: string[] = []
@@ -42,6 +56,16 @@ export default class Schedule {
             
             this.addedParsedDaysData.push(this.week)
         }
+
+        const existingLessons = await Lesson.find({ week: weekObjectId }).lean()
+        const existingMap = new Map(
+            existingLessons.map(l => [
+                `${l.period}-${l.day}-${l.class}-${l.group}`,
+                l
+            ])
+        )
+
+        const bulkOps: any[] = []
             
         for (const card of this.index.cards) {
             // get lesson information
@@ -59,10 +83,10 @@ export default class Schedule {
             const subject = this.index.subjects[lesson.subjectid]
 
             // get day info
-            const dayInfo = await this.getDayById(card.days)
+            const dayInfo = this.getDayById(card.days)
             if (!dayInfo) continue
 
-            const { day, name, isLastDayOfWeek } = dayInfo
+            const { day, isLastDayOfWeek } = dayInfo
             const duration = Math.ceil(lesson.durationperiods / 2)
 
             try {
@@ -72,14 +96,19 @@ export default class Schedule {
                         const times = this.getPeriodTimes(period, isLastDayOfWeek)
                         if (!times) continue
 
-                        const group = groups.find((g: any) => g.classid === clazz.id)
+                        const group = groups.find((g: any) => g.classid === clazz.id)       
+                        const groupName = group.entireclass ? "all" : group.name
+
+                        if (groupName === "Visa klase") {
+                            console.log("HIIIIIIII")
+                        }
 
                         const query = {
                             week: weekObjectId,
                             period,
                             day,
                             class: clazz.name,
-                            group: group.entireclass ? "all" : group.name
+                            group: groupName
                         }
 
                         const data = {
@@ -90,7 +119,8 @@ export default class Schedule {
                             lessonEnd: times[1]
                         }
 
-                        const existing = await Lesson.findOne(query)
+                        const key = `${period}-${day}-${clazz.name}-${groupName}`
+                        const existing = existingMap.get(key)
                         const changes: any[] = []
 
                         if (existing) {
@@ -111,17 +141,18 @@ export default class Schedule {
                             })
                         }
 
-                        await Lesson.updateOne(
-                            query,
-                            {
-                                $set: data,
-                                $push: {
-                                    changes: { $each: changes }
+                        bulkOps.push({
+                            updateOne: {
+                                filter: query,
+                                update: {
+                                    $set: data,
+                                    $push: {
+                                        changes: { $each: changes }
+                                    }
                                 },
-                                $setOnInsert: { changes: [] }
-                            },
-                            { upsert: true }
-                        )
+                                upsert: true
+                            }
+                        })
                     }
                 }
             } catch (err) {
@@ -129,7 +160,15 @@ export default class Schedule {
             }
         }
 
-        console.debug(`Stored Class Data for Week ${this.week}`)
+        if (bulkOps.length > 0) {
+            const chunkSize = 500
+            for (let i = 0; i < bulkOps.length; i += chunkSize) {
+                const chunk = bulkOps.slice(i, i + chunkSize)
+                await withRetry(() => Lesson.bulkWrite(chunk, { ordered: false }))
+            }
+        }
+
+        console.debug(`Stored Lesson Data for Week ${this.week}`)
     }
 
     /**
@@ -188,7 +227,7 @@ export default class Schedule {
      * @param daysdefid Daysdefs ID
      * @returns The day object data
      */
-    private async getDayById(daysdefid: string = "00001") {   
+    private getDayById(daysdefid: string = "00001") {   
         const dayDef = this.index.dayDefs.find((l: any) => l.vals[0] === daysdefid)
         if (!dayDef) return null
 

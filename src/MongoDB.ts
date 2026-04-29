@@ -10,7 +10,9 @@ export default class Database {
     private async connect(uri: string) {
         try {
             console.debug(`Connecting to Database...`)
-            await mongoose.connect(uri)
+            await mongoose.connect(uri, {
+                maxPoolSize: 20
+            })
             await migrations()
 
             console.info("Connected to Database!")

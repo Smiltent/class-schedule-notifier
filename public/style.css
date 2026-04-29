@@ -111,7 +111,7 @@ tr:not(:first-child) th {
 
 th:not(:first-child),
 td:not(:first-child) {
-    width: calc(100% / 5); 
+    width: calc(100% / 8); 
 }
 
 th:first-child,
