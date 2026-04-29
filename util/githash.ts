@@ -7,7 +7,7 @@ export default async function getGitInfo() {
 
         return {
             hash: hash.substring(0, 14),
-            url: `https://github.com/Smiltent/class-schedule-notifier/commit/${hash}`
+            url: `https://github.com/Smiltent/edu/commit/${hash}`
         }
     } catch (err) {
         console.error(`Error fetching git hash from .git folder (git might not be installed): ${err}`)
