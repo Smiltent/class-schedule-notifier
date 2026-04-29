@@ -1,6 +1,9 @@
 
+import registerRoutes from './express/registerRoutes'
+import { root } from '@/middlewares/root.middleware'
 import expressLayouts from 'express-ejs-layouts'
 import cookieParser from 'cookie-parser'
+import getGitInfo from '@/util/githash'
 import { WebSocketServer } from 'ws'
 import bodyParser from 'body-parser'
 import express from 'express'
@@ -8,14 +11,10 @@ import cors from 'cors'
 import path from 'path'
 import http from 'http'
 
-import { root } from '@/middlewares/root.middleware.ts'
-import rootRoutes from '@/routes/root.routes.ts'
-import getGitInfo from '@/util/githash'
-import registerRoutes from './express/registerRoutes'
-
 export default class WebServer {
     private app: express.Express
     private wss: WebSocketServer
+
     private server: http.Server
     private port: string | number
 
@@ -23,13 +22,16 @@ export default class WebServer {
         console.debug("Running a new Express.ts instance...")
 
         this.port = port
-        
         this.app = express()
         this.server = http.createServer(this.app)
         this.wss = new WebSocketServer({ server: this.server })
         
-        this.express() 
-        this.routes()
+        this.i()
+    }
+
+    private async i() {
+        await this.express() 
+        await this.routes()
         this.ws()
 
         this.start()
@@ -64,7 +66,7 @@ export default class WebServer {
         this.app.use(cors())
         
         this.app.use(root)
-        
+            
         this.app.locals.metaUrl = process.env.META_URL || "https://example.com"
         this.app.locals.metaTitle = process.env.META_TITLE || "School Name"
 

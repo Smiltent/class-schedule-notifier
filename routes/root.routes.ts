@@ -26,7 +26,7 @@ const LOGIN_REGISTER_RATELIMIT = rateLimit({
                 return res.status(429).render("register", { dMsg: "you are being ratelimited", dType: "bad" } )
 
             default:
-                return res.status(429).send("You are being ratelimited. Try again later!")
+                return res.status(429).json({ error: "You are being ratelimited. Try again later!"})
         }
     }
 })
@@ -46,7 +46,7 @@ router.post('/register', LOGIN_REGISTER_RATELIMIT, async (req, res) => {
         if (favoriteNumber && (isNaN(favoriteNumber))) return res.status(400).render("register", { dMsg: "favorite number must be a number between 0 and 100", dType: "bad" } )
         if (password.length < 6 || password.length > 64) return res.status(400).render("register", { dMsg: "password must be between 6 and 64 characters", dType: "bad" } )
 
-        if (typeof password !== 'string' || typeof username !== 'string') return res.status(400).render("register", { dMsg: "how did you manage this? are you trying to inject?", dType: "bad" } )
+        if (typeof password !== 'string' || typeof username !== 'string') return res.status(400).render("register", { dMsg: "no.", dType: "bad" } )
 
         await register(username, password, favoriteNumber)
     
@@ -65,11 +65,16 @@ router.get('/register', (req, res) => {
 router.post('/login', LOGIN_REGISTER_RATELIMIT, async (req, res) => {
     if (req.cookies?.token) return res.redirect('/')
 
+    console.debug({
+        body_csrf:   req.body._csrf,
+        cookie_csrf: req.cookies?.['x-csrf-token'] ?? req.signedCookies?.['x-csrf-token'],
+    })
+
     try {
         const { username, password } = req.body
         const token = await login(username, password)
 
-        if (typeof password !== 'string' || typeof username !== 'string') return res.status(400).render("login", { dMsg: "how did you manage this? are you trying to inject?", dType: "bad" } )
+        if (typeof password !== 'string' || typeof username !== 'string') return res.status(400).render("login", { dMsg: "no.", dType: "bad" } )
 
         res.cookie('token', token, COOKIE)
         res.redirect('/')
