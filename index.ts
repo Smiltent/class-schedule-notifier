@@ -1,46 +1,26 @@
 
 // ================= IMPORTS =================
-import Database from "./src/db/database.ts"
-import Webserver from "./src/webserver.ts"
-import Scraper from "./src/scraper.ts"
+import Database from "./src/Mongo.ts"
+import Express from "./src/Express.ts"
+import Scraper from "./src/Scraper.ts"
 
-import logging from "./src/util/logging.ts"
-import gitHash from "./src/util/github.ts"
+import logging from "./util/log.ts"
+require("dotenv").config()
 
-import dotenv from "dotenv"
-dotenv.config()
+// ================= ARGUMENTS =================
+import args from "./util/args.ts"
+const argDEBUG = args("--debug", "-d")
+logging(argDEBUG)
 
-// ================= VARIABLES =================
-export const { hash, url } = await gitHash()
-var DEBUG_MODE: boolean = false
+// ================= MAIN ================= 
+export let scraper: Scraper
+export let express: Express
+async function main() {
+    const db = new Database(process.env.CONNECTION_STRING!)
+    await db.ready
 
-// ================= ARGUMENTS ================= 
-const argDEBUG = process.argv.includes("--debug") || process.argv.includes("-d")
-argDEBUG ? DEBUG_MODE = true : DEBUG_MODE = false
-logging(DEBUG_MODE)
-
-const argPARSE_ALL_DATA = process.argv.includes("--parse-all-data") || process.argv.includes("-p")
-if (argPARSE_ALL_DATA) {
-    console.info("Forcing re-parse of all data in database...")
-
-    new Database(String(process.env.CONNECTION_STRING))
-    const scraperClient = new Scraper(String(process.env.WEBSITE_URL))
-
-    await scraperClient.reparseAllWeeksInDatabase()
-
-    console.info("Re-parse of all data in database complete! exiting...")
-    process.exit(0)
+    scraper = new Scraper(process.env.WEBSITE_URL!)
+    express = new Express(process.env.PORT! || "3000")
 }
 
-// ================= MAIN =================
-new Database(String(process.env.CONNECTION_STRING))
-
-export const scraperClient = new Scraper(String(process.env.WEBSITE_URL))
-export const webserverClient = new Webserver(String(process.env.PORT) || "3000")
-
-await scraperClient.storeAllWeeksToDatabase()
-console.debug(`Current week: ${scraperClient.current_week}`)
-
-setInterval(async () => {    
-    await scraperClient.storeAllWeeksToDatabase()
-}, 5 * 60 * 1000) // 5 min
+main()

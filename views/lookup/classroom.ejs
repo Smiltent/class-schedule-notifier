@@ -2,7 +2,7 @@
 <%- include('../partials/$header.ejs') %>
 
 <div class="main flex-col">
-    <h1>lookup class</h1>
+    <h1>lookup classroom</h1>
     <div class="flex-row">
         <div class="flex-col">
             <div>
@@ -10,11 +10,12 @@
                 <select name="selectWeek" id="selectWeek"></select>
             </div>
             <div>
-                <label for="selectClass">select class: </label>
-                <select id="selectClass"></select> 
+                <label for="selectClassroom">select classroom: </label>
+                <select id="selectClassroom"></select> 
+                <!-- <select id="selectClassroom" style="display: none; width: 0; margin: 0; padding: 0; height: 0;"></select>  -->
             </div>
         </div>
-        
+
         <div class="downloadContainer">
             <button id="downloadBtn">download</button>
         </div>
@@ -23,18 +24,16 @@
     <div id="tableContainer"></div>
 </div>
 
-<!-- show data system -->
 <script type="module">
     import { settings, setup } from "/public/js/lookup.js"
     const params = new URLSearchParams(window.location.search)
 
     settings.elements.week = document.getElementById('selectWeek')
-    settings.elements.main = document.getElementById('selectClass')
+    settings.elements.main = document.getElementById('selectClassroom')
 
     var ignore = [false, false]
-    if (localStorage.getItem("lastLookupClass")) {
-        console.log("hi") // unsure when this stray console.log hi was added, but im keeping it
-        settings.values.main = localStorage.getItem("lastLookupClass")
+    if (localStorage.getItem("lastLookupClassroom") != null) {
+        settings.values.main = localStorage.getItem("lastLookupClassroom")
         ignore[1] = true
     }
 
@@ -42,13 +41,20 @@
         settings.values.week = params.get("week")
         ignore[0] = true
     }
-    if (params.get("class") != null) {
-        settings.values.main = params.get("class")
+    if (params.get("classroom") != null) {
+        settings.values.main = params.get("classroom")
         ignore[1] = true
     }
 
-    setup("class", ignore)
+    setup("classroom", ignore)
 </script>
+
+<!-- search -->
+<!-- <script type="module">
+    import { setup } from "/public/js/search.js"
+
+    setup(document.getElementById("selectClassroom"))
+</script> -->
 
 <!-- download schedule system -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>

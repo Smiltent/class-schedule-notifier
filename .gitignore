@@ -17,6 +17,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # dotenv environment variable files
 .env
+.env.dev
 .env.development.local
 .env.test.local
 .env.production.local
@@ -35,3 +36,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 bun.lock
 tmp/
+
+# ignore this pls thank you
+lyrics.txt

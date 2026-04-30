@@ -1,33 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>schedule</title>
 
-    <link rel="stylesheet" href="/public/style.css">
+<%- include('./partials/$header.ejs') %>
 
-    <%- include('./components/$fonts.ejs') %>
-    <%- include('./components/$seo.ejs') %>
+<div class="main flex-col">
+    <h1>schedule</h1>
+    <a href="/class">lookup class</a>
+    <a href="/teacher">lookup teacher</a>
+    <a href="/classroom">lookup classroom</a>
+</div>
 
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-</head>
-<body>
-    <%- include('./components/$header.ejs') %>
-
+<% if (typeof user !== 'undefined' && user && typeof user.permissions !== 'undefined' && user.permissions && user.permissions.includes("admin")) { %>
     <div class="main flex-col">
-        <h1>schedule</h1>
-        <a href="/class">lookup class</a>
-        <a href="/teacher">lookup teacher</a>
+        <h2>special</h2>
+        <a href="/admin">goto admin panel</a>
     </div>
-
-    <% if (user.role == 'admin' || user.role == 'manager') { %>
-        <div class="main flex-col">
-            <h2>special</h2>
-            <% if (user.role == 'admin') { %>
-                <a href="/admin">goto admin panel</a>
-            <% } %>
-        </div>
-    <% } %>
-</body>
-</html>
+<% } %>

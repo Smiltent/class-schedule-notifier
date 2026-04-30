@@ -1,22 +1,25 @@
 
 export const settings = {
-    url: `${window.location.origin}/v1/weeks`,
+    url: `${window.location.origin}/v2/schedule`,
     weekData: null,
     values: {
         week: null,
         main: null
     },
+    weekDayNames: {},
     elements: {
         week: null,
         main: null
     },
     formats: {
-        class: `%name%<br>(%teacher% | %classroom%)`,
-        teacher: `%name%<br>(%class% | %classroom%)`,
+        class: `%name%<br>(%classroom% | %teacher%)`,
+        teacher: `%name%<br>(%classroom% | %class%)`,
+        classroom: `%name%<br>(%teacher% | %class%)`
     },
-    coloring: { // yes, i know its stupid, but i had no other idea on how to do it
+    coloring: { 
         class: '%name%-%teacher%',
         teacher: '%name%-%class%',
+        classroom: '%class%-%teacher%'
     },
     times: {
         normal: [
@@ -41,15 +44,19 @@ export const settings = {
 //
 //   utils
 //
-async function getSchoolData(type, ignore) {
-    await fetch(`${settings.url}/list`)
+async function getSchoolData(type, ignore, searchable) {
+    await fetch(`${settings.url}/weeks/list`)
         .then(res => res.json())
         .then((data) => {
             if (!ignore[0]) {
                 settings.values.week = data.currentWeek
             }
 
-            setWeekOptions(settings.elements.week, data["weeks"], data.currentWeek)
+            data["data"].forEach(w => {
+                settings.weekDayNames[w.id] = w.days ?? ["0", "1", "2", "3", "4"]
+            })
+
+            setWeekOptions(settings.elements.week, data["data"], data.currentWeek)
         })
 
     await fetch(`${settings.url}/${type}/list`)
@@ -59,15 +66,69 @@ async function getSchoolData(type, ignore) {
                 settings.values.main = data["data"][0]
             }
 
-            setMainOptions(settings.elements.main, data["data"], ignore[1] ? settings.values.main : null)
+            setMainOptions(settings.elements.main, data["data"], ignore[1] ? settings.values.main : null, searchable)
         })
 }
 
 async function getWeekData(type, week, getter) {
-    await fetch(`${settings.url}/${type}/${getter}/week/${week}`)
+    const dayNames = settings.weekDayNames[week] ?? ["0", "1", "2", "3", "4"]
+
+    await fetch(`${settings.url}/${type}/${encodeURIComponent(getter)}/week/${week}`)
         .then(res => res.json())
         .then((data) => {
-            settings.weekData = data
+            const byDay = {}
+
+            data.lessons.forEach(lesson => {
+                const d = lesson.day
+                const p = Number(lesson.period) 
+
+                if (!byDay[d]) byDay[d] = {}
+                if (!byDay[d][p]) byDay[d][p] = []
+
+                byDay[d][p].push(lesson)
+            })
+
+            const transformed = {}
+
+            const globalMaxPeriod = Math.max(
+                ...Object.values(byDay).flatMap(day => Object.keys(day).map(Number))
+            )
+
+            Object.keys(byDay).sort().forEach(d => {
+                const dayLessons = byDay[d]
+                const arr = []
+
+                for (let p = 1; p <= globalMaxPeriod; p++) {
+                    const lessons = dayLessons[p]
+
+                    if (lessons) {
+                        arr.push(lessons
+                            .sort((a, b) => {
+                                if (a.group[0] === "all") return -1
+                                if (b.group[0] === "all") return 1
+                                
+                                return a.group[0].localeCompare(b.group[0])
+                            })
+                            .map(l => ({
+                                start: l.lessonStart,
+                                end: l.lessonEnd,
+                                name: l.name,
+                                teacher: l.teachers[0],
+                                classroom: l.classroom,
+                                class: l.class.join(", "),
+                                group: l.group[0] === "all" ? null : l.group[0].replace("grupa", "gr.")
+                            })))
+                    } else {
+                        arr.push(null) 
+                    }
+                }
+                transformed[d] = {
+                    day: dayNames[Number(d)] ?? d,
+                    data: arr
+                }
+            })
+
+            settings.weekData = { data: transformed }
         })
 }
 
@@ -112,45 +173,54 @@ function createTable(type, container) {
         dayCell.classList.add('day')
 
         const dayParts = day.day.split(',').map(part => part.trim())
-        dayCell.innerText = dayParts.join(', ')
+        dayCell.innerHTML = dayParts.join(', <br>')
 
         row.appendChild(dayCell)
 
-        day.data.forEach(lesson => {
+        day.data.forEach((lessons, index) => {
             const cellContainer = document.createElement('td')
 
-            // cellContainer.style.backgroundColor = randomColorFromStringPastel(
-            //         settings.coloring[type]
-            //             .replace('%name%', lesson.name)
-            //             .replace('%teacher%', lesson.teacher)
-            //             .replace('%class%', lesson.class)
-            //     )
+            if (lessons != null) {
+                lessons.forEach((lesson, i) => {
+                    const cell = document.createElement('div')
+                    cell.classList.add("lesson-cell")
 
-            const cell = document.createElement('div')
-            cell.classList.add("lesson-cell")
+                    cell.style.backgroundColor = randomColorFromString(
+                        settings.coloring[type]
+                            .replace('%name%', lesson.name)
+                            .replace('%teacher%', lesson.teacher)
+                            .replace('%class%', lesson.class)
+                    )
 
-            if (lesson != null) {
-                cell.style.backgroundColor = randomColorFromString(
-                    settings.coloring[type]
+                    const groupBadge = lesson.group
+                        ? `<span class="group-badge">${lesson.group}</span> `
+                        : ''
+
+                    cell.innerHTML = groupBadge + settings.formats[type]
                         .replace('%name%', lesson.name)
-                        .replace('%teacher%', lesson.teacher)
-                        .replace('%class%', lesson.class)
-                )
+                        .replace('%teacher%', `<a class="colorText" href="/teacher?teacher=${encodeURIComponent(lesson.teacher)}">${lesson.teacher}</a>`)
+                        .replace('%class%', `<a class="colorText" href="/class?class=${encodeURIComponent(lesson.class)}">${lesson.class}</a>`)
+                        .replace('%classroom%', `<a class="colorText" href="/classroom?classroom=${encodeURIComponent(lesson.classroom)}">${lesson.classroom}</a>`)
 
-                cell.innerHTML = settings.formats[type]
-                    .replace('%name%', lesson.name)
-                    .replace('%teacher%', `<a class="colorText" href="/teacher?teacher=${encodeURIComponent(lesson.teacher)}">${lesson.teacher}</a>`)
-                    .replace('%class%', `<a class="colorText" href="/class?class=${encodeURIComponent(lesson.class)}">${lesson.class}</a>`)
-                    .replace('%classroom%', lesson.classroom)
+                    cellContainer.appendChild(cell)
+                })
             } else {
-                cell.style.backgroundColor = "var(--dgray)"
-                cell.innerHTML = "No<br>Class"
+                const hasLessonAfter = day.data.slice(index + 1).some(l => l !== null)
+
+                if (hasLessonAfter) {
+                    const cell = document.createElement('div')
+
+                    cell.classList.add("lesson-cell")
+                    cell.style.backgroundColor = "var(--dgray)"
+                    cell.innerHTML = "No<br>Class"
+
+                    cellContainer.appendChild(cell)
+                }
             }
 
-            cellContainer.appendChild(cell)
             row.appendChild(cellContainer)
         })
-
+        
         const missing = maxLessons - day.data.length;
         for (let i = 0; i < missing; i++) {
             const emptyCell = document.createElement('td')
@@ -169,23 +239,22 @@ function setWeekOptions(element, data, primary = null) {
     data.forEach((week) => {
         const option = document.createElement('option')
 
-        if (week === primary) {
+        if (week.id === primary) {
             option.selected = true
-            option.innerHTML = `${week} (current)`
+            option.innerHTML = `${week.dateFrom} [${week.id}] (current)`
         } else {
-            option.innerHTML = `${week}`
+            option.innerHTML = `${week.dateFrom} [${week.id}]`
         }
 
-        option.value = week
+        option.value = week.id
         element.appendChild(option)
     })
 }
 
-function setMainOptions(element, data, primary = null) {
+function setMainOptions(element, data, primary = null, searchable) {
     data.forEach((info) => {
         const option = document.createElement('option')
-
-        if (info === "Koordinators") return
+        if (info === "Koordinators") return 
 
         if (info === primary) {
             option.selected = true
@@ -196,6 +265,13 @@ function setMainOptions(element, data, primary = null) {
 
         element.appendChild(option)
     })
+
+    searchable && makeSearchable(element)
+}
+
+// turns a select element, into a searchable one (for search.js)
+function makeSearchable(element) {
+    element.style.display = "none"
 }
 
 //
@@ -212,22 +288,15 @@ function hashCode(str) {
 
 function randomColorFromString(str) {
     const hue = Math.abs(hashCode(str)) % 360
-    const sat = 60 + (Math.abs(hashCode(str)) % 20) 
+    const sat = 50 + (Math.abs(hashCode(str)) % 30) 
 
     return `hsl(${hue}, ${sat}%, 25%)`
-}
-
-function randomColorFromStringPastel(str) {
-    const hue = Math.abs(hashCode(str)) % 360
-    const sat = 90 + (Math.abs(hashCode(str)) % 20) 
-
-    return `hsl(${hue}, ${sat}%, 30%)`
 }
 
 //
 //   main
 //
-export async function setup(type, ignore = [false, false]) {
+export async function setup(type, ignore = [false, false], searchable = false) {
     const table = document.getElementById('tableContainer')
 
     // get information from API
@@ -240,7 +309,7 @@ export async function setup(type, ignore = [false, false]) {
     settings.elements.week.addEventListener('change', async (e) => {
         settings.values.week = e.target.value
 
-        await getWeekData(type, settings.values.week, settings.values.main)
+        await getWeekData(type, settings.values.week, settings.values.main, searchable)
         createTable(type, table)
     })
 
@@ -250,7 +319,7 @@ export async function setup(type, ignore = [false, false]) {
         // Store last lookup in localStorage
         localStorage.setItem("lastLookup" + (type.charAt(0).toUpperCase() + type.slice(1)), settings.values.main)
 
-        await getWeekData(type, settings.values.week, settings.values.main)
+        await getWeekData(type, settings.values.week, settings.values.main, searchable)
         createTable(type, table)
     })
 }
