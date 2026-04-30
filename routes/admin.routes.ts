@@ -11,7 +11,7 @@ router.get('/', userAuth, requirePermission('admin'), (_, res) => {
     res.render("admin/index")
 })
 
-router.get(`/refreshDatabase`, userAuth, requirePermission('admin'), (req, res) => {
+router.post(`/refreshDatabase`, userAuth, requirePermission('admin'), (req, res) => {
     console.warn("Manual database refresh from panel")
 
     scraper.reparseAllWeeksInDatabase()
@@ -19,7 +19,7 @@ router.get(`/refreshDatabase`, userAuth, requirePermission('admin'), (req, res) 
     res.redirect('/admin')
 })
 
-router.get(`/refreshWeeks`, userAuth, requirePermission('admin'), (req, res) => {
+router.post(`/refreshWeeks`, userAuth, requirePermission('admin'), (req, res) => {
     console.warn("Manual week refresh from panel")
 
     scraper.storeAllWeeksToDatabase()
@@ -27,7 +27,7 @@ router.get(`/refreshWeeks`, userAuth, requirePermission('admin'), (req, res) => 
     res.redirect('/admin')
 })
 
-router.get(`/sendTestNotification`, userAuth, requirePermission('admin'), (req, res) => {
+router.post(`/sendTestNotification`, userAuth, requirePermission('admin'), (req, res) => {
     console.warn("Manual test notification sent from panel")
 
     express.sendWSMessage(JSON.stringify({
@@ -39,14 +39,13 @@ router.get(`/sendTestNotification`, userAuth, requirePermission('admin'), (req, 
     res.redirect('/admin')
 })
 
-router.get(`/sendSpecificTestNotification`, userAuth, requirePermission('admin'), (req, res) => {
-    const { clazz } = req.query || "all"
-
+router.post(`/sendSpecificTestNotification`, userAuth, requirePermission('admin'), (req, res) => {
+    const { week, clazz, type } = req.body
     console.warn("Manual test notification sent from panel")
 
     express.sendWSMessage(JSON.stringify({
-        week: scraper.currentWeek,
-        type: "test",
+        week: week,
+        type,
         changedClasses: [ String(clazz) ]
     }))
 
