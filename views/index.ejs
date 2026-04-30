@@ -8,11 +8,9 @@
     <a href="/classroom">lookup classroom</a>
 </div>
 
-<% if (user.role == 'admin' || user.role == 'manager') { %>
+<% if (typeof user !== 'undefined' && user && typeof user.permissions !== 'undefined' && user.permissions && user.permissions.includes("admin")) { %>
     <div class="main flex-col">
         <h2>special</h2>
-        <% if (user.role == 'admin') { %>
-            <a href="/admin">goto admin panel</a>
-        <% } %>
+        <a href="/admin">goto admin panel</a>
     </div>
 <% } %>

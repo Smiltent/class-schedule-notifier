@@ -7,7 +7,6 @@ import User from "@/models/User"
 import Role from "@/models/Role"
 
 async function root(req: Request, res: Response, next: NextFunction) {
-    // EJS locals
     const token = req.cookies?.token
     if (token) {
         try {
@@ -41,21 +40,21 @@ async function root(req: Request, res: Response, next: NextFunction) {
         res.locals.user = { loggedIn: false }
     }
 
-    // [DEPRECATED] sets the http status local, used for error.ejs
     const ogStatus = res.status.bind(res)
     res.status = (code: number) => {
         res.locals.httpStatus = code
         return ogStatus(code)
     }
 
-    // [DEPRECATED] return http status
-    res.locals.dType = ""
     res.locals.httpStatus = res.statusCode
-    
-    next()
+    res.locals.dType = ""
 
     // debug
-    console.debug(`(${res.locals.user.name ?? "guest"}) ${getClientIp(req)} | ${req.method} ${res.statusCode} ${req.originalUrl}`)
+    res.on("finish", () => {
+        console.debug(`(${res.locals.user?.name ?? "guest"}) ${getClientIp(req)} | ${req.method} ${res.statusCode} ${req.originalUrl}`)
+    })
+
+    next()
 }
 
 export { root }
