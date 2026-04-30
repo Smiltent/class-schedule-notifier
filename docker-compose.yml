@@ -1,23 +1,7 @@
 
-#
-#  By default, this Docker Compose file is setup to work in Smil's docker setup.
-#
-#  If you want to host this yourself,
-#  make sure you use a different Docker Compose file that fits your needs.
-#
-
 services:
-  schedule:
-    build: ./class-schedule-notifier # CHANGE ME!
-    container_name: "School_Schedule"
+  edu:
+    build: ./edu
+    container_name: "Edu"
     restart: unless-stopped
-    env_file: .env # CHANGE ME!
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.schedule.rule=Host(`${URL_SCHEDULE}`)" # CHANGE ME!
-      - "traefik.http.routers.schedule.entrypoints=websecure"
-      - "traefik.http.routers.schedule.tls=true"
-      - "traefik.http.routers.schedule.tls.certresolver=letsencrypt"
-      - "traefik.http.services.schedule.loadbalancer.server.port=8080"
-    networks:
-      - traefik
+    env_file: .env
