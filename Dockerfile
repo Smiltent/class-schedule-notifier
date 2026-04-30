@@ -11,4 +11,4 @@ RUN bun install --frozen-lockfile
 COPY . .
 EXPOSE 8080
 
-CMD ["bun", "run", "index.ts"]
+CMD ["bun", "run", "start"]

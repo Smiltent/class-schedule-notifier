@@ -34,6 +34,7 @@ async function root(req: Request, res: Response, next: NextFunction) {
             }
         } catch (err) {
             console.error(`JWT Authentication error: ${err}`)
+            res.clearCookie("token")
             res.locals.user = { loggedIn: false }
         }
     } else {

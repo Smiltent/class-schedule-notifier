@@ -1,21 +1,26 @@
 
 // ================= IMPORTS =================
-import Database from "./src/MongoDB.ts"
+import Database from "./src/Mongo.ts"
 import Express from "./src/Express.ts"
 import Scraper from "./src/Scraper.ts"
 
 import logging from "./util/log.ts"
 require("dotenv").config()
 
-// ================= VARIABLES =================
-var DEBUG_MODE: boolean = false
+// ================= ARGUMENTS =================
+import args from "./util/args.ts"
+const argDEBUG = args("--debug", "-d")
+logging(argDEBUG)
 
-// ================= ARGUMENTS ================= 
-const argDEBUG = process.argv.includes("--debug") || process.argv.includes("-d")
-argDEBUG ? DEBUG_MODE = true : DEBUG_MODE = false
-logging(DEBUG_MODE)
+// ================= MAIN ================= 
+export let scraper: Scraper
+export let express: Express
+async function main() {
+    const db = new Database(process.env.CONNECTION_STRING!)
+    await db.ready
 
-// ================= MAIN =================
-new Database(String(process.env.CONNECTION_STRING))
-export const scraper = new Scraper(String(process.env.WEBSITE_URL))
-export const express = new Express(String(process.env.PORT) || "3000")
+    scraper = new Scraper(process.env.WEBSITE_URL!)
+    express = new Express(process.env.PORT! || "3000")
+}
+
+main()

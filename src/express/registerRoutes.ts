@@ -21,7 +21,7 @@ async function registerRoutesInDir(app: Application, dir: string, baseMount: str
             const router = mod.default
 
             if (!router || typeof router !== "function") {
-                console.warn(`Skipping ${file.name} - no default export!`)
+                console.debug(`Skipping ${file.name} - no default export!`)
                 continue
             }
 

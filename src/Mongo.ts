@@ -3,8 +3,10 @@ import migrations from "@/util/migrations"
 import mongoose from "mongoose"
 
 export default class Database {
+    public ready: Promise<void>
+
     constructor(uri: string) {
-        this.connect(uri)
+        this.ready = this.connect(uri)
     }
 
     private async connect(uri: string) {

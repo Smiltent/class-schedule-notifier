@@ -73,7 +73,7 @@ async function getSchoolData(type, ignore, searchable) {
 async function getWeekData(type, week, getter) {
     const dayNames = settings.weekDayNames[week] ?? ["0", "1", "2", "3", "4"]
 
-    await fetch(`${settings.url}/${type}/${getter}/week/${week}`)
+    await fetch(`${settings.url}/${type}/${encodeURIComponent(getter)}/week/${week}`)
         .then(res => res.json())
         .then((data) => {
             const byDay = {}
